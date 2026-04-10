@@ -12,3 +12,7 @@ LLM Frontend for Power Users
 ## License
 
 AGPL-3.0
+## Repository Documentation
+
+- Repo analysis: `docs/repo-analysis.md`
+
