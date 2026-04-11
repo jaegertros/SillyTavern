@@ -758,6 +758,10 @@ async function setBackground(bg, url) {
     saveSettingsDebounced();
 }
 
+if (typeof window !== 'undefined') {
+    window.setBackground = setBackground;
+}
+
 async function delBackground(bg) {
     await fetch('/api/backgrounds/delete', {
         method: 'POST',
