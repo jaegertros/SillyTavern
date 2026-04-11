@@ -15,7 +15,7 @@ Use this file to track the upstream source and the currently pinned commit for e
 | Extension-QuickPersona | https://github.com/SillyTavern/Extension-QuickPersona | 5509fb6 |
 | Guided-Generations | https://github.com/Samueras/Guided-Generations | 9b6caa6 |
 | GuidedGenerations-Extension | https://github.com/Samueras/GuidedGenerations-Extension | 1cbbebe |
-| NemoPresetExt | https://github.com/NemoVonNirgend/NemoPresetExt | 60dbb26 |
+| NemoPresetExt | https://github.com/NemoVonNirgend/NemoPresetExt | 868bd86 |
 | rpg-companion-sillytavern | https://github.com/SpicyMarinara/rpg-companion-sillytavern | bda4320 |
 | SillyTavern-AlternateDescriptions | https://github.com/nbrown725/SillyTavern-AlternateDescriptions | 980f932 |
 | SillyTavern-AlternativeMarkdownConverter | https://github.com/LenAnderson/SillyTavern-AlternativeMarkdownConverter | 02ee849 |
