@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-import vectra from 'vectra';
+import * as lancedb from '@lancedb/lancedb';
 import express from 'express';
 import sanitize from 'sanitize-filename';
 
@@ -262,24 +262,31 @@ function getModelScope(sourceSettings) {
     return (sourceSettings?.model || '');
 }
 
+/** @type {string} Name of the vectors table within each LanceDB database */
+const VECTORS_TABLE = 'vectors';
+
 /**
- * Gets the index for the vector collection
+ * Opens (or creates) a LanceDB database + table for the given collection.
+ * Each collection/source/model combination gets its own LanceDB directory.
+ *
  * @param {import('../users.js').UserDirectoryList} directories - User directories
  * @param {string} collectionId - The collection ID
  * @param {string} source - The source of the vector
  * @param {object} sourceSettings - The model for the source
- * @returns {Promise<vectra.LocalIndex>} - The index for the collection
+ * @returns {Promise<{ db: import('@lancedb/lancedb').Connection, table: import('@lancedb/lancedb').Table | null, dbPath: string }>}
  */
 async function getIndex(directories, collectionId, source, sourceSettings) {
     const model = getModelScope(sourceSettings);
-    const pathToFile = path.join(directories.vectors, sanitize(source), sanitize(collectionId), sanitize(model));
-    const store = new vectra.LocalIndex(pathToFile);
+    const dbPath = path.join(directories.vectors, sanitize(source), sanitize(collectionId), sanitize(model));
 
-    if (!await store.isIndexCreated()) {
-        await store.createIndex();
-    }
+    // Ensure the directory exists
+    await fs.promises.mkdir(dbPath, { recursive: true });
 
-    return store;
+    const db = await lancedb.connect(dbPath);
+    const tableNames = await db.tableNames();
+    const table = tableNames.includes(VECTORS_TABLE) ? await db.openTable(VECTORS_TABLE) : null;
+
+    return { db, table, dbPath };
 }
 
 /**
@@ -291,19 +298,26 @@ async function getIndex(directories, collectionId, source, sourceSettings) {
  * @param {{ hash: number; text: string; index: number; }[]} items - The items to insert
  */
 async function insertVectorItems(directories, collectionId, source, sourceSettings, items) {
-    const store = await getIndex(directories, collectionId, source, sourceSettings);
-
-    await store.beginUpdate();
+    const { db, table } = await getIndex(directories, collectionId, source, sourceSettings);
 
     const vectors = await getBatchVector(source, sourceSettings, items.map(x => x.text), false, directories);
 
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const vector = vectors[i];
-        await store.upsertItem({ vector: vector, metadata: { hash: item.hash, text: item.text, index: item.index } });
-    }
+    const rows = items.map((item, i) => ({
+        vector: vectors[i],
+        hash: item.hash,
+        text: item.text,
+        index: item.index,
+    }));
 
-    await store.endUpdate();
+    if (table) {
+        // Delete existing items with the same hashes, then add new ones (upsert)
+        const hashes = items.map(x => x.hash);
+        await table.delete(`hash IN (${hashes.join(',')})`);
+        await table.add(rows);
+    } else {
+        // First insert — create the table
+        await db.createTable(VECTORS_TABLE, rows);
+    }
 }
 
 /**
@@ -315,10 +329,14 @@ async function insertVectorItems(directories, collectionId, source, sourceSettin
  * @returns {Promise<number[]>} - The hashes of the items in the collection
  */
 async function getSavedHashes(directories, collectionId, source, sourceSettings) {
-    const store = await getIndex(directories, collectionId, source, sourceSettings);
+    const { table } = await getIndex(directories, collectionId, source, sourceSettings);
 
-    const items = await store.listItems();
-    const hashes = items.map(x => Number(x.metadata.hash));
+    if (!table) {
+        return [];
+    }
+
+    const items = await table.query().select(['hash']).toArray();
+    const hashes = items.map(x => Number(x.hash));
 
     return hashes;
 }
@@ -332,16 +350,23 @@ async function getSavedHashes(directories, collectionId, source, sourceSettings)
  * @param {number[]} hashes - The hashes of the items to delete
  */
 async function deleteVectorItems(directories, collectionId, source, sourceSettings, hashes) {
-    const store = await getIndex(directories, collectionId, source, sourceSettings);
-    const items = await store.listItemsByMetadata({ hash: { '$in': hashes } });
+    const { table } = await getIndex(directories, collectionId, source, sourceSettings);
 
-    await store.beginUpdate();
-
-    for (const item of items) {
-        await store.deleteItem(item.id);
+    if (!table || hashes.length === 0) {
+        return;
     }
 
-    await store.endUpdate();
+    await table.delete(`hash IN (${hashes.join(',')})`);
+}
+
+/**
+ * Converts LanceDB distance (lower = more similar) to a similarity score (higher = more similar).
+ * Uses cosine distance: similarity = 1 - distance.
+ * @param {number} distance - The distance value from LanceDB
+ * @returns {number} - A similarity score where higher is more similar
+ */
+function distanceToScore(distance) {
+    return 1 - distance;
 }
 
 /**
@@ -356,12 +381,24 @@ async function deleteVectorItems(directories, collectionId, source, sourceSettin
  * @returns {Promise<{hashes: number[], metadata: object[]}>} - The metadata of the items that match the search text
  */
 async function queryCollection(directories, collectionId, source, sourceSettings, searchText, topK, threshold) {
-    const store = await getIndex(directories, collectionId, source, sourceSettings);
-    const vector = await getVector(source, sourceSettings, searchText, true, directories);
+    const { table } = await getIndex(directories, collectionId, source, sourceSettings);
 
-    const result = await store.queryItems(vector, topK);
-    const metadata = result.filter(x => x.score >= threshold).map(x => x.item.metadata);
-    const hashes = result.map(x => Number(x.item.metadata.hash));
+    if (!table) {
+        return { metadata: [], hashes: [] };
+    }
+
+    const vector = await getVector(source, sourceSettings, searchText, true, directories);
+    const results = await table.search(vector).limit(topK).toArray();
+
+    const scored = results.map(r => ({
+        score: distanceToScore(r._distance),
+        hash: Number(r.hash),
+        text: r.text,
+        index: r.index,
+    }));
+
+    const metadata = scored.filter(x => x.score >= threshold).map(x => ({ hash: x.hash, text: x.text, index: x.index }));
+    const hashes = scored.map(x => x.hash);
     return { metadata, hashes };
 }
 
@@ -382,15 +419,26 @@ async function multiQueryCollection(directories, collectionIds, source, sourceSe
     const results = [];
 
     for (const collectionId of collectionIds) {
-        const store = await getIndex(directories, collectionId, source, sourceSettings);
-        const result = await store.queryItems(vector, topK);
-        results.push(...result.map(result => ({ collectionId, result })));
+        const { table } = await getIndex(directories, collectionId, source, sourceSettings);
+
+        if (!table) {
+            continue;
+        }
+
+        const queryResults = await table.search(vector).limit(topK).toArray();
+        results.push(...queryResults.map(r => ({
+            collectionId,
+            score: distanceToScore(r._distance),
+            hash: Number(r.hash),
+            text: r.text,
+            index: r.index,
+        })));
     }
 
     // Sort results by descending similarity, apply threshold, and take top K
     const sortedResults = results
-        .sort((a, b) => b.result.score - a.result.score)
-        .filter(x => x.result.score >= threshold)
+        .sort((a, b) => b.score - a.score)
+        .filter(x => x.score >= threshold)
         .slice(0, topK);
 
     /**
@@ -403,8 +451,8 @@ async function multiQueryCollection(directories, collectionIds, source, sourceSe
             groupedResults[result.collectionId] = { hashes: [], metadata: [] };
         }
 
-        groupedResults[result.collectionId].hashes.push(Number(result.result.item.metadata.hash));
-        groupedResults[result.collectionId].metadata.push(result.result.item.metadata);
+        groupedResults[result.collectionId].hashes.push(result.hash);
+        groupedResults[result.collectionId].metadata.push({ hash: result.hash, text: result.text, index: result.index });
     }
 
     return groupedResults;
@@ -418,19 +466,17 @@ async function multiQueryCollection(directories, collectionIds, source, sourceSe
  * @returns {Promise<any>} Promise
  */
 async function regenerateCorruptedIndexErrorHandler(req, res, error) {
-    if (error instanceof SyntaxError && !req.query.regenerated) {
+    if (!req.query.regenerated) {
         const collectionId = String(req.body.collectionId);
         const source = String(req.body.source) || 'transformers';
         const sourceSettings = getSourceSettings(source, req);
 
         if (collectionId && source) {
-            const index = await getIndex(req.user.directories, collectionId, source, sourceSettings);
-            const exists = await index.isIndexCreated();
+            const { db, table, dbPath } = await getIndex(req.user.directories, collectionId, source, sourceSettings);
 
-            if (exists) {
-                const path = index.folderPath;
-                console.warn(`Corrupted index detected at ${path}, regenerating...`);
-                await index.deleteIndex();
+            if (table) {
+                console.warn(`Corrupted index detected at ${dbPath}, regenerating...`);
+                await db.dropTable(VECTORS_TABLE);
                 return res.redirect(307, req.originalUrl + '?regenerated=true');
             }
         }

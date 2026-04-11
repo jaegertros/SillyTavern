@@ -30,7 +30,7 @@ const tasks = {
         quantized: true,
     },
     'feature-extraction': {
-        defaultModel: 'Xenova/all-mpnet-base-v2',
+        defaultModel: 'Xenova/all-MiniLM-L6-v2',
         pipeline: null,
         configField: 'extensions.models.embedding',
         quantized: true,

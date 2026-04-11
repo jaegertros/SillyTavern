@@ -432,7 +432,7 @@ export class SlashCommandClosure {
                 executor.onProgress = (subDone, subTotal)=>this.onProgress?.(done + subDone, this.commandCount);
                 const isStepping = this.debugController?.testStepping(this);
                 if (this.debugController) {
-                    this.debugController.isStepping = false || this.debugController.isSteppingInto;
+                    this.debugController.isStepping = this.debugController.isSteppingInto;
                 }
                 try {
                     this.scope.pipe = await executor.command.callback(args, value ?? '');

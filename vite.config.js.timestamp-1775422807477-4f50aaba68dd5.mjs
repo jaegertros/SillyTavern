@@ -1,0 +1,47 @@
+// vite.config.js
+import { defineConfig } from "file:///sessions/awesome-sweet-cray/mnt/SillyTavern/SillyTavern/node_modules/vite/dist/node/index.js";
+import vue from "file:///sessions/awesome-sweet-cray/mnt/SillyTavern/SillyTavern/node_modules/@vitejs/plugin-vue/dist/index.mjs";
+import path from "node:path";
+var __vite_injected_original_dirname = "/sessions/awesome-sweet-cray/mnt/SillyTavern/SillyTavern";
+var vite_config_default = defineConfig({
+  plugins: [vue()],
+  // Disable public asset copying — we're building a library, not an app.
+  // Without this, Vite would copy public/ into public/vue-dist/ since outDir is nested inside publicDir.
+  publicDir: false,
+  build: {
+    outDir: "public/vue-dist",
+    emptyOutDir: false,
+    lib: {
+      entry: {
+        "extensions/token-counter/index": "public/vue-src/extensions/token-counter/index.js"
+      },
+      formats: ["es"]
+    },
+    rollupOptions: {
+      // Externalize all imports to existing SillyTavern modules.
+      // These resolve at browser runtime via express.static.
+      external: (id) => {
+        if (id.includes("node_modules")) return false;
+        if (id.includes("/vue-src/") || id.includes("\\vue-src\\")) return false;
+        if (id.endsWith(".vue")) return false;
+        if (id.includes("/composables/")) return false;
+        if (id.startsWith(".") || id.startsWith("/")) return true;
+        return false;
+      },
+      output: {
+        // Preserve directory structure in output
+        entryFileNames: "[name].js",
+        chunkFileNames: "chunks/[name]-[hash].js"
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      "@st": path.resolve(__vite_injected_original_dirname, "public")
+    }
+  }
+});
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcuanMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9kaXJuYW1lID0gXCIvc2Vzc2lvbnMvYXdlc29tZS1zd2VldC1jcmF5L21udC9TaWxseVRhdmVybi9TaWxseVRhdmVyblwiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9maWxlbmFtZSA9IFwiL3Nlc3Npb25zL2F3ZXNvbWUtc3dlZXQtY3JheS9tbnQvU2lsbHlUYXZlcm4vU2lsbHlUYXZlcm4vdml0ZS5jb25maWcuanNcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfaW1wb3J0X21ldGFfdXJsID0gXCJmaWxlOi8vL3Nlc3Npb25zL2F3ZXNvbWUtc3dlZXQtY3JheS9tbnQvU2lsbHlUYXZlcm4vU2lsbHlUYXZlcm4vdml0ZS5jb25maWcuanNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tICd2aXRlJztcbmltcG9ydCB2dWUgZnJvbSAnQHZpdGVqcy9wbHVnaW4tdnVlJztcbmltcG9ydCBwYXRoIGZyb20gJ25vZGU6cGF0aCc7XG5cbmV4cG9ydCBkZWZhdWx0IGRlZmluZUNvbmZpZyh7XG4gICAgcGx1Z2luczogW3Z1ZSgpXSxcbiAgICAvLyBEaXNhYmxlIHB1YmxpYyBhc3NldCBjb3B5aW5nIFx1MjAxNCB3ZSdyZSBidWlsZGluZyBhIGxpYnJhcnksIG5vdCBhbiBhcHAuXG4gICAgLy8gV2l0aG91dCB0aGlzLCBWaXRlIHdvdWxkIGNvcHkgcHVibGljLyBpbnRvIHB1YmxpYy92dWUtZGlzdC8gc2luY2Ugb3V0RGlyIGlzIG5lc3RlZCBpbnNpZGUgcHVibGljRGlyLlxuICAgIHB1YmxpY0RpcjogZmFsc2UsXG4gICAgYnVpbGQ6IHtcbiAgICAgICAgb3V0RGlyOiAncHVibGljL3Z1ZS1kaXN0JyxcbiAgICAgICAgZW1wdHlPdXREaXI6IGZhbHNlLFxuICAgICAgICBsaWI6IHtcbiAgICAgICAgICAgIGVudHJ5OiB7XG4gICAgICAgICAgICAgICAgJ2V4dGVuc2lvbnMvdG9rZW4tY291bnRlci9pbmRleCc6ICdwdWJsaWMvdnVlLXNyYy9leHRlbnNpb25zL3Rva2VuLWNvdW50ZXIvaW5kZXguanMnLFxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIGZvcm1hdHM6IFsnZXMnXSxcbiAgICAgICAgfSxcbiAgICAgICAgcm9sbHVwT3B0aW9uczoge1xuICAgICAgICAgICAgLy8gRXh0ZXJuYWxpemUgYWxsIGltcG9ydHMgdG8gZXhpc3RpbmcgU2lsbHlUYXZlcm4gbW9kdWxlcy5cbiAgICAgICAgICAgIC8vIFRoZXNlIHJlc29sdmUgYXQgYnJvd3NlciBydW50aW1lIHZpYSBleHByZXNzLnN0YXRpYy5cbiAgICAgICAgICAgIGV4dGVybmFsOiAoaWQpID0+IHtcbiAgICAgICAgICAgICAgICAvLyBBbHdheXMgYnVuZGxlIG5vZGVfbW9kdWxlcyBwYWNrYWdlcyAoVnVlLCBAdnVlLyosIGV0Yy4pXG4gICAgICAgICAgICAgICAgLy8gUm9sbHVwIGNhbGxzIHRoaXMgZnVuY3Rpb24gZm9yIGJvdGggaW1wb3J0IHNwZWNpZmllcnMgYW5kIHJlc29sdmVkIGFic29sdXRlIHBhdGhzLFxuICAgICAgICAgICAgICAgIC8vIHNvIHdlIG11c3QgY2hlY2sgYm90aCBmb3Jtcy5cbiAgICAgICAgICAgICAgICBpZiAoaWQuaW5jbHVkZXMoJ25vZGVfbW9kdWxlcycpKSByZXR1cm4gZmFsc2U7XG4gICAgICAgICAgICAgICAgLy8gTmV2ZXIgZXh0ZXJuYWxpemUgb3VyIG93biB2dWUtc3JjIGZpbGVzXG4gICAgICAgICAgICAgICAgaWYgKGlkLmluY2x1ZGVzKCcvdnVlLXNyYy8nKSB8fCBpZC5pbmNsdWRlcygnXFxcXHZ1ZS1zcmNcXFxcJykpIHJldHVybiBmYWxzZTtcbiAgICAgICAgICAgICAgICAvLyBCdW5kbGUgLnZ1ZSBmaWxlc1xuICAgICAgICAgICAgICAgIGlmIChpZC5lbmRzV2l0aCgnLnZ1ZScpKSByZXR1cm4gZmFsc2U7XG4gICAgICAgICAgICAgICAgLy8gQnVuZGxlIGNvbXBvc2FibGVzICh0aGV5J3JlIHNtYWxsIGFuZCBWdWUtc3BlY2lmaWMpXG4gICAgICAgICAgICAgICAgaWYgKGlkLmluY2x1ZGVzKCcvY29tcG9zYWJsZXMvJykpIHJldHVybiBmYWxzZTtcbiAgICAgICAgICAgICAgICAvLyBFeHRlcm5hbGl6ZSByZWxhdGl2ZSBhbmQgYWJzb2x1dGUgaW1wb3J0cyB0byBTVCBjb3JlIG1vZHVsZXNcbiAgICAgICAgICAgICAgICBpZiAoaWQuc3RhcnRzV2l0aCgnLicpIHx8IGlkLnN0YXJ0c1dpdGgoJy8nKSkgcmV0dXJuIHRydWU7XG4gICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlO1xuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIG91dHB1dDoge1xuICAgICAgICAgICAgICAgIC8vIFByZXNlcnZlIGRpcmVjdG9yeSBzdHJ1Y3R1cmUgaW4gb3V0cHV0XG4gICAgICAgICAgICAgICAgZW50cnlGaWxlTmFtZXM6ICdbbmFtZV0uanMnLFxuICAgICAgICAgICAgICAgIGNodW5rRmlsZU5hbWVzOiAnY2h1bmtzL1tuYW1lXS1baGFzaF0uanMnLFxuICAgICAgICAgICAgfSxcbiAgICAgICAgfSxcbiAgICB9LFxuICAgIHJlc29sdmU6IHtcbiAgICAgICAgYWxpYXM6IHtcbiAgICAgICAgICAgICdAc3QnOiBwYXRoLnJlc29sdmUoX19kaXJuYW1lLCAncHVibGljJyksXG4gICAgICAgIH0sXG4gICAgfSxcbn0pO1xuIl0sCiAgIm1hcHBpbmdzIjogIjtBQUEwVixTQUFTLG9CQUFvQjtBQUN2WCxPQUFPLFNBQVM7QUFDaEIsT0FBTyxVQUFVO0FBRmpCLElBQU0sbUNBQW1DO0FBSXpDLElBQU8sc0JBQVEsYUFBYTtBQUFBLEVBQ3hCLFNBQVMsQ0FBQyxJQUFJLENBQUM7QUFBQTtBQUFBO0FBQUEsRUFHZixXQUFXO0FBQUEsRUFDWCxPQUFPO0FBQUEsSUFDSCxRQUFRO0FBQUEsSUFDUixhQUFhO0FBQUEsSUFDYixLQUFLO0FBQUEsTUFDRCxPQUFPO0FBQUEsUUFDSCxrQ0FBa0M7QUFBQSxNQUN0QztBQUFBLE1BQ0EsU0FBUyxDQUFDLElBQUk7QUFBQSxJQUNsQjtBQUFBLElBQ0EsZUFBZTtBQUFBO0FBQUE7QUFBQSxNQUdYLFVBQVUsQ0FBQyxPQUFPO0FBSWQsWUFBSSxHQUFHLFNBQVMsY0FBYyxFQUFHLFFBQU87QUFFeEMsWUFBSSxHQUFHLFNBQVMsV0FBVyxLQUFLLEdBQUcsU0FBUyxhQUFhLEVBQUcsUUFBTztBQUVuRSxZQUFJLEdBQUcsU0FBUyxNQUFNLEVBQUcsUUFBTztBQUVoQyxZQUFJLEdBQUcsU0FBUyxlQUFlLEVBQUcsUUFBTztBQUV6QyxZQUFJLEdBQUcsV0FBVyxHQUFHLEtBQUssR0FBRyxXQUFXLEdBQUcsRUFBRyxRQUFPO0FBQ3JELGVBQU87QUFBQSxNQUNYO0FBQUEsTUFDQSxRQUFRO0FBQUE7QUFBQSxRQUVKLGdCQUFnQjtBQUFBLFFBQ2hCLGdCQUFnQjtBQUFBLE1BQ3BCO0FBQUEsSUFDSjtBQUFBLEVBQ0o7QUFBQSxFQUNBLFNBQVM7QUFBQSxJQUNMLE9BQU87QUFBQSxNQUNILE9BQU8sS0FBSyxRQUFRLGtDQUFXLFFBQVE7QUFBQSxJQUMzQztBQUFBLEVBQ0o7QUFDSixDQUFDOyIsCiAgIm5hbWVzIjogW10KfQo=

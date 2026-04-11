@@ -1,4 +1,3 @@
-import { track as stTrack } from './scripts/dev/tracker.js'; // @st-tracker
 import {
     showdown,
     moment,
@@ -368,8 +367,7 @@ toastr.options = {
 export const characterGroupOverlay = new BulkEditOverlay();
 
 // Markdown converter
-// mesForShowdownParse now lives in ./scripts/message-renderer.js (re-exported below for backward compat)
-export { mesForShowdownParse } from './scripts/message-renderer.js';
+export let mesForShowdownParse; //intended to be used as a context to compare showdown strings against
 /** @type {import('showdown').Converter} */
 export let converter;
 
@@ -491,7 +489,7 @@ async function getClientVersion() {
     }
 }
 
-export function reloadMarkdownProcessor() { stTrack('reloadMarkdownProcessor'); // @st-tracked
+export function reloadMarkdownProcessor() {
     converter = new showdown.Converter({
         emoji: true,
         literalMidWordUnderscores: true,
@@ -511,7 +509,7 @@ export function reloadMarkdownProcessor() { stTrack('reloadMarkdownProcessor'); 
     return converter;
 }
 
-export function getCurrentChatId() { stTrack('getCurrentChatId'); // @st-tracked
+export function getCurrentChatId() {
     if (selected_group) {
         return groups.find(x => x.id == selected_group)?.chat_id;
     }
@@ -618,11 +616,20 @@ export let active_group = '';
 
 export const entitiesFilter = new FilterHelper(printCharactersDebounced);
 
-// getRequestHeaders extracted to ./scripts/request-utils.js
-import { getRequestHeaders } from './scripts/request-utils.js';
-export { getRequestHeaders }; // re-exported for backward compat
+export function getRequestHeaders({ omitContentType = false } = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': token,
+    };
 
-export function getSlideToggleOptions() { stTrack('getSlideToggleOptions'); // @st-tracked
+    if (omitContentType) {
+        delete headers['Content-Type'];
+    }
+
+    return headers;
+}
+
+export function getSlideToggleOptions() {
     return {
         miliseconds: animation_duration * 1.5,
         transitionFunction: animation_duration > 0 ? 'ease-in-out' : 'step-start',
@@ -637,7 +644,7 @@ $.ajaxPrefilter((options, originalOptions, xhr) => {
  * Pings the STserver to check if it is reachable.
  * @returns {Promise<boolean>} True if the server is reachable, false otherwise.
  */
-export async function pingServer() { stTrack('pingServer'); // @st-tracked
+export async function pingServer() {
     try {
         const result = await fetch('api/ping', {
             method: 'POST',
@@ -744,13 +751,13 @@ function initStandaloneMode() {
     }
 }
 
-export function cancelStatusCheck(reason = 'Manually cancelled status check') { stTrack('cancelStatusCheck'); // @st-tracked
+export function cancelStatusCheck(reason = 'Manually cancelled status check') {
     abortStatusCheck?.abort(new AbortReason(reason));
     abortStatusCheck = new AbortController();
     setOnlineStatus('no_connection');
 }
 
-export function displayOnlineStatus() { stTrack('displayOnlineStatus'); // @st-tracked
+export function displayOnlineStatus() {
     if (online_status == 'no_connection') {
         $('.online_status_indicator').removeClass('success');
         $('.online_status_text').text($('#API-status-top').attr('no_connection_text'));
@@ -764,7 +771,7 @@ export function displayOnlineStatus() { stTrack('displayOnlineStatus'); // @st-t
  * Sets the duration of JS animations.
  * @param {number} ms Duration in milliseconds. Resets to default if null.
  */
-export function setAnimationDuration(ms = null) { stTrack('setAnimationDuration'); // @st-tracked
+export function setAnimationDuration(ms = null) {
     animation_duration = ms ?? ANIMATION_DURATION_DEFAULT;
     // Set CSS variable to document
     document.documentElement.style.setProperty('--animation-duration', `${animation_duration}ms`);
@@ -774,7 +781,7 @@ export function setAnimationDuration(ms = null) { stTrack('setAnimationDuration'
  * Sets the currently active character
  * @param {object|number|string} [entityOrKey] - An entity with id property (character, group, tag), or directly an id or tag key. If not provided, the active character is reset to `null`.
  */
-export function setActiveCharacter(entityOrKey) { stTrack('setActiveCharacter'); // @st-tracked
+export function setActiveCharacter(entityOrKey) {
     active_character = entityOrKey ? getTagKeyForEntity(entityOrKey) : null;
     if (active_character) active_group = null;
 }
@@ -783,22 +790,22 @@ export function setActiveCharacter(entityOrKey) { stTrack('setActiveCharacter');
  * Sets the currently active group.
  * @param {object|number|string} [entityOrKey] - An entity with id property (character, group, tag), or directly an id or tag key. If not provided, the active group is reset to `null`.
  */
-export function setActiveGroup(entityOrKey) { stTrack('setActiveGroup'); // @st-tracked
+export function setActiveGroup(entityOrKey) {
     active_group = entityOrKey ? getTagKeyForEntity(entityOrKey) : null;
     if (active_group) active_character = null;
 }
 
-export function startStatusLoading() { stTrack('startStatusLoading'); // @st-tracked
+export function startStatusLoading() {
     $('.api_loading').show();
     $('.api_button').addClass('disabled');
 }
 
-export function stopStatusLoading() { stTrack('stopStatusLoading'); // @st-tracked
+export function stopStatusLoading() {
     $('.api_loading').hide();
     $('.api_button').removeClass('disabled');
 }
 
-export function resultCheckStatus() { stTrack('resultCheckStatus'); // @st-tracked
+export function resultCheckStatus() {
     displayOnlineStatus();
     stopStatusLoading();
 }
@@ -813,7 +820,7 @@ export function resultCheckStatus() { stTrack('resultCheckStatus'); // @st-track
  * @param {boolean} [options.switchMenu=true] Whether to switch the right menu to the character edit menu if the character is already selected.
  * @returns {Promise<void>} A promise that resolves when the character is switched.
  */
-export async function selectCharacterById(id, { switchMenu = true } = {}) { stTrack('selectCharacterById'); // @st-tracked
+export async function selectCharacterById(id, { switchMenu = true } = {}) {
     if (characters[id] === undefined) {
         return;
     }
@@ -933,7 +940,7 @@ function getCharacterBlock(item, id) {
  *
  * @param {boolean} fullRefresh - If true, the list is fully refreshed and the navigation is being reset
  */
-export async function printCharacters(fullRefresh = false) { stTrack('printCharacters'); // @st-tracked
+export async function printCharacters(fullRefresh = false) {
     const storageKey = 'Characters_PerPage';
     const listId = '#rm_print_characters_block';
 
@@ -1062,7 +1069,7 @@ function verifyCharactersSearchSortRule() {
  * @param {string|number} id - The id of this character
  * @returns {Entity} The entity for this character
  */
-export function characterToEntity(character, id) { stTrack('characterToEntity'); // @st-tracked
+export function characterToEntity(character, id) {
     return { item: character, id, type: 'character' };
 }
 
@@ -1072,7 +1079,7 @@ export function characterToEntity(character, id) { stTrack('characterToEntity');
  * @param {Group} group - The group
  * @returns {Entity} The entity for this group
  */
-export function groupToEntity(group) { stTrack('groupToEntity'); // @st-tracked
+export function groupToEntity(group) {
     return { item: group, id: group.id, type: 'group' };
 }
 
@@ -1082,7 +1089,7 @@ export function groupToEntity(group) { stTrack('groupToEntity'); // @st-tracked
  * @param {import('./scripts/tags.js').Tag} tag - The tag
  * @returns {Entity} The entity for this tag
  */
-export function tagToEntity(tag) { stTrack('tagToEntity'); // @st-tracked
+export function tagToEntity(tag) {
     return { item: structuredClone(tag), id: tag.id, type: 'tag', entities: [] };
 }
 
@@ -1096,7 +1103,7 @@ export function tagToEntity(tag) { stTrack('tagToEntity'); // @st-tracked
  * @param {boolean} [param0.doSort] - Whether the entity list should be sorted when returned
  * @returns {Entity[]} All entities
  */
-export function getEntitiesList({ doFilter = false, doSort = true } = {}) { stTrack('getEntitiesList'); // @st-tracked
+export function getEntitiesList({ doFilter = false, doSort = true } = {}) {
     let entities = [
         ...characters.map((item, index) => characterToEntity(item, index)),
         ...groups.map(item => groupToEntity(item)),
@@ -1163,7 +1170,7 @@ export function getEntitiesList({ doFilter = false, doSort = true } = {}) { stTr
     return entities;
 }
 
-export async function getOneCharacter(avatarUrl) { stTrack('getOneCharacter'); // @st-tracked
+export async function getOneCharacter(avatarUrl) {
     const response = await fetch('/api/characters/get', {
         method: 'POST',
         headers: getRequestHeaders(),
@@ -1187,7 +1194,7 @@ export async function getOneCharacter(avatarUrl) { stTrack('getOneCharacter'); /
     }
 }
 
-export function getCharacterSource(chId = this_chid) { stTrack('getCharacterSource'); // @st-tracked
+export function getCharacterSource(chId = this_chid) {
     const character = characters[chId];
 
     if (!character) {
@@ -1234,7 +1241,7 @@ export function getCharacterSource(chId = this_chid) { stTrack('getCharacterSour
     return '';
 }
 
-export async function getCharacters() { stTrack('getCharacters'); // @st-tracked
+export async function getCharacters() {
     const response = await fetch('/api/characters/all', {
         method: 'POST',
         headers: getRequestHeaders(),
@@ -1304,7 +1311,7 @@ async function delChat(chatfile) {
  * @param {string} fileName Name of the chat file to delete (without .jsonl extension)
  * @returns {Promise<void>} A promise that resolves when the chat is deleted.
  */
-export async function deleteCharacterChatByName(characterId, fileName) { stTrack('deleteCharacterChatByName'); // @st-tracked
+export async function deleteCharacterChatByName(characterId, fileName) {
     // Make sure all the data is loaded.
     await unshallowCharacter(characterId);
 
@@ -1344,7 +1351,7 @@ export async function deleteCharacterChatByName(characterId, fileName) { stTrack
     await eventSource.emit(event_types.CHAT_DELETED, fileName);
 }
 
-export async function replaceCurrentChat() { stTrack('replaceCurrentChat'); // @st-tracked
+export async function replaceCurrentChat() {
     await clearChat({ clearData: true });
 
     const chatsResponse = await fetch('/api/characters/chats', {
@@ -1375,7 +1382,7 @@ export async function replaceCurrentChat() { stTrack('replaceCurrentChat'); // @
     }
 }
 
-export async function showMoreMessages(messagesToLoad = null) { stTrack('showMoreMessages'); // @st-tracked
+export async function showMoreMessages(messagesToLoad = null) {
     const firstDisplayedMesId = chatElement.children('.mes').first().attr('mesid');
     let messageId = Number(firstDisplayedMesId);
     let count = messagesToLoad || power_user.chat_truncation || Number.MAX_SAFE_INTEGER;
@@ -1419,7 +1426,7 @@ export async function showMoreMessages(messagesToLoad = null) { stTrack('showMor
     await eventSource.emit(event_types.MORE_MESSAGES_LOADED);
 }
 
-export async function printMessages() { stTrack('printMessages'); // @st-tracked
+export async function printMessages() {
     let startIndex = 0;
     let count = power_user.chat_truncation || Number.MAX_SAFE_INTEGER;
 
@@ -1441,7 +1448,7 @@ export async function printMessages() { stTrack('printMessages'); // @st-tracked
  * @param {Number} [options.startIndex=0] Everything including and after startIndex will be replaced.
  * @param {Boolean} [options.fade=true] When false, the swipe chevrons will not fade in.
  */
-export async function redisplayChat({ targetChat = chat, startIndex = 0, fade = true } = {}) { stTrack('redisplayChat'); // @st-tracked
+export async function redisplayChat({ targetChat = chat, startIndex = 0, fade = true } = {}) {
     const messageElements = chatElement.find('.mes');
     messageElements.removeClass('last_mes');
 
@@ -1476,7 +1483,7 @@ export async function redisplayChat({ targetChat = chat, startIndex = 0, fade = 
     console.info(`Rendered ${targetChat.length - startIndex} messages in ${((performance.now() - t1) / 1000).toFixed(3)} seconds.`);
 }
 
-export function scrollOnMediaLoad() { stTrack('scrollOnMediaLoad'); // @st-tracked
+export function scrollOnMediaLoad() {
     const started = Date.now();
     const media = chatElement.find('.mes_block img, .mes_block video, .mes_block audio').toArray();
     let mediaLoaded = 0;
@@ -1515,7 +1522,7 @@ export function scrollOnMediaLoad() { stTrack('scrollOnMediaLoad'); // @st-track
 /**
  * Cancels the debounced chat save if it is currently pending.
  */
-export function cancelDebouncedChatSave() { stTrack('cancelDebouncedChatSave'); // @st-tracked
+export function cancelDebouncedChatSave() {
     if (chatSaveTimeout) {
         console.debug('Debounced chat save cancelled');
         clearTimeout(chatSaveTimeout);
@@ -1528,7 +1535,7 @@ export function cancelDebouncedChatSave() { stTrack('cancelDebouncedChatSave'); 
  * @param {object} [options] Options
  * @param {boolean} [options.clearData=false] Optionally clear the chat array's contents.
  */
-export async function clearChat({ clearData = false } = {}) { stTrack('clearChat'); // @st-tracked
+export async function clearChat({ clearData = false } = {}) {
     cancelDebouncedChatSave();
     cancelDebouncedMetadataSave();
     closeMessageEditor();
@@ -1549,7 +1556,7 @@ export async function clearChat({ clearData = false } = {}) { stTrack('clearChat
     if (clearData) chat.length = 0;
 }
 
-export async function deleteLastMessage() { stTrack('deleteLastMessage'); // @st-tracked
+export async function deleteLastMessage() {
     deleteItemizedPromptForMessage(chat.length - 1);
     chat.length = chat.length - 1;
     chatElement.children('.mes').last().remove();
@@ -1562,7 +1569,7 @@ export async function deleteLastMessage() { stTrack('deleteLastMessage'); // @st
  * @param {number} [swipeDeletionIndex] Deletes the swipe with that index.
  * @param {boolean} [askConfirmation=false] Whether to ask for confirmation before deleting.
  */
-export async function deleteMessage(id, swipeDeletionIndex = undefined, askConfirmation = false) { stTrack('deleteMessage'); // @st-tracked
+export async function deleteMessage(id, swipeDeletionIndex = undefined, askConfirmation = false) {
     const canDeleteSwipe = swipeDeletionIndex !== undefined && swipeDeletionIndex !== null;
     if (canDeleteSwipe) {
         if (swipeDeletionIndex < 0) {
@@ -1627,7 +1634,7 @@ export const reloadCurrentChat = reloadChatMutex.update.bind(reloadChatMutex);
  * Use `reloadCurrentChat` instead to ensure thread safety.
  * @returns {Promise<void>} A promise that resolves when the chat is reloaded.
  */
-export async function reloadCurrentChatUnsafe() { stTrack('reloadCurrentChatUnsafe'); // @st-tracked
+export async function reloadCurrentChatUnsafe() {
     preserveNeutralChat();
     await clearChat({ clearData: true });
 
@@ -1651,7 +1658,7 @@ export async function reloadCurrentChatUnsafe() { stTrack('reloadCurrentChatUnsa
 /**
  * Send the message currently typed into the chat box.
  */
-export async function sendTextareaMessage() { stTrack('sendTextareaMessage'); // @st-tracked
+export async function sendTextareaMessage() {
     // don't proceed during swipeGenerate()
     if (swipeState == SWIPE_STATE.EDITING) {
         toastr.warning(t`Confirm the edit to start a generation.`, t`You cannot send a message during a swipe-edit.`);
@@ -1688,9 +1695,177 @@ export async function sendTextareaMessage() { stTrack('sendTextareaMessage'); //
     return generation;
 }
 
-// messageFormatting extracted to ./scripts/message-renderer.js
-import { messageFormatting } from './scripts/message-renderer.js';
-export { messageFormatting }; // re-exported for backward compat
+/**
+ * Formats the message text into an HTML string using Markdown and other formatting.
+ * @param {string} mes Message text
+ * @param {string} ch_name Character name
+ * @param {boolean} isSystem If the message was sent by the system
+ * @param {boolean} isUser If the message was sent by the user
+ * @param {number} messageId Message index in chat array
+ * @param {Partial<DOMPurify.Config>} [sanitizerOverrides] DOMPurify sanitizer option overrides
+ * @param {boolean} [isReasoning] If the message is reasoning output
+ * @returns {string} HTML string
+ */
+export function messageFormatting(mes, ch_name, isSystem, isUser, messageId, sanitizerOverrides = {}, isReasoning = false) {
+    if (!mes) {
+        return '';
+    }
+
+    if (Number(messageId) === 0 && !isSystem && !isUser && !isReasoning) {
+        const mesBeforeReplace = mes;
+        const chatMessage = chat[messageId];
+        mes = substituteParams(mes, undefined, ch_name);
+        if (chatMessage && chatMessage.mes === mesBeforeReplace && chatMessage.extra?.display_text !== mesBeforeReplace) {
+            chatMessage.mes = mes;
+        }
+    }
+
+    mesForShowdownParse = mes;
+
+    // Force isSystem = false on comment messages so they get formatted properly
+    if (ch_name === COMMENT_NAME_DEFAULT && isSystem && !isUser) {
+        isSystem = false;
+    }
+
+    // Let hidden messages have markdown
+    if (isSystem && ch_name !== systemUserName) {
+        isSystem = false;
+    }
+
+    // Prompt bias replacement should be applied on the raw message
+    const replacedPromptBias = power_user.user_prompt_bias && substituteParams(power_user.user_prompt_bias);
+    if (!power_user.show_user_prompt_bias && ch_name && !isUser && !isSystem && replacedPromptBias && mes.startsWith(replacedPromptBias)) {
+        mes = mes.slice(replacedPromptBias.length);
+    }
+
+    if (!isSystem) {
+        function getRegexPlacement() {
+            try {
+                if (isReasoning) {
+                    return regex_placement.REASONING;
+                }
+                if (isUser) {
+                    return regex_placement.USER_INPUT;
+                } else if (chat[messageId]?.extra?.type === 'narrator') {
+                    return regex_placement.SLASH_COMMAND;
+                } else {
+                    return regex_placement.AI_OUTPUT;
+                }
+            } catch {
+                return regex_placement.AI_OUTPUT;
+            }
+        }
+
+        const regexPlacement = getRegexPlacement();
+        const usableMessages = chat.map((x, index) => ({ message: x, index: index })).filter(x => !x.message.is_system);
+        const indexOf = usableMessages.findIndex(x => x.index === Number(messageId));
+        const depth = messageId >= 0 && indexOf !== -1 ? (usableMessages.length - indexOf - 1) : undefined;
+
+        // Always override the character name
+        mes = getRegexedString(mes, regexPlacement, {
+            characterOverride: ch_name,
+            isMarkdown: true,
+            depth: depth,
+        });
+    }
+
+    if (power_user.auto_fix_generated_markdown) {
+        mes = fixMarkdown(mes, true);
+    }
+
+    if (!isSystem && power_user.encode_tags) {
+        mes = canUseNegativeLookbehind()
+            ? mes.replaceAll('<', '&lt;').replace(new RegExp('(?<!^|\\n\\s*)>', 'g'), '&gt;')
+            : mes.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    // Make sure reasoning strings are always shown, even if they include "<" or ">"
+    [power_user.reasoning.prefix, power_user.reasoning.suffix].forEach((reasoningString) => {
+        if (!reasoningString || !reasoningString.trim().length) {
+            return;
+        }
+        // Only replace the first occurrence of the reasoning string
+        if (mes.includes(reasoningString)) {
+            mes = mes.replace(reasoningString, escapeHtml(reasoningString));
+        }
+    });
+
+    if (!isSystem) {
+        // Save double quotes in tags as a special character to prevent them from being encoded
+        if (!power_user.encode_tags) {
+            mes = mes.replace(/<([^>]+)>/g, function (_, contents) {
+                return '<' + contents.replace(/"/g, '\ufffe') + '>';
+            });
+        }
+
+        mes = mes.replace(
+            /<style>[\s\S]*?<\/style>|```[\s\S]*?```|~~~[\s\S]*?~~~|``[\s\S]*?``|`[\s\S]*?`|(".*?")|(\u201C.*?\u201D)|(\u00AB.*?\u00BB)|(\u300C.*?\u300D)|(\u300E.*?\u300F)|(\uFF02.*?\uFF02)/gim,
+            function (match, p1, p2, p3, p4, p5, p6) {
+                if (p1) {
+                    // English double quotes
+                    return `<q>"${p1.slice(1, -1)}"</q>`;
+                } else if (p2) {
+                    // Curly double quotes “ ”
+                    return `<q>“${p2.slice(1, -1)}”</q>`;
+                } else if (p3) {
+                    // Guillemets « »
+                    return `<q>«${p3.slice(1, -1)}»</q>`;
+                } else if (p4) {
+                    // Corner brackets 「 」
+                    return `<q>「${p4.slice(1, -1)}」</q>`;
+                } else if (p5) {
+                    // White corner brackets 『 』
+                    return `<q>『${p5.slice(1, -1)}』</q>`;
+                } else if (p6) {
+                    // Fullwidth quotes ＂ ＂
+                    return `<q>＂${p6.slice(1, -1)}＂</q>`;
+                } else {
+                    // Return the original match if no quotes are found
+                    return match;
+                }
+            },
+        );
+
+        // Restore double quotes in tags
+        if (!power_user.encode_tags) {
+            mes = mes.replace(/\ufffe/g, '"');
+        }
+
+        mes = mes.replaceAll('\\begin{align*}', '$$');
+        mes = mes.replaceAll('\\end{align*}', '$$');
+        mes = converter.makeHtml(mes);
+
+        mes = mes.replace(/<code(.*)>[\s\S]*?<\/code>/g, function (match) {
+            // Firefox creates extra newlines from <br>s in code blocks, so we replace them before converting newlines to <br>s.
+            return match.replace(/\n/gm, '\u0000');
+        });
+        mes = mes.replace(/\u0000/g, '\n'); // Restore converted newlines
+        mes = mes.trim();
+
+        mes = mes.replace(/<code(.*)>[\s\S]*?<\/code>/g, function (match) {
+            return match.replace(/&amp;/g, '&');
+        });
+    }
+
+    if (!power_user.allow_name2_display && ch_name && !isUser && !isSystem) {
+        mes = mes.replace(new RegExp(`(^|\n)${escapeRegex(ch_name)}:`, 'g'), '$1');
+    }
+
+    /** @type {DOMPurify.Config} */
+    const config = {
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_TRUSTED_TYPE: false,
+        MESSAGE_SANITIZE: true,
+        ADD_TAGS: ['custom-style'],
+        ...sanitizerOverrides,
+    };
+    mes = encodeStyleTags(mes);
+    mes = DOMPurify.sanitize(mes, config);
+    mes = decodeStyleTags(mes, { prefix: '.mes_text ' });
+
+    return mes;
+}
 
 /**
  * Inserts or replaces an SVG icon adjacent to the provided message's timestamp.
@@ -1755,7 +1930,7 @@ function insertSVGIcon(mes, extra) {
  * @param {object} [options={}] Optional arguments
  * @param {boolean} [options.rerenderMessage=true] Whether to re-render the message content (inside <c>.mes_text</c>)
  */
-export function updateMessageBlock(messageId, message, { rerenderMessage = true } = {}) { stTrack('updateMessageBlock'); // @st-tracked
+export function updateMessageBlock(messageId, message, { rerenderMessage = true } = {}) {
     const messageElement = chatElement.find(`[mesid="${messageId}"]`);
     if (rerenderMessage) {
         const text = message?.extra?.display_text ?? message.mes;
@@ -1772,7 +1947,7 @@ export function updateMessageBlock(messageId, message, { rerenderMessage = true 
  * Ensures that the message media properties are arrays, adding getters/setters for single media items.
  * @param {ChatMessage} mes Message object
  */
-export function ensureMessageMediaIsArray(mes) { stTrack('ensureMessageMediaIsArray'); // @st-tracked
+export function ensureMessageMediaIsArray(mes) {
     /**
      * Determines if a property of an object is a plain property (not a getter/setter or non-enumerable).
      * @param {object} obj Object to check
@@ -1911,7 +2086,7 @@ export function ensureMessageMediaIsArray(mes) { stTrack('ensureMessageMediaIsAr
  * @param {ChatMessage} mes Message object
  * @returns {MEDIA_DISPLAY} Media display setting
  */
-export function getMediaDisplay(mes) { stTrack('getMediaDisplay'); // @st-tracked
+export function getMediaDisplay(mes) {
     const value = mes?.extra?.media_display || power_user.media_display || MEDIA_DISPLAY.LIST;
     return Object.values(MEDIA_DISPLAY).includes(value) ? value : MEDIA_DISPLAY.LIST;
 }
@@ -1921,7 +2096,7 @@ export function getMediaDisplay(mes) { stTrack('getMediaDisplay'); // @st-tracke
  * @param {ChatMessage} mes Message object
  * @returns {number} Media index
  */
-export function getMediaIndex(mes) { stTrack('getMediaIndex'); // @st-tracked
+export function getMediaIndex(mes) {
     if (!Array.isArray(mes?.extra?.media)) {
         return 0;
     }
@@ -1938,7 +2113,7 @@ export function getMediaIndex(mes) { stTrack('getMediaIndex'); // @st-tracked
  * @param {JQuery<HTMLElement>} messageElement Message element
  * @param {string} [scrollBehavior] Scroll behavior when adjusting scroll position
  */
-export function appendMediaToMessage(mes, messageElement, scrollBehavior = SCROLL_BEHAVIOR.ADJUST) { stTrack('appendMediaToMessage'); // @st-tracked
+export function appendMediaToMessage(mes, messageElement, scrollBehavior = SCROLL_BEHAVIOR.ADJUST) {
     ensureMessageMediaIsArray(mes);
 
     const fileWrapper = messageElement.find('.mes_file_wrapper');
@@ -2201,7 +2376,7 @@ export function appendMediaToMessage(mes, messageElement, scrollBehavior = SCROL
     });
 }
 
-export function addCopyToCodeBlocks(messageElement) { stTrack('addCopyToCodeBlocks'); // @st-tracked
+export function addCopyToCodeBlocks(messageElement) {
     const codeBlocks = $(messageElement).find('pre code');
     for (let i = 0; i < codeBlocks.length; i++) {
         hljs.highlightElement(codeBlocks.get(i));
@@ -2273,7 +2448,7 @@ function getMessageTextHTML(message, { messageId = chat.indexOf(message) }) {
  * @param {boolean} [options.showSwipes=true] Whether to refresh the swipe buttons.
  * @returns {JQuery<HTMLElement>} The newly added message element
  */
-export function addOneMessage(mes, { type = undefined, insertAfter = null, scroll = true, insertBefore = null, forceId = null, showSwipes = true } = {}) { stTrack('addOneMessage'); // @st-tracked
+export function addOneMessage(mes, { type = undefined, insertAfter = null, scroll = true, insertBefore = null, forceId = null, showSwipes = true } = {}) {
     // Callers push the new message to chat before calling addOneMessage
     const messageId = (() => {
         if (typeof forceId === 'number') {
@@ -2340,7 +2515,7 @@ export function addOneMessage(mes, { type = undefined, insertAfter = null, scrol
  * @param {SCROLL_BEHAVIOR} [options.adjustMediaScroll=SCROLL_BEHAVIOR.NONE] Scroll behavior option passed to appendMediaToMessage.
  * @returns {JQuery<HTMLElement>} Rendered HTMLElement.
  */
-export function updateMessageElement(mes, { messageId = chat.length - 1, messageElement = messageTemplate.clone(), adjustMediaScroll = SCROLL_BEHAVIOR.NONE } = {}) { stTrack('updateMessageElement'); // @st-tracked
+export function updateMessageElement(mes, { messageId = chat.length - 1, messageElement = messageTemplate.clone(), adjustMediaScroll = SCROLL_BEHAVIOR.NONE } = {}) {
 
     let avatarImg = getThumbnailUrl('persona', user_avatar);
 
@@ -2435,7 +2610,7 @@ export function updateMessageElement(mes, { messageId = chat.length - 1, message
  * @param {number|string} characterId Character Id
  * @returns {string} Avatar URL
  */
-export function getCharacterAvatar(characterId) { stTrack('getCharacterAvatar'); // @st-tracked
+export function getCharacterAvatar(characterId) {
     const character = characters[characterId];
     const avatarImg = character?.avatar;
 
@@ -2446,7 +2621,7 @@ export function getCharacterAvatar(characterId) { stTrack('getCharacterAvatar');
     return formatCharacterAvatar(avatarImg);
 }
 
-export function formatCharacterAvatar(characterAvatar) { stTrack('formatCharacterAvatar'); // @st-tracked
+export function formatCharacterAvatar(characterAvatar) {
     return `characters/${characterAvatar}`;
 }
 
@@ -2496,7 +2671,7 @@ let requestId = null;
  * @param {object} [options] Options
  * @param {boolean} [options.waitForFrame] If true, waits for the animation frame before scrolling
  */
-export function scrollChatToBottom({ waitForFrame } = {}) { stTrack('scrollChatToBottom'); // @st-tracked
+export function scrollChatToBottom({ waitForFrame } = {}) {
     if (!power_user.auto_scroll_chat_to_bottom) {
         return;
     }
@@ -2538,7 +2713,7 @@ export function scrollChatToBottom({ waitForFrame } = {}) { stTrack('scrollChatT
  * Substitutes {{macro}} parameters in a string.
  * @returns {string} The string with substituted parameters.
  */
-export function substituteParamsExtended(content, additionalMacro = {}, postProcessFn = (x) => x) { stTrack('substituteParamsExtended'); // @st-tracked
+export function substituteParamsExtended(content, additionalMacro = {}, postProcessFn = (x) => x) {
     return substituteParams(content, { dynamicMacros: additionalMacro, postProcessFn });
 }
 
@@ -2554,7 +2729,7 @@ export function substituteParamsExtended(content, additionalMacro = {}, postProc
  * @param {(x: string) => string} [postProcessFn] - Post-processing function for each substituted macro.
  * @returns {string} The string with substituted parameters.
  */
-export function substituteParamsLegacy(content, _name1, _name2, _original, _group, _replaceCharacterCard = true, additionalMacro = {}, postProcessFn = (x) => x) { stTrack('substituteParamsLegacy'); // @st-tracked
+export function substituteParamsLegacy(content, _name1, _name2, _original, _group, _replaceCharacterCard = true, additionalMacro = {}, postProcessFn = (x) => x) {
     if (!content) {
         return '';
     }
@@ -2703,7 +2878,7 @@ export function substituteParamsLegacy(content, _name1, _name2, _original, _grou
  * @param {(x: string) => string} [options.postProcessFn=(x) => x] - Post-processing function for each substituted macro.
  * @returns {string} The string with substituted parameters.
  */
-export function substituteParams(content, options = {}) { stTrack('substituteParams'); // @st-tracked
+export function substituteParams(content, options = {}) {
     if (!content) return '';
 
     // Handle legacy signature calls to substituteParams
@@ -2741,7 +2916,7 @@ export function substituteParams(content, options = {}) { stTrack('substitutePar
  * @param {boolean} isContinue A request is made to continue the message
  * @returns {string[]} Array of stopping strings
  */
-export function getStoppingStrings(isImpersonate, isContinue) { stTrack('getStoppingStrings'); // @st-tracked
+export function getStoppingStrings(isImpersonate, isContinue) {
     const result = [];
 
     if (power_user.context.names_as_stop_strings) {
@@ -2795,7 +2970,7 @@ export function getStoppingStrings(isImpersonate, isContinue) { stTrack('getStop
  * @param {GenerateQuietPromptParams} params Parameters for the quiet prompt generation
  * @returns {Promise<string>} Generated text. If using structured output, will contain a serialized JSON object.
  */
-export async function generateQuietPrompt({ quietPrompt = '', quietToLoud = false, skipWIAN = false, quietImage = null, quietName = null, responseLength = null, forceChId = null, jsonSchema = null, removeReasoning = true, trimToSentence = false } = {}) { stTrack('generateQuietPrompt'); // @st-tracked
+export async function generateQuietPrompt({ quietPrompt = '', quietToLoud = false, skipWIAN = false, quietImage = null, quietName = null, responseLength = null, forceChId = null, jsonSchema = null, removeReasoning = true, trimToSentence = false } = {}) {
     if (arguments.length > 0 && typeof arguments[0] !== 'object') {
         console.trace('generateQuietPrompt called with positional arguments. Please use an object instead.');
         [quietPrompt, quietToLoud, skipWIAN, quietImage, quietName, responseLength, forceChId, jsonSchema] = arguments;
@@ -2836,7 +3011,7 @@ export async function generateQuietPrompt({ quietPrompt = '', quietToLoud = fals
  * @param {string} message Text to be sent
  * @returns {Promise<boolean>} Whether the message sending was interrupted
  */
-export async function processCommands(message) { stTrack('processCommands'); // @st-tracked
+export async function processCommands(message) {
     if (!message || !message.trim().startsWith('/')) {
         return false;
     }
@@ -2851,7 +3026,7 @@ export async function processCommands(message) { stTrack('processCommands'); // 
  * @param {string} message Message text
  * @returns {string} Message bias extracted from the message (or an empty string if not found)
  */
-export function extractMessageBias(message) { stTrack('extractMessageBias'); // @st-tracked
+export function extractMessageBias(message) {
     if (!message) {
         return '';
     }
@@ -2968,7 +3143,7 @@ async function getAllExtensionPrompts() {
  * @param {string} moduleName Module name
  * @returns {Promise<string>} Extension prompt
  */
-export async function getExtensionPromptByName(moduleName) { stTrack('getExtensionPromptByName'); // @st-tracked
+export async function getExtensionPromptByName(moduleName) {
     if (!moduleName) {
         return '';
     }
@@ -2992,7 +3167,7 @@ export async function getExtensionPromptByName(moduleName) { stTrack('getExtensi
  * Gets the maximum depth of extension prompts.
  * @returns {number} Maximum depth of extension prompts
  */
-export function getExtensionPromptMaxDepth() { stTrack('getExtensionPromptMaxDepth'); // @st-tracked
+export function getExtensionPromptMaxDepth() {
     return MAX_INJECTION_DEPTH;
     /*
     const prompts = Object.values(extension_prompts);
@@ -3012,7 +3187,7 @@ export function getExtensionPromptMaxDepth() { stTrack('getExtensionPromptMaxDep
  * @param {boolean} [wrap] Wrap start and end with a separator
  * @returns {Promise<string>} Extension prompt
  */
-export async function getExtensionPrompt(position = extension_prompt_types.IN_PROMPT, depth = undefined, separator = '\n', role = undefined, wrap = true) { stTrack('getExtensionPrompt'); // @st-tracked
+export async function getExtensionPrompt(position = extension_prompt_types.IN_PROMPT, depth = undefined, separator = '\n', role = undefined, wrap = true) {
     const filterByFunction = async (prompt) => {
         const hasFilter = typeof prompt.filter === 'function';
         if (hasFilter && !await prompt.filter()) {
@@ -3052,7 +3227,7 @@ export async function getExtensionPrompt(position = extension_prompt_types.IN_PR
  * @param {string?} name2Override Override for name2
  * @returns {string} Processed string
  */
-export function baseChatReplace(value, name1Override = null, name2Override = null) { stTrack('baseChatReplace'); // @st-tracked
+export function baseChatReplace(value, name1Override = null, name2Override = null) {
     if (typeof value === 'string' && value.length > 0) {
         value = substituteParams(value, { name1Override, name2Override, replaceCharacterCard: false });
 
@@ -3084,7 +3259,7 @@ export function baseChatReplace(value, name1Override = null, name2Override = nul
  * @param {Record<string, () => string>} resolvers Map of field names to resolver functions
  * @returns {CharacterCardFields} Object with lazy getters
  */
-export function createLazyFields(resolvers) { stTrack('createLazyFields'); // @st-tracked
+export function createLazyFields(resolvers) {
     const result = /** @type {CharacterCardFields} */ ({});
     for (const [key, resolver] of Object.entries(resolvers)) {
         let cached;
@@ -3111,7 +3286,7 @@ export function createLazyFields(resolvers) { stTrack('createLazyFields'); // @s
  * @param {number} [options.chid] Optional character index
  * @returns {CharacterCardFields} Character card fields with lazy evaluation
  */
-export function getCharacterCardFieldsLazy({ chid = undefined } = {}) { stTrack('getCharacterCardFieldsLazy'); // @st-tracked
+export function getCharacterCardFieldsLazy({ chid = undefined } = {}) {
     const currentChid = chid ?? this_chid;
     const character = characters[currentChid];
 
@@ -3174,7 +3349,7 @@ export function getCharacterCardFieldsLazy({ chid = undefined } = {}) { stTrack(
  * @param {number} [options.chid] Optional character index
  * @returns {CharacterCardFields} Character card fields
  */
-export function getCharacterCardFields({ chid = undefined } = {}) { stTrack('getCharacterCardFields'); // @st-tracked
+export function getCharacterCardFields({ chid = undefined } = {}) {
     const lazy = getCharacterCardFieldsLazy({ chid });
 
     // Resolve all lazy fields into a plain object
@@ -3197,7 +3372,7 @@ export function getCharacterCardFields({ chid = undefined } = {}) { stTrack('get
  * @param {string} examplesStr
  * @returns {string[]} Examples array with block heading
  */
-export function parseMesExamples(examplesStr, isInstruct) { stTrack('parseMesExamples'); // @st-tracked
+export function parseMesExamples(examplesStr, isInstruct) {
     if (!examplesStr || examplesStr.length === 0 || examplesStr === '<START>') {
         return [];
     }
@@ -3213,7 +3388,7 @@ export function parseMesExamples(examplesStr, isInstruct) { stTrack('parseMesExa
     return splitExamples;
 }
 
-export function isStreamingEnabled() { stTrack('isStreamingEnabled'); // @st-tracked
+export function isStreamingEnabled() {
     return (
         (main_api == 'openai' &&
             oai_settings.stream_openai &&
@@ -3606,7 +3781,7 @@ class StreamingProcessor {
  * @param {string} [prefill] Prefill for the prompt.
  * @returns {string | object[]} Prompt ready for use in generation. If using TC, this will be a string. If using CC, this will be an array of chat-style messages.
  */
-export function createRawPrompt(prompt, api, instructOverride, quietToLoud, systemPrompt, prefill) { stTrack('createRawPrompt'); // @st-tracked
+export function createRawPrompt(prompt, api, instructOverride, quietToLoud, systemPrompt, prefill) {
     const isInstruct = power_user.instruct.enabled && api !== 'openai' && api !== 'novel' && !instructOverride;
 
     // If the prompt was given as a string, convert to a message-style object assuming user role
@@ -3676,7 +3851,7 @@ export function createRawPrompt(prompt, api, instructOverride, quietToLoud, syst
  * @param {GenerateRawParams} params Parameters for generating a message
  * @returns {Promise<string>} Generated message
  */
-export async function generateRaw({ prompt = '', api = null, instructOverride = false, quietToLoud = false, systemPrompt = '', responseLength = null, trimNames = true, prefill = '', jsonSchema = null } = {}) { stTrack('generateRaw'); // @st-tracked
+export async function generateRaw({ prompt = '', api = null, instructOverride = false, quietToLoud = false, systemPrompt = '', responseLength = null, trimNames = true, prefill = '', jsonSchema = null } = {}) {
     if (arguments.length > 0 && typeof arguments[0] !== 'object') {
         console.trace('generateRaw called with positional arguments. Please use an object instead.');
         [prompt, api, instructOverride, quietToLoud, systemPrompt, responseLength, trimNames, prefill, jsonSchema] = arguments;
@@ -3945,7 +4120,7 @@ function removeLastMessage() {
  * @param {boolean} dryRun Whether to actually generate a message or just assemble the prompt
  * @returns {Promise<any>} Returns a promise that resolves when the text is done generating.
  */
-export async function Generate(type, { automatic_trigger, force_name2, quiet_prompt, quietToLoud, skipWIAN, force_chid, signal, quietImage, quietName, jsonSchema = null, depth = 0 } = {}, dryRun = false) { stTrack('Generate'); // @st-tracked
+export async function Generate(type, { automatic_trigger, force_name2, quiet_prompt, quietToLoud, skipWIAN, force_chid, signal, quietImage, quietName, jsonSchema = null, depth = 0 } = {}, dryRun = false) {
     console.log('Generate entered');
     setGenerationProgress(0);
     generation_started = new Date();
@@ -5262,7 +5437,7 @@ export async function Generate(type, { automatic_trigger, force_name2, quiet_pro
 /**
  * Stops the generation and any streaming if it is currently running.
  */
-export function stopGeneration() { stTrack('stopGeneration'); // @st-tracked
+export function stopGeneration() {
     let stopped = false;
     if (streamingProcessor) {
         streamingProcessor.onStopStreaming();
@@ -5361,7 +5536,7 @@ function unblockGeneration(type) {
     flushWIInjections();
 }
 
-export function getNextMessageId(type) { stTrack('getNextMessageId'); // @st-tracked
+export function getNextMessageId(type) {
     return type == 'swipe' ? chat.length - 1 : chat.length;
 }
 
@@ -5371,7 +5546,7 @@ export function getNextMessageId(type) { stTrack('getNextMessageId'); // @st-tra
  * @param {boolean} isImpersonate Is the user impersonation
  * @returns {boolean} Whether the message should be auto-continued
  */
-export function shouldAutoContinue(messageChunk, isImpersonate) { stTrack('shouldAutoContinue'); // @st-tracked
+export function shouldAutoContinue(messageChunk, isImpersonate) {
     if (!power_user.auto_continue.enabled) {
         console.debug('Auto-continue is disabled by user.');
         return false;
@@ -5438,7 +5613,7 @@ export function shouldAutoContinue(messageChunk, isImpersonate) { stTrack('shoul
  * @param {string} messageChunk Current message chunk
  * @param {boolean} isImpersonate Is the user impersonation
  */
-export function triggerAutoContinue(messageChunk, isImpersonate) { stTrack('triggerAutoContinue'); // @st-tracked
+export function triggerAutoContinue(messageChunk, isImpersonate) {
     if (selected_group) {
         console.debug('Auto-continue is disabled for group chat');
         return;
@@ -5449,7 +5624,7 @@ export function triggerAutoContinue(messageChunk, isImpersonate) { stTrack('trig
     }
 }
 
-export function getBiasStrings(textareaText, type) { stTrack('getBiasStrings'); // @st-tracked
+export function getBiasStrings(textareaText, type) {
     if (type == 'impersonate' || type == 'continue') {
         return { messageBias: '', promptBias: '', isUserPromptBias: false };
     }
@@ -5515,7 +5690,7 @@ function formatMessageHistoryItem(chatItem, isInstruct, forceOutputSequence) {
  * @param {string} str String to remove macros from.
  * @returns {string} String with macros removed.
  */
-export function removeMacros(str) { stTrack('removeMacros'); // @st-tracked
+export function removeMacros(str) {
     return (str ?? '').replace(/\{\{[\s\S]*?\}\}/gm, '').trim();
 }
 
@@ -5529,7 +5704,7 @@ export function removeMacros(str) { stTrack('removeMacros'); // @st-tracked
  * @param {string} [avatar] Avatar of the user sending the message. Defaults to user_avatar.
  * @returns {Promise<any>} A promise that resolves to the message when it is inserted.
  */
-export async function sendMessageAsUser(messageText, messageBias, insertAt = null, compact = false, name = name1, avatar = user_avatar) { stTrack('sendMessageAsUser'); // @st-tracked
+export async function sendMessageAsUser(messageText, messageBias, insertAt = null, compact = false, name = name1, avatar = user_avatar) {
     messageText = getRegexedString(messageText, regex_placement.USER_INPUT);
 
     const message = {
@@ -5585,7 +5760,7 @@ export async function sendMessageAsUser(messageText, messageBias, insertAt = nul
  * @param {number|null} overrideResponseLength Optional override for the response length.
  * @returns {number} Maximum usable context size.
  */
-export function getMaxContextSize(overrideResponseLength = null) { stTrack('getMaxContextSize'); // @st-tracked
+export function getMaxContextSize(overrideResponseLength = null) {
     if (typeof overrideResponseLength !== 'number' || overrideResponseLength <= 0 || isNaN(overrideResponseLength)) {
         overrideResponseLength = null;
     }
@@ -5664,7 +5839,7 @@ function addChatsSeparator(mesSendString) {
     }
 }
 
-export async function duplicateCharacter() { stTrack('duplicateCharacter'); // @st-tracked
+export async function duplicateCharacter() {
     if (this_chid === undefined || !characters[this_chid]) {
         toastr.warning(t`You must first select a character to duplicate!`);
         return '';
@@ -5727,7 +5902,7 @@ function setInContextMessages(msgInContextCount, type) {
  * @returns {Promise<object>} Response data from the API
  * @throws {Error|object}
  */
-export async function sendGenerationRequest(type, data, options = {}) { stTrack('sendGenerationRequest'); // @st-tracked
+export async function sendGenerationRequest(type, data, options = {}) {
     if (main_api === 'openai') {
         return await sendOpenAIRequest(type, data.prompt, abortController.signal, options);
     }
@@ -5758,7 +5933,7 @@ export async function sendGenerationRequest(type, data, options = {}) { stTrack(
  * @param {AdditionalRequestOptions} [options] Additional options for the generation request
  * @returns {Promise<any>} Streaming generator
  */
-export async function sendStreamingRequest(type, data, options = {}) { stTrack('sendStreamingRequest'); // @st-tracked
+export async function sendStreamingRequest(type, data, options = {}) {
     if (abortController?.signal?.aborted) {
         throw new Error('Generation was aborted.');
     }
@@ -5783,7 +5958,7 @@ export async function sendStreamingRequest(type, data, options = {}) { stTrack('
  * @returns {string} Generation URL
  * @throws {Error} If the API is unknown
  */
-export function getGenerateUrl(api) { stTrack('getGenerateUrl'); // @st-tracked
+export function getGenerateUrl(api) {
     switch (api) {
         case 'kobold':
             return '/api/backends/kobold/generate';
@@ -5887,7 +6062,7 @@ function parseAndSaveLogprobs(data, continueFrom) {
  * @param {string} activeApi If it's set, ignores active API
  * @returns {string} Extracted message
  */
-export function extractMessageFromData(data, activeApi = null) { stTrack('extractMessageFromData'); // @st-tracked
+export function extractMessageFromData(data, activeApi = null) {
     function getResult() {
         if (typeof data === 'string') {
             return data;
@@ -5918,7 +6093,7 @@ export function extractMessageFromData(data, activeApi = null) { stTrack('extrac
  * @param {object} data Response data
  * @returns {string} Extracted JSON string from the response data
  */
-export function extractJsonFromData(data, { mainApi = null, chatCompletionSource = null } = {}) { stTrack('extractJsonFromData'); // @st-tracked
+export function extractJsonFromData(data, { mainApi = null, chatCompletionSource = null } = {}) {
     mainApi = mainApi ?? main_api;
     chatCompletionSource = chatCompletionSource ?? oai_settings.chat_completion_source;
 
@@ -6043,7 +6218,7 @@ function extractMultiSwipes(data, type) {
  *
  * @returns {string} The formatted message
  */
-export function cleanUpMessage({ getMessage, isImpersonate, isContinue, displayIncompleteSentences = false, stoppingStrings = null, includeUserPromptBias = true, trimNames = true, trimWrongNames = true } = {}) { stTrack('cleanUpMessage'); // @st-tracked
+export function cleanUpMessage({ getMessage, isImpersonate, isContinue, displayIncompleteSentences = false, stoppingStrings = null, includeUserPromptBias = true, trimNames = true, trimWrongNames = true } = {}) {
     if (arguments.length > 0 && typeof arguments[0] !== 'object') {
         console.trace('cleanUpMessage called with positional arguments. Please use an object instead.');
         [getMessage, isImpersonate, isContinue, displayIncompleteSentences, stoppingStrings, includeUserPromptBias, trimNames, trimWrongNames] = arguments;
@@ -6243,7 +6418,7 @@ async function processImageAttachment(message, { imageUrls }) {
  * @property {string} type Type of generation
  * @property {string} getMessage Generated message
  */
-export async function saveReply({ type, getMessage, fromStreaming = false, title = '', swipes = [], reasoning = '', imageUrls = [], reasoningSignature = null }) { stTrack('saveReply'); // @st-tracked
+export async function saveReply({ type, getMessage, fromStreaming = false, title = '', swipes = [], reasoning = '', imageUrls = [], reasoningSignature = null }) {
     // Backward compatibility
     if (arguments.length > 1 && typeof arguments[0] !== 'object') {
         console.trace('saveReply called with positional arguments. Please use an object instead.');
@@ -6439,7 +6614,7 @@ export async function saveReply({ type, getMessage, fromStreaming = false, title
  * @param {ChatMessage} message
  * @returns {boolean} true if the message was updated.
  */
-export function ensureSwipes(message) { stTrack('ensureSwipes'); // @st-tracked
+export function ensureSwipes(message) {
     let updated = false;
 
     if (!message || typeof message !== 'object') {
@@ -6498,7 +6673,7 @@ export function ensureSwipes(message) { stTrack('ensureSwipes'); // @st-tracked
  * @param {number?} [messageId=null] - The ID of the message to sync with the swipe data. If no ID is given, the last message is used.
  * @returns {boolean} Whether the message was successfully synced
  */
-export function syncMesToSwipe(messageId = null) { stTrack('syncMesToSwipe'); // @st-tracked
+export function syncMesToSwipe(messageId = null) {
     if (!chat.length) {
         return false;
     }
@@ -6555,7 +6730,7 @@ export function syncMesToSwipe(messageId = null) { stTrack('syncMesToSwipe'); //
  * @param {number?} [swipeId=null] - The ID of the swipe to sync. If no ID is given, the current swipe ID in the message object is used.
  * @returns {boolean} Whether the swipe data was successfully synced to the message
  */
-export function syncSwipeToMes(messageId = null, swipeId = null) { stTrack('syncSwipeToMes'); // @st-tracked
+export function syncSwipeToMes(messageId = null, swipeId = null) {
     if (!chat.length) {
         return false;
     }
@@ -6637,7 +6812,7 @@ function saveImageToMessage(img, mes) {
     }
 }
 
-export function getGeneratingApi() { stTrack('getGeneratingApi'); // @st-tracked
+export function getGeneratingApi() {
     switch (main_api) {
         case 'openai':
             return oai_settings.chat_completion_source || 'openai';
@@ -6648,7 +6823,7 @@ export function getGeneratingApi() { stTrack('getGeneratingApi'); // @st-tracked
     }
 }
 
-export function getGeneratingModel(mes) { stTrack('getGeneratingModel'); // @st-tracked
+export function getGeneratingModel(mes) {
     let model = '';
     switch (main_api) {
         case 'kobold':
@@ -6673,7 +6848,7 @@ export function getGeneratingModel(mes) { stTrack('getGeneratingModel'); // @st-
 /**
  * A function mainly used to switch 'generating' state - setting it to false and activating the buttons again
  */
-export function activateSendButtons() { stTrack('activateSendButtons'); // @st-tracked
+export function activateSendButtons() {
     is_send_press = false;
     hideStopButton();
     showSwipeButtons();
@@ -6683,13 +6858,13 @@ export function activateSendButtons() { stTrack('activateSendButtons'); // @st-t
 /**
  * A function mainly used to switch 'generating' state - setting it to true and deactivating the buttons
  */
-export function deactivateSendButtons() { stTrack('deactivateSendButtons'); // @st-tracked
+export function deactivateSendButtons() {
     showStopButton();
     hideSwipeButtons();
     document.body.dataset.generating = 'true';
 }
 
-export function resetChatState() { stTrack('resetChatState'); // @st-tracked
+export function resetChatState() {
     // replaces deleted charcter name with system user since it will be displayed next.
     name2 = (this_chid === undefined && neutralCharacterName) ? neutralCharacterName : systemUserName;
     //unsets expected chid before reloading (related to getCharacters/printCharacters from using old arrays)
@@ -6706,13 +6881,13 @@ export function resetChatState() { stTrack('resetChatState'); // @st-tracked
  *
  * @param {'characters' | 'character_edit' | 'create' | 'group_edit' | 'group_create'} value
  */
-export function setMenuType(value) { stTrack('setMenuType'); // @st-tracked
+export function setMenuType(value) {
     menu_type = value;
     // Allow custom CSS to see which menu type is active
     document.getElementById('right-nav-panel').dataset.menuType = menu_type;
 }
 
-export function setExternalAbortController(controller) { stTrack('setExternalAbortController'); // @st-tracked
+export function setExternalAbortController(controller) {
     abortController = controller;
 }
 
@@ -6720,7 +6895,7 @@ export function setExternalAbortController(controller) { stTrack('setExternalAbo
  * Sets a character array index.
  * @param {number|string|undefined} value
  */
-export function setCharacterId(value) { stTrack('setCharacterId'); // @st-tracked
+export function setCharacterId(value) {
     switch (typeof value) {
         case 'bigint':
         case 'number':
@@ -6741,7 +6916,7 @@ export function setCharacterId(value) { stTrack('setCharacterId'); // @st-tracke
     }
 }
 
-export function setCharacterName(value) { stTrack('setCharacterName'); // @st-tracked
+export function setCharacterName(value) {
     name2 = value;
 }
 
@@ -6749,7 +6924,7 @@ export function setCharacterName(value) { stTrack('setCharacterName'); // @st-tr
  * Sets the API connection status of the application
  * @param {string|'no_connection'} value Connection status value
  */
-export function setOnlineStatus(value) { stTrack('setOnlineStatus'); // @st-tracked
+export function setOnlineStatus(value) {
     const previousStatus = online_status;
     online_status = value;
     displayOnlineStatus();
@@ -6758,11 +6933,11 @@ export function setOnlineStatus(value) { stTrack('setOnlineStatus'); // @st-trac
     }
 }
 
-export function setEditedMessageId(value) { stTrack('setEditedMessageId'); // @st-tracked
+export function setEditedMessageId(value) {
     this_edit_mes_id = value;
 }
 
-export function setSendButtonState(value) { stTrack('setSendButtonState'); // @st-tracked
+export function setSendButtonState(value) {
     is_send_press = value;
 }
 
@@ -6783,7 +6958,7 @@ export function setSendButtonState(value) { stTrack('setSendButtonState'); // @s
  * @returns {Promise<boolean>} - Returns true if the character was successfully renamed, false otherwise.
  */
 
-export async function renameCharacter(name = null, { silent = false, renameChats = null } = {}) { stTrack('renameCharacter'); // @st-tracked
+export async function renameCharacter(name = null, { silent = false, renameChats = null } = {}) {
     if (!name && silent) {
         toastr.warning(t`No character name provided.`, t`Rename Character`);
         return false;
@@ -6961,7 +7136,7 @@ async function renamePastChats(oldAvatar, newAvatar, newName) {
     }
 }
 
-export function saveChatDebounced() { stTrack('saveChatDebounced'); // @st-tracked
+export function saveChatDebounced() {
     const chid = this_chid;
     const selectedGroup = selected_group;
 
@@ -6994,7 +7169,7 @@ export function saveChatDebounced() { stTrack('saveChatDebounced'); // @st-track
  *
  * @returns {Promise<void>}
  */
-export async function saveChat({ chatName, withMetadata, mesId, force = false } = {}) { stTrack('saveChat'); // @st-tracked
+export async function saveChat({ chatName, withMetadata, mesId, force = false } = {}) {
     if (selected_group) {
         toastr.error(t`Operation was aborted to prevent data corruption.`, t`saveChat called for a group chat`);
         throw new Error('saveChat called for a group chat');
@@ -7140,11 +7315,18 @@ async function read_avatar_load(input) {
     }
 }
 
-// getThumbnailUrl extracted to ./scripts/thumbnail-url.js
-import { getThumbnailUrl } from './scripts/thumbnail-url.js';
-export { getThumbnailUrl }; // re-exported for backward compat
+/**
+ * Gets the URL for a thumbnail of a specific type and file.
+ * @param {import('../src/endpoints/thumbnails.js').ThumbnailType} type The type of the thumbnail to get
+ * @param {string} file The file name or path for which to get the thumbnail URL
+ * @param {boolean} [t=false] Whether to add a cache-busting timestamp to the URL
+ * @returns {string} The URL for the thumbnail
+ */
+export function getThumbnailUrl(type, file, t = false) {
+    return `/thumbnail?type=${type}&file=${encodeURIComponent(file)}${t ? `&t=${Date.now()}` : ''}`;
+}
 
-export function buildAvatarList(block, entities, { templateId = 'inline_avatar_template', empty = true, interactable = false, highlightFavs = true } = {}) { stTrack('buildAvatarList'); // @st-tracked
+export function buildAvatarList(block, entities, { templateId = 'inline_avatar_template', empty = true, interactable = false, highlightFavs = true } = {}) {
     if (empty) {
         block.empty();
     }
@@ -7200,7 +7382,7 @@ export function buildAvatarList(block, entities, { templateId = 'inline_avatar_t
  * @param {string|undefined} characterId Array index
  * @returns {Promise<void>} Promise that resolves when the character is unshallowed
  */
-export async function unshallowCharacter(characterId) { stTrack('unshallowCharacter'); // @st-tracked
+export async function unshallowCharacter(characterId) {
     if (characterId === undefined) {
         console.debug('Undefined character cannot be unshallowed');
         return;
@@ -7227,7 +7409,7 @@ export async function unshallowCharacter(characterId) { stTrack('unshallowCharac
     await getOneCharacter(avatar);
 }
 
-export async function getChat() { stTrack('getChat'); // @st-tracked
+export async function getChat() {
     try {
         await unshallowCharacter(this_chid);
 
@@ -7337,7 +7519,7 @@ function getFirstMessage() {
     return message;
 }
 
-export async function openCharacterChat(file_name) { stTrack('openCharacterChat'); // @st-tracked
+export async function openCharacterChat(file_name) {
     await waitUntilCondition(() => !isChatSaving, debounce_timeout.extended, 10);
     await clearChat({ clearData: true });
     characters[this_chid].chat = file_name;
@@ -7349,7 +7531,7 @@ export async function openCharacterChat(file_name) { stTrack('openCharacterChat'
 
 ////////// OPTIMZED MAIN API CHANGE FUNCTION ////////////
 
-export function changeMainAPI(api = null) { stTrack('changeMainAPI'); // @st-tracked
+export function changeMainAPI(api = null) {
     const selectedVal = api ?? $('#main_api').val();
     //console.log(selectedVal);
     const apiElements = {
@@ -7466,7 +7648,7 @@ export function changeMainAPI(api = null) { stTrack('changeMainAPI'); // @st-tra
     forceCharacterEditorTokenize();
 }
 
-export function setUserName(value, { toastPersonaNameChange = true } = {}) { stTrack('setUserName'); // @st-tracked
+export function setUserName(value, { toastPersonaNameChange = true } = {}) {
     name1 = value;
     if (name1 === undefined || name1 == '')
         name1 = default_user_name;
@@ -7506,7 +7688,7 @@ function reloadLoop() {
 
 //MARK: getSettings()
 ///////////////////////////////////////////
-export async function getSettings() { stTrack('getSettings'); // @st-tracked
+export async function getSettings() {
     const response = await fetch('/api/settings/get', {
         method: 'POST',
         headers: getRequestHeaders(),
@@ -7634,7 +7816,7 @@ export async function getSettings() { stTrack('getSettings'); // @st-tracked
 }
 
 //MARK: saveSettings()
-export async function saveSettings(loopCounter = 0) { stTrack('saveSettings'); // @st-tracked
+export async function saveSettings(loopCounter = 0) {
     if (!settingsReady) {
         console.warn('Settings not ready, scheduling another save');
         saveSettingsDebounced();
@@ -7703,7 +7885,7 @@ export async function saveSettings(loopCounter = 0) { stTrack('saveSettings'); /
  * Sets the generation parameters from a preset object.
  * @param {{ genamt?: number, max_length?: number }} preset Preset object
  */
-export function setGenerationParamsFromPreset(preset) { stTrack('setGenerationParamsFromPreset'); // @st-tracked
+export function setGenerationParamsFromPreset(preset) {
     const needsUnlock = (preset.max_length ?? max_context) > MAX_CONTEXT_DEFAULT || (preset.genamt ?? amount_gen) > MAX_RESPONSE_DEFAULT;
     $('#max_context_unlocked').prop('checked', needsUnlock).trigger('change');
 
@@ -7821,7 +8003,7 @@ function messageEditAuto(div) {
  * Create the message edit UI.
  * @param {number} editMessageId The ID of the message to edit
  */
-export async function messageEdit(editMessageId) { stTrack('messageEdit'); // @st-tracked
+export async function messageEdit(editMessageId) {
     const editMessage = chat[editMessageId];
     if (!editMessage) {
         console.warn(`Message with id ${editMessageId} not found in chat array.`);
@@ -8030,7 +8212,7 @@ async function messageEditDone(div) {
  * @returns {Promise<Object>} chat_dict - A dictionary where each key is a file_name and the value is the
  * corresponding chat content fetched from the server.
  */
-export async function getChatsFromFiles(data, isGroupChat) { stTrack('getChatsFromFiles'); // @st-tracked
+export async function getChatsFromFiles(data, isGroupChat) {
     const context = getContext();
     let chat_dict = {};
     let chat_list = Object.values(data).sort((a, b) => a.file_name.localeCompare(b.file_name)).reverse();
@@ -8090,7 +8272,7 @@ export async function getChatsFromFiles(data, isGroupChat) { stTrack('getChatsFr
  * in descending order by file name. Returns an empty array if the fetch request is unsuccessful or the
  * response is an object with an `error` property set to `true`.
  */
-export async function getPastCharacterChats(characterId = null) { stTrack('getPastCharacterChats'); // @st-tracked
+export async function getPastCharacterChats(characterId = null) {
     characterId = characterId ?? parseInt(this_chid);
     if (!characters[characterId]) return [];
 
@@ -8116,7 +8298,7 @@ export async function getPastCharacterChats(characterId = null) { stTrack('getPa
 /**
  * Helper for `displayPastChats`, to make the same info consistently available for other functions
  */
-export function getCurrentChatDetails() { stTrack('getCurrentChatDetails'); // @st-tracked
+export function getCurrentChatDetails() {
     if (!characters[this_chid] && !selected_group) {
         return { sessionName: '', group: null, characterName: '', avatarImgURL: '' };
     }
@@ -8135,7 +8317,7 @@ export function getCurrentChatDetails() { stTrack('getCurrentChatDetails'); // @
  * displayed chats based on a search query.
  * @param {string[]} hightlightNames - An array of chat names to highlight
  */
-export async function displayPastChats(hightlightNames = []) { stTrack('displayPastChats'); // @st-tracked
+export async function displayPastChats(hightlightNames = []) {
     $('#select_chat_div').empty();
     $('#select_chat_search').val('').off('input');
 
@@ -8216,7 +8398,7 @@ async function displayChats(searchQuery, currentChat, displayName, avatarImg, se
     }
 }
 
-export function selectRightMenuWithAnimation(selectedMenuId) { stTrack('selectRightMenuWithAnimation'); // @st-tracked
+export function selectRightMenuWithAnimation(selectedMenuId) {
     const displayModes = {
         'rm_group_chats_block': 'flex',
         'rm_api_block': 'grid',
@@ -8240,7 +8422,7 @@ export function selectRightMenuWithAnimation(selectedMenuId) { stTrack('selectRi
     });
 }
 
-export function select_rm_info(type, charId, previousCharId = null) { stTrack('select_rm_info'); // @st-tracked
+export function select_rm_info(type, charId, previousCharId = null) {
     if (!type) {
         toastr.error(t`Invalid process (no 'type')`);
         return;
@@ -8346,7 +8528,7 @@ export function select_rm_info(type, charId, previousCharId = null) { stTrack('s
  * @param {object} [param1] Options for the switch
  * @param {boolean} [param1.switchMenu=true] Whether to switch the menu
  */
-export function select_selected_character(chid, { switchMenu = true } = {}) { stTrack('select_selected_character'); // @st-tracked
+export function select_selected_character(chid, { switchMenu = true } = {}) {
     //character select
     //console.log('select_selected_character() -- starting with input of -- ' + chid + ' (name:' + characters[chid].name + ')');
     select_rm_create({ switchMenu });
@@ -8510,7 +8692,7 @@ function select_rm_characters() {
  * @param {boolean} scan Should the prompt be included in the world info scan.
  * @param {(function(): Promise<boolean>|boolean)} filter Filter function to determine if the prompt should be injected.
  */
-export function setExtensionPrompt(key, value, position, depth, scan = false, role = extension_prompt_roles.SYSTEM, filter = null) { stTrack('setExtensionPrompt'); // @st-tracked
+export function setExtensionPrompt(key, value, position, depth, scan = false, role = extension_prompt_roles.SYSTEM, filter = null) {
     extension_prompts[key] = {
         value: String(value),
         position: Number(position),
@@ -8526,7 +8708,7 @@ export function setExtensionPrompt(key, value, position, depth, scan = false, ro
  * @param {string} roleName The name of the extension prompt role.
  * @returns {number} The role id of the extension prompt.
  */
-export function getExtensionPromptRoleByName(roleName) { stTrack('getExtensionPromptRoleByName'); // @st-tracked
+export function getExtensionPromptRoleByName(roleName) {
     // If the role is already a valid number, return it
     if (typeof roleName === 'number' && Object.values(extension_prompt_roles).includes(roleName)) {
         return roleName;
@@ -8549,7 +8731,7 @@ export function getExtensionPromptRoleByName(roleName) { stTrack('getExtensionPr
  * Removes all char A/N prompt injections from the chat.
  * To clean up when switching from groups to solo and vice versa.
  */
-export function removeDepthPrompts() { stTrack('removeDepthPrompts'); // @st-tracked
+export function removeDepthPrompts() {
     for (const key of Object.keys(extension_prompts)) {
         if (key.startsWith(inject_ids.DEPTH_PROMPT)) {
             delete extension_prompts[key];
@@ -8562,7 +8744,7 @@ export function removeDepthPrompts() { stTrack('removeDepthPrompts'); // @st-tra
  * @param {Object} newValues An object with collection of new values to be added into the metadata.
  * @param {boolean} reset Should a metadata be reset by this call.
  */
-export function updateChatMetadata(newValues, reset) { stTrack('updateChatMetadata'); // @st-tracked
+export function updateChatMetadata(newValues, reset) {
     chat_metadata = reset ? { ...newValues } : { ...chat_metadata, ...newValues };
 }
 
@@ -8580,7 +8762,7 @@ function updateFavButtonState(state) {
     $('#favorite_button').toggleClass('fav_off', !state);
 }
 
-export async function setCharacterSettingsOverrides() { stTrack('setCharacterSettingsOverrides'); // @st-tracked
+export async function setCharacterSettingsOverrides() {
     if (!selected_group && (this_chid === undefined || !characters[this_chid])) {
         console.warn('setCharacterSettingsOverrides() -- no selected group or character');
         return;
@@ -8651,7 +8833,7 @@ export async function setCharacterSettingsOverrides() { stTrack('setCharacterSet
  * @returns {Promise<any>} A promise that resolves when the popup is closed.
  * @deprecated Use `callGenericPopup` instead.
  */
-export function callPopup(text, type, inputValue = '', { okButton, rows, wide, wider, large, allowHorizontalScrolling, allowVerticalScrolling, cropAspect } = {}) { stTrack('callPopup'); // @st-tracked
+export function callPopup(text, type, inputValue = '', { okButton, rows, wide, wider, large, allowHorizontalScrolling, allowVerticalScrolling, cropAspect } = {}) {
     function getOkButtonText() {
         if (['text', 'char_not_selected'].includes(popup_type)) {
             $dialoguePopupCancel.css('display', 'none');
@@ -8713,7 +8895,7 @@ export function callPopup(text, type, inputValue = '', { okButton, rows, wide, w
  * @param {ChatMessage} [options.message=undefined] Swipe numbers from this message will be used instead of mesId.
  * @param {JQuery<HTMLElement>} [options.messageElement=undefined] Target Element. Passing in the message's element will save a DOM query.
  */
-export async function updateSwipeCounter(mesId, { message = undefined, messageElement = undefined } = {}) { stTrack('updateSwipeCounter'); // @st-tracked
+export async function updateSwipeCounter(mesId, { message = undefined, messageElement = undefined } = {}) {
     message ??= chat[mesId];
     messageElement ??= chatElement.children('.mes').filter(`[mesid="${mesId}"]`);
 
@@ -8731,7 +8913,7 @@ export async function updateSwipeCounter(mesId, { message = undefined, messageEl
  * Returns true if messages are generally swipeable.
  * @returns {boolean}
  */
-export function isSwipingAllowed() { stTrack('isSwipingAllowed'); // @st-tracked
+export function isSwipingAllowed() {
     return (
         //Swipe cannot be called on an empty chat.
         chat.length !== 0 &&
@@ -8752,7 +8934,7 @@ export function isSwipingAllowed() { stTrack('isSwipingAllowed'); // @st-tracked
  * @param {ChatMessage} [message=undefined] If undefined, then the message checks will be skipped.
  * @returns {boolean}
  */
-export function isMessageSwipeable(messageId, message = undefined) { stTrack('isMessageSwipeable'); // @st-tracked
+export function isMessageSwipeable(messageId, message = undefined) {
     message ??= chat[messageId];
 
     //If the message does not have swipes, create them.
@@ -8790,7 +8972,7 @@ export function isMessageSwipeable(messageId, message = undefined) { stTrack('is
  * @param {ChatMessage} [message=undefined] If defined, this will be used instead of chat[messageId].
  * @returns {OVERSWIPE_BEHAVIOR}
  */
-export function getOverswipeBehavior(messageId, message = undefined) { stTrack('getOverswipeBehavior'); // @st-tracked
+export function getOverswipeBehavior(messageId, message = undefined) {
     message ??= chat[messageId];
 
     const isPristine = !chat_metadata?.tainted;
@@ -8817,7 +8999,7 @@ export function getOverswipeBehavior(messageId, message = undefined) { stTrack('
  * @param {boolean} fade By default, the chevrons fade in and out.
  * @returns
  */
-export function refreshSwipeButtons(updateCounters = false, fade = true) { stTrack('refreshSwipeButtons'); // @st-tracked
+export function refreshSwipeButtons(updateCounters = false, fade = true) {
     //Never show swipe buttons on an empty chat.
     if (chat?.length === 0) return false;
 
@@ -8876,7 +9058,7 @@ export function refreshSwipeButtons(updateCounters = false, fade = true) { stTra
 /**
  * This function is misleadingly named. It allows generation then refreshes the swipe buttons and counters.
  */
-export function showSwipeButtons() { stTrack('showSwipeButtons'); // @st-tracked
+export function showSwipeButtons() {
     swipesHidden = false;
     refreshSwipeButtons();
 }
@@ -8886,7 +9068,7 @@ export function showSwipeButtons() { stTrack('showSwipeButtons'); // @st-tracked
  * @param {object} [options] Options
  * @param {boolean} [options.hideCounters=false] Also hide the swipes counter.
  */
-export function hideSwipeButtons({ hideCounters = false } = {}) { stTrack('hideSwipeButtons'); // @st-tracked
+export function hideSwipeButtons({ hideCounters = false } = {}) {
     swipesHidden = true;
     refreshSwipeButtons();
 
@@ -8902,7 +9084,7 @@ export function hideSwipeButtons({ hideCounters = false } = {}) { stTrack('hideS
  * @param {number?} [messageId = chat.length - 1] - The ID of the message to delete from. If not provided, the last message will be targeted.
  * @returns {Promise<number>|undefined} - The ID of the new swipe after deletion.
  */
-export async function deleteSwipe(swipeId = null, messageId = chat.length - 1) { stTrack('deleteSwipe'); // @st-tracked
+export async function deleteSwipe(swipeId = null, messageId = chat.length - 1) {
     if (swipeId && (isNaN(swipeId) || swipeId < 0)) {
         toastr.warning(t`Invalid swipe ID: ${swipeId + 1}`);
         return;
@@ -8949,11 +9131,11 @@ export async function deleteSwipe(swipeId = null, messageId = chat.length - 1) {
     return newSwipeId;
 }
 
-export async function saveMetadata() { stTrack('saveMetadata'); // @st-tracked
+export async function saveMetadata() {
     return await saveChatConditional();
 }
 
-export async function saveChatConditional() { stTrack('saveChatConditional'); // @st-tracked
+export async function saveChatConditional() {
     try {
         await waitUntilCondition(() => !isChatSaving, DEFAULT_SAVE_EDIT_TIMEOUT, 100);
     } catch {
@@ -8990,7 +9172,7 @@ export async function saveChatConditional() { stTrack('saveChatConditional'); //
  * @param {boolean} [options.refresh] Whether to refresh the group chat list after import
  * @returns {Promise<string[]>} List of imported file names.
  */
-export async function importCharacterChat(formData, { refresh = true } = {}) { stTrack('importCharacterChat'); // @st-tracked
+export async function importCharacterChat(formData, { refresh = true } = {}) {
     const fetchResult = await fetch('/api/chats/import', {
         method: 'POST',
         body: formData,
@@ -9009,7 +9191,7 @@ export async function importCharacterChat(formData, { refresh = true } = {}) { s
     return [];
 }
 
-export function updateViewMessageIds(startIndex = null) { stTrack('updateViewMessageIds'); // @st-tracked
+export function updateViewMessageIds(startIndex = null) {
     const minId = startIndex ?? getFirstDisplayedMessageId();
 
     chatElement.find('.mes').each(function (index, element) {
@@ -9023,13 +9205,13 @@ export function updateViewMessageIds(startIndex = null) { stTrack('updateViewMes
     updateEditArrowClasses();
 }
 
-export function getFirstDisplayedMessageId() { stTrack('getFirstDisplayedMessageId'); // @st-tracked
+export function getFirstDisplayedMessageId() {
     const allIds = Array.from(document.querySelectorAll('#chat .mes')).map(el => Number(el.getAttribute('mesid'))).filter(x => !isNaN(x));
     const minId = Math.min(...allIds);
     return minId;
 }
 
-export function updateEditArrowClasses() { stTrack('updateEditArrowClasses'); // @st-tracked
+export function updateEditArrowClasses() {
     if (!(this_edit_mes_id >= 0)) {
         return;
     }
@@ -9056,7 +9238,7 @@ export function updateEditArrowClasses() { stTrack('updateEditArrowClasses'); //
  * Closes the message editor.
  * @param {'message'|'reasoning'|'all'} what What to close. Default is 'all'.
  */
-export function closeMessageEditor(what = 'all') { stTrack('closeMessageEditor'); // @st-tracked
+export function closeMessageEditor(what = 'all') {
     if (what === 'message' || what === 'all') {
         if (this_edit_mes_id >= 0) {
             chatElement.find(`.mes[mesid="${this_edit_mes_id}"] .mes_edit_cancel`).trigger('click');
@@ -9072,7 +9254,7 @@ export function closeMessageEditor(what = 'all') { stTrack('closeMessageEditor')
     }
 }
 
-export function setGenerationProgress(progress) { stTrack('setGenerationProgress'); // @st-tracked
+export function setGenerationProgress(progress) {
     if (!progress) {
         $('#send_textarea').css({ 'background': '', 'transition': '' });
     }
@@ -9084,7 +9266,7 @@ export function setGenerationProgress(progress) { stTrack('setGenerationProgress
     }
 }
 
-export function cancelTtsPlay() { stTrack('cancelTtsPlay'); // @st-tracked
+export function cancelTtsPlay() {
     if ('speechSynthesis' in window) {
         speechSynthesis.cancel();
     }
@@ -9291,7 +9473,7 @@ function addAlternateGreeting(template, greeting, index, getArray, popup) {
  * Creates or edits a character based on the form data.
  * @param {Event} [e] Event that triggered the function call.
  */
-export async function createOrEditCharacter(e) { stTrack('createOrEditCharacter'); // @st-tracked
+export async function createOrEditCharacter(e) {
     if (!settingsReady) {
         console.warn('Settings not ready, aborting character creation/editing.');
         return;
@@ -9498,7 +9680,7 @@ function formatSwipeCounter(current, total) {
  * @param {number} [params.forceSwipeId] The target swipe_id. When out of range, it will be looped or clamped.
  * @param {number} [params.forceDuration] Overwrites the default swipe duration.
  */
-export async function swipe(event, direction, { source, repeated, message = chat[chat.length - 1], forceMesId, forceSwipeId, forceDuration } = {}) { stTrack('swipe'); // @st-tracked
+export async function swipe(event, direction, { source, repeated, message = chat[chat.length - 1], forceMesId, forceSwipeId, forceDuration } = {}) {
     if (chat.length === 0) {
         console.warn('Swipe was called on an empty chat.');
         return;
@@ -9989,7 +10171,7 @@ export async function swipe(event, direction, { source, repeated, message = chat
  * @param {boolean} [params.repeated] Is the swipe event repeated.
  * @param {object} [params.message] The chat message to swipe.
  */
-export async function swipe_left(event, { source, repeated, message } = {}) { stTrack('swipe_left'); // @st-tracked
+export async function swipe_left(event, { source, repeated, message } = {}) {
     await swipe.call(this, event, SWIPE_DIRECTION.LEFT, { source: source, repeated: repeated, message: message });
 }
 
@@ -10003,7 +10185,7 @@ export async function swipe_left(event, { source, repeated, message } = {}) { st
  * @param {object} [params.message] The chat message to swipe.
  */
 //MARK: swipe_right
-export async function swipe_right(event = null, { source, repeated, message } = {}) { stTrack('swipe_right'); // @st-tracked
+export async function swipe_right(event = null, { source, repeated, message } = {}) {
     await swipe.call(this, event, SWIPE_DIRECTION.RIGHT, { source: source, repeated: repeated, message: message });
 }
 
@@ -10013,7 +10195,7 @@ export async function swipe_right(event = null, { source, repeated, message } = 
  * @param {Map<File, string>} [data] Extra data to pass to the import function
  * @returns {Promise<void>}
  */
-export async function processDroppedFiles(files, data = new Map()) { stTrack('processDroppedFiles'); // @st-tracked
+export async function processDroppedFiles(files, data = new Map()) {
     const allowedMimeTypes = [
         'application/json',
         'image/png',
@@ -10170,7 +10352,7 @@ async function importFromURL(items, files) {
     }
 }
 
-export async function doNewChat({ deleteCurrentChat = false } = {}) { stTrack('doNewChat'); // @st-tracked
+export async function doNewChat({ deleteCurrentChat = false } = {}) {
     //Make a new chat for selected character
     if ((!selected_group && this_chid == undefined) || menu_type == 'create') {
         return;
@@ -10212,7 +10394,7 @@ export async function doNewChat({ deleteCurrentChat = false } = {}) { stTrack('d
  * @param {string} param.newFileName New name for the chat (no JSONL extension)
  * @param {boolean} [param.loader=true] Whether to show loader during the operation
  */
-export async function renameGroupOrCharacterChat({ characterId, groupId, oldFileName, newFileName, loader }) { stTrack('renameGroupOrCharacterChat'); // @st-tracked
+export async function renameGroupOrCharacterChat({ characterId, groupId, oldFileName, newFileName, loader }) {
     const currentChatId = getCurrentChatId();
     const body = {
         is_group: !!groupId,
@@ -10279,7 +10461,7 @@ export async function renameGroupOrCharacterChat({ characterId, groupId, oldFile
  * @param {string} oldFileName Old name of the chat (no JSONL extension)
  * @param {string} newName New name for the chat (no JSONL extension)
  */
-export async function renameChat(oldFileName, newName) { stTrack('renameChat'); // @st-tracked
+export async function renameChat(oldFileName, newName) {
     return await renameGroupOrCharacterChat({
         characterId: this_chid,
         groupId: selected_group,
@@ -10294,7 +10476,7 @@ export async function renameChat(oldFileName, newName) { stTrack('renameChat'); 
  * If a message generation is in progress, it prompts the user to stop it first.
  * @returns {Promise<boolean>} True if the chat was successfully closed, false otherwise.
  */
-export async function closeCurrentChat() { stTrack('closeCurrentChat'); // @st-tracked
+export async function closeCurrentChat() {
     if (is_send_press == false) {
         await waitUntilCondition(() => !isChatSaving, debounce_timeout.extended, 10);
         await clearChat({ clearData: true });
@@ -10322,7 +10504,7 @@ export async function closeCurrentChat() { stTrack('closeCurrentChat'); // @st-t
  * @param {string} newName New name for the chat
  * @returns {Promise<void>}
  */
-export async function updateRemoteChatName(characterId, newName) { stTrack('updateRemoteChatName'); // @st-tracked
+export async function updateRemoteChatName(characterId, newName) {
     const character = characters[characterId];
     if (!character) {
         console.warn(`Character not found for ID: ${characterId}`);
@@ -10360,7 +10542,7 @@ function doCharListDisplaySwitch() {
  * @param {string} this_chid - The character ID to be deleted.
  * @param {boolean} delete_chats - Whether to delete chats or not.
  */
-export async function handleDeleteCharacter(this_chid, delete_chats) { stTrack('handleDeleteCharacter'); // @st-tracked
+export async function handleDeleteCharacter(this_chid, delete_chats) {
     if (!characters[this_chid]) {
         return;
     }
@@ -10376,7 +10558,7 @@ export async function handleDeleteCharacter(this_chid, delete_chats) { stTrack('
  * @param {boolean} [options.deleteChats=true] - Whether to delete associated chats or not
  * @return {Promise<void>} - A promise that resolves when the character is successfully deleted
  */
-export async function deleteCharacter(characterKey, { deleteChats = true } = {}) { stTrack('deleteCharacter'); // @st-tracked
+export async function deleteCharacter(characterKey, { deleteChats = true } = {}) {
     if (!Array.isArray(characterKey)) {
         characterKey = [characterKey];
     }
@@ -10466,7 +10648,7 @@ async function removeCharacterFromUI() {
  * @param {boolean} [params.temporary=false] I need a temporary secretary
  * @returns {Promise<void>} - A promise that resolves when the new assistant chat is created
  */
-export async function newAssistantChat({ temporary = false } = {}) { stTrack('newAssistantChat'); // @st-tracked
+export async function newAssistantChat({ temporary = false } = {}) {
     await clearChat();
     if (!temporary) {
         return openPermanentAssistantChat();
@@ -10497,7 +10679,7 @@ function doDrawerOpenClick() {
  * Handles click events on .drawer-toggle elements.
  * @returns {Promise<void>}
  */
-export async function doNavbarIconClick() { stTrack('doNavbarIconClick'); // @st-tracked
+export async function doNavbarIconClick() {
     const icon = $(this).find('.drawer-icon');
     const drawer = $(this).parent().find('.drawer-content');
     const drawerWasOpenAlready = $(this).parent().find('.drawer-content').hasClass('openDrawer');

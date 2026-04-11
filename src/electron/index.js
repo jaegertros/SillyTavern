@@ -1,10 +1,11 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import yargs from 'yargs';
+import yargs from 'yargs/yargs';
+import { hideBin } from 'yargs/helpers';
 import { serverEvents, EVENT_NAMES } from '../server-events.js';
 
-const cliArguments = yargs(process.argv)
+const cliArguments = yargs(hideBin(process.argv))
     .usage('Usage: <your-start-script> [options]')
     .option('width', {
         type: 'number',

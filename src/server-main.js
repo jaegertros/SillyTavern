@@ -14,8 +14,6 @@ import cookieSession from 'cookie-session';
 import multer from 'multer';
 import responseTime from 'response-time';
 import helmet from 'helmet';
-import bodyParser from 'body-parser';
-
 // local library imports
 import './fetch-patch.js';
 import { serverDirectory } from './server-directory.js';
@@ -99,8 +97,8 @@ app.use(helmet({
 app.use(compression());
 app.use(responseTime());
 
-app.use(bodyParser.json({ limit: '500mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '500mb' }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ extended: true, limit: '500mb' }));
 
 // CORS Settings //
 const corsEnabled = getConfigValue('cors.enabled', true, 'boolean');
@@ -214,7 +212,7 @@ app.get('/', cacheBuster.middleware, (request, response) => {
 });
 
 // Callback endpoint for OAuth PKCE flows (e.g. OpenRouter)
-app.get('/callback/:source?', (request, response) => {
+app.get(['/callback', '/callback/{:source}'], (request, response) => {
     const source = request.params.source;
     const query = request.url.split('?')[1];
     const searchParams = new URLSearchParams();
@@ -246,9 +244,9 @@ app.post('/api/ping', (request, response) => {
 });
 
 if (cliArgs.enableCorsProxy) {
-    app.use('/proxy/:url(*)', corsProxyMiddleware);
+    app.use('/proxy/{*url}', corsProxyMiddleware);
 } else {
-    app.use('/proxy/:url(*)', async (_, res) => {
+    app.use('/proxy/{*url}', async (_, res) => {
         const message = 'CORS proxy is disabled. Enable it in config.yaml or use the --corsProxy flag.';
         console.log(message);
         res.status(404).send(message);
