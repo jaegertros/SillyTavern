@@ -16,17 +16,7 @@ public/NovelAI Settings/
 public/TextGen Settings/
 public/instruct/
 public/context/
-public/scripts/extensions/third-party/*
-!public/scripts/extensions/third-party/SillyTavern-WTracker/
-!public/scripts/extensions/third-party/SillyTavern-WTracker/**
-!public/scripts/extensions/third-party/SillyTavern-Flowchart/
-!public/scripts/extensions/third-party/SillyTavern-Flowchart/**
-!public/scripts/extensions/third-party/SillyTavern-BananaGen/
-!public/scripts/extensions/third-party/SillyTavern-BananaGen/**
-!public/scripts/extensions/third-party/SillyTavern-Character-Creator/
-!public/scripts/extensions/third-party/SillyTavern-Character-Creator/**
-!public/scripts/extensions/third-party/SillyTavern-WorldInfo-Recommender/
-!public/scripts/extensions/third-party/SillyTavern-WorldInfo-Recommender/**
+public/scripts/extensions/third-party/
 public/stats.json
 /uploads/
 *.jsonl
@@ -61,6 +51,7 @@ public/error/
 /plugins/
 /data
 /default/scaffold
+public/scripts/extensions/third-party
 /certs
 .aider*
 .env
