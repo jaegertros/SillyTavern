@@ -24,6 +24,13 @@ npm run vue:build      # Compile Vue SFCs to public/vue-dist/
 npm run vue:watch      # Watch mode for Vue development (fast rebuilds)
 ```
 
+## Companion Documents
+
+- **[DISPLAY_SYSTEM.md](DISPLAY_SYSTEM.md)** — Drawer/panel/overlay architecture, z-index hierarchy, popup system, extension UI safety rules. Read this before touching any UI layering.
+- **[ST-DIRECTOR.md](ST-DIRECTOR.md)** — Change log for the Director (AI) group reply strategy extension.
+- **[VUE3_MIGRATION_PLAN.md](VUE3_MIGRATION_PLAN.md)** — Phase 1 Vue 3 migration plan and composable bridge design.
+- **[DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** — Full dependency audit with upgrade risk analysis.
+
 ## Project Structure
 
 ```
