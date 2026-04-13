@@ -123,7 +123,18 @@ export const group_activation_strategy = {
     LIST: 1,
     MANUAL: 2,
     POOLED: 3,
+    DIRECTOR: 4,
 };
+
+let directorActivationCallback = null;
+
+/**
+ * Registers a callback function for the Director activation strategy.
+ * @param {function} callback Async function that receives (memberChars, activationText, lastMessage, group) and returns ordered speaker names
+ */
+export function registerDirectorCallback(callback) {
+    directorActivationCallback = callback;
+}
 
 export const group_generation_mode = {
     SWAP: 0,
@@ -1035,6 +1046,9 @@ async function generateGroupWrapper(byAutoMode, type = null, params = {}) {
         else if (activationStrategy === group_activation_strategy.MANUAL && !isUserInput) {
             activatedMembers = shuffle(enabledMembers).slice(0, 1).map(x => characters.findIndex(y => y.avatar === x)).filter(x => x !== -1);
         }
+        else if (activationStrategy === group_activation_strategy.DIRECTOR) {
+            activatedMembers = await activateDirectorOrder(enabledMembers, activationText, lastMessage, group, isUserInput);
+        }
 
         if (activatedMembers.length === 0) {
             //toastr.warning('All group members are disabled. Enable at least one to get a reply.');
@@ -1235,6 +1249,57 @@ function activatePooledOrder(members, lastMessage, isUserInput) {
 
     const memberId = characters.findIndex(y => y.avatar === activatedMember);
     return memberId !== -1 ? [memberId] : [];
+}
+
+/**
+ * Activates characters using the Director (AI) strategy.
+ * Calls the registered director callback to determine speaker order.
+ * @param {string[]} enabledMembers Array of enabled member avatar ids
+ * @param {string} activationText Text that triggered the activation
+ * @param {ChatMessage} lastMessage Last message in the chat
+ * @param {object} group The group object
+ * @param {boolean} isUserInput If the generation was triggered by user input
+ * @returns {Promise<number[]>} Array of character ids
+ */
+async function activateDirectorOrder(enabledMembers, activationText, lastMessage, group, isUserInput) {
+    if (!directorActivationCallback) {
+        console.warn('[Director] No director callback registered, falling back to Natural order.');
+        return activateNaturalOrder(enabledMembers, activationText, lastMessage, group.allow_self_responses, isUserInput);
+    }
+
+    try {
+        const memberChars = enabledMembers
+            .map(id => characters.find(c => c.avatar === id))
+            .filter(Boolean);
+
+        const speakerNames = await directorActivationCallback(memberChars, activationText, lastMessage, group);
+
+        if (!Array.isArray(speakerNames) || speakerNames.length === 0) {
+            console.warn('[Director] Callback returned no speakers, falling back to Natural order.');
+            return activateNaturalOrder(enabledMembers, activationText, lastMessage, group.allow_self_responses, isUserInput);
+        }
+
+        const activated = [];
+        for (const name of speakerNames) {
+            const char = characters.find(c => c.name.toLowerCase() === name.toLowerCase());
+            if (char) {
+                const idx = characters.indexOf(char);
+                if (idx !== -1 && !activated.includes(idx)) {
+                    activated.push(idx);
+                }
+            }
+        }
+
+        if (activated.length === 0) {
+            console.warn('[Director] No valid character matches, falling back to Natural order.');
+            return activateNaturalOrder(enabledMembers, activationText, lastMessage, group.allow_self_responses, isUserInput);
+        }
+
+        return activated;
+    } catch (error) {
+        console.error('[Director] Error in director callback:', error);
+        return activateNaturalOrder(enabledMembers, activationText, lastMessage, group.allow_self_responses, isUserInput);
+    }
 }
 
 /**
