@@ -3,17 +3,16 @@ import fs from 'node:fs';
 import process from 'node:process';
 import { Buffer } from 'node:buffer';
 
-import { pipeline, env, RawImage } from 'sillytavern-transformers';
+import { pipeline, env, RawImage } from '@huggingface/transformers';
 import { getConfigValue } from './util.js';
-import { serverDirectory } from './server-directory.js';
 
 configureTransformers();
 
 function configureTransformers() {
-    // Limit the number of threads to 1 to avoid issues on Android
-    env.backends.onnx.wasm.numThreads = 1;
-    // Use WASM from a local folder to avoid CDN connections
-    env.backends.onnx.wasm.wasmPaths = path.join(serverDirectory, 'node_modules', 'sillytavern-transformers', 'dist') + path.sep;
+    // @huggingface/transformers v4 uses onnxruntime-node (native C++ bindings)
+    // in Node.js environments — no WASM path or thread configuration needed.
+    // Disable local model path lookups (models are downloaded from HuggingFace Hub).
+    env.allowLocalModels = false;
 }
 
 const tasks = {
@@ -21,31 +20,31 @@ const tasks = {
         defaultModel: 'Cohee/distilbert-base-uncased-go-emotions-onnx',
         pipeline: null,
         configField: 'extensions.models.classification',
-        quantized: true,
+        dtype: 'q8',
     },
     'image-to-text': {
         defaultModel: 'Xenova/vit-gpt2-image-captioning',
         pipeline: null,
         configField: 'extensions.models.captioning',
-        quantized: true,
+        dtype: 'q8',
     },
     'feature-extraction': {
         defaultModel: 'Xenova/all-MiniLM-L6-v2',
         pipeline: null,
         configField: 'extensions.models.embedding',
-        quantized: true,
+        dtype: 'q8',
     },
     'automatic-speech-recognition': {
         defaultModel: 'Xenova/whisper-small',
         pipeline: null,
         configField: 'extensions.models.speechToText',
-        quantized: true,
+        dtype: 'q8',
     },
     'text-to-speech': {
         defaultModel: 'Xenova/speecht5_tts',
         pipeline: null,
         configField: 'extensions.models.textToSpeech',
-        quantized: false,
+        dtype: 'fp32',
     },
 };
 
@@ -116,9 +115,9 @@ async function migrateCacheToDataDir() {
 
 /**
  * Gets the transformers.js pipeline for a given task.
- * @param {import('sillytavern-transformers').PipelineType} task The task to get the pipeline for
+ * @param {import('@huggingface/transformers').PipelineType} task The task to get the pipeline for
  * @param {string} forceModel The model to use for the pipeline, if any
- * @returns {Promise<import('sillytavern-transformers').Pipeline>} The transformers.js pipeline
+ * @returns {Promise<import('@huggingface/transformers').Pipeline>} The transformers.js pipeline
  */
 export async function getPipeline(task, forceModel = '') {
     await migrateCacheToDataDir();
@@ -127,7 +126,7 @@ export async function getPipeline(task, forceModel = '') {
         if (forceModel === '' || tasks[task].currentModel === forceModel) {
             return tasks[task].pipeline;
         }
-        console.log('Disposing transformers.js pipeline for for task', task, 'with model', tasks[task].currentModel);
+        console.log('Disposing transformers.js pipeline for task', task, 'with model', tasks[task].currentModel);
         await tasks[task].pipeline.dispose();
     }
 
@@ -135,7 +134,11 @@ export async function getPipeline(task, forceModel = '') {
     const model = forceModel || getModelForTask(task);
     const localOnly = !getConfigValue('extensions.models.autoDownload', true, 'boolean');
     console.log('Initializing transformers.js pipeline for task', task, 'with model', model);
-    const instance = await pipeline(task, model, { cache_dir: cacheDir, quantized: tasks[task].quantized ?? true, local_files_only: localOnly });
+    const instance = await pipeline(task, model, {
+        cache_dir: cacheDir,
+        dtype: tasks[task].dtype ?? 'q8',
+        local_files_only: localOnly,
+    });
     tasks[task].pipeline = instance;
     tasks[task].currentModel = model;
     // @ts-ignore
