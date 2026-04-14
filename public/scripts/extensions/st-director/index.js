@@ -226,9 +226,20 @@ async function onTestDirector() {
     }
 }
 
+// Register the director callback IMMEDIATELY at module load time.
+// This must happen before any group chat tries to use the Director strategy.
+// The DOM setup below can fail without breaking the core callback functionality.
+registerDirectorCallback(directorCallback);
+console.log('[ST-Director] Director callback registered.');
+
 jQuery(async () => {
-    const settingsHtml = await renderExtensionTemplateAsync(MODULE_NAME, 'index');
-    $('#extensions_settings2').append(settingsHtml);
+    try {
+        const settingsHtml = await renderExtensionTemplateAsync(MODULE_NAME, 'index');
+        $('#extensions_settings2').append(settingsHtml);
+    } catch (err) {
+        console.error('[ST-Director] Failed to load settings template:', err);
+        return;
+    }
 
     const settings = getSettings();
 
@@ -297,14 +308,13 @@ jQuery(async () => {
     document.getElementById('st-director-test-btn')?.addEventListener('click', onTestDirector);
 
     // Build character summaries when chat changes
-    const eventSource = context?.eventSource || window['eventSource'];
-    if (typeof eventSource?.on === 'function') {
-        eventSource.on('chatLoaded', buildCharSummaryUI);
-        eventSource.on('groupSelected', buildCharSummaryUI);
+    const ctx = getContext();
+    const es = ctx?.eventSource || window['eventSource'];
+    if (typeof es?.on === 'function') {
+        es.on('chatLoaded', buildCharSummaryUI);
+        es.on('groupSelected', buildCharSummaryUI);
     }
     buildCharSummaryUI();
 
-    // Register the director callback
-    registerDirectorCallback(directorCallback);
-    console.log('[ST-Director] Extension loaded and callback registered.');
+    console.log('[ST-Director] Settings UI loaded.');
 });

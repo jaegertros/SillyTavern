@@ -1,0 +1,10 @@
+{
+    "display_name": "OpenRouter Direct",
+    "loading_order": 101,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "",
+    "author": "User",
+    "version": "1.0.0"
+}

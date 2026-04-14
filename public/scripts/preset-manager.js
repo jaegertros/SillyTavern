@@ -752,6 +752,10 @@ class PresetManager {
      */
     getCompletionPresetByName(name) {
         // Retrieve a completion preset by name. Return undefined if not found.
+        if (name == null || name === '') {
+            return undefined;
+        }
+
         let { presets, preset_names } = this.getPresetList();
         let preset;
 

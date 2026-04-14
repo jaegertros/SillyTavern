@@ -40,7 +40,7 @@
 }
 
 #chat-sidebar.open #chat-sidebar-rail {
-    width: 224px;
+    width: 260px;
     padding: 8px 0;
     opacity: 1;
     pointer-events: auto;
@@ -131,7 +131,7 @@
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.1s ease;
-    min-height: 44px;
+    min-height: 52px;
 }
 
 .csb-item:hover {
@@ -212,24 +212,36 @@
     border-color: #404249;
 }
 
-/* ---------- text info (name + type badge) ---------- */
+/* ---------- text info (name + session + preview) ---------- */
 .csb-info {
     display: flex;
     flex-direction: column;
     overflow: hidden;
     flex: 1;
     min-width: 0;
+    gap: 1px;
+}
+
+/* top row: character name + relative time */
+.csb-name-row {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
 }
 
 .csb-name {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     color: #949ba4;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.3;
     transition: color 0.1s ease;
+    flex: 1;
+    min-width: 0;
 }
 
 .csb-item:hover .csb-name,
@@ -237,6 +249,44 @@
     color: #f2f3f5;
 }
 
+.csb-time {
+    font-size: 10px;
+    font-weight: 500;
+    color: #6d6f78;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.3;
+}
+
+.csb-item:hover .csb-time {
+    color: #949ba4;
+}
+
+/* session label: branch info, date, chat ID */
+.csb-session {
+    font-size: 11px;
+    color: #80848e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.csb-item:hover .csb-session {
+    color: #b5bac1;
+}
+
+/* message count / preview line */
+.csb-preview {
+    font-size: 10px;
+    color: #6d6f78;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+/* legacy badge — kept for compat */
 .csb-type-badge {
     font-size: 11px;
     color: #6d6f78;

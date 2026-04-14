@@ -59,3 +59,10 @@ public/scripts/extensions/third-party
 yarn.lock
 *.code-workspace
 test-results/
+/future-tools/
+/_cache/
+/_storage/
+/_uploads/
+/_webpack/
+/default-user/
+cookie-secret.txt
