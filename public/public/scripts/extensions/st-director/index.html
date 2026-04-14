@@ -1,0 +1,53 @@
+<div id="st-director-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>ST Director</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <label>
+                <input type="checkbox" id="st-director-enabled" />
+                <span>Enable Director (AI) mode</span>
+            </label>
+
+            <hr />
+
+            <label for="st-director-api-key">OpenRouter API Key</label>
+            <input type="password" id="st-director-api-key" placeholder="sk-or-..." autocomplete="off" />
+            <small>Used only for director calls. Leave blank to use the main OpenRouter key.</small>
+
+            <label for="st-director-model">Director Model</label>
+            <input type="text" id="st-director-model" placeholder="google/gemini-2.0-flash-001" />
+
+            <label for="st-director-max-context">Max Context Messages</label>
+            <input type="number" id="st-director-max-context" min="1" max="50" value="15" />
+
+            <label for="st-director-max-speakers">Max Speakers Per Turn</label>
+            <input type="number" id="st-director-max-speakers" min="1" max="20" value="3" />
+
+            <hr />
+
+            <div id="st-director-char-summaries">
+                <b>Character Summaries</b>
+                <small>(Helps the director understand each character)</small>
+                <div id="st-director-char-list"></div>
+            </div>
+
+            <hr />
+
+            <label for="st-director-system-prompt">Director System Prompt</label>
+            <textarea id="st-director-system-prompt"></textarea>
+            <div class="flex-container">
+                <div id="st-director-reset-btn" class="menu_button menu_button_icon">
+                    <span class="fa-solid fa-rotate-left"></span>
+                    <span>Reset Prompt</span>
+                </div>
+                <div id="st-director-test-btn" class="menu_button menu_button_icon">
+                    <span class="fa-solid fa-flask"></span>
+                    <span>Test Director Now</span>
+                </div>
+            </div>
+            <div id="st-director-test-output"></div>
+        </div>
+    </div>
+</div>

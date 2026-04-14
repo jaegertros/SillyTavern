@@ -1,0 +1,31 @@
+<div class="chat-sidebar-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Chat Sidebar</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <label class="checkbox_label" title="Show a Discord-style chat sidebar on the left edge.">
+                <input id="csb_enabled" type="checkbox" />
+                <span>Enable Chat Sidebar</span>
+            </label>
+
+            <label class="checkbox_label" title="Show green online-style dot on every avatar.">
+                <input id="csb_show_dots" type="checkbox" />
+                <span>Show Online Dots</span>
+            </label>
+
+            <label class="checkbox_label" title="Show favorited characters/groups at the top of the list.">
+                <input id="csb_favs_first" type="checkbox" />
+                <span>Favorites First</span>
+            </label>
+
+            <div class="flex-container flexGap5">
+                <div class="flex1">
+                    <label for="csb_max_items">Max visible items (0 = all)</label>
+                    <input id="csb_max_items" type="number" class="text_pole" value="0" min="0" max="200" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

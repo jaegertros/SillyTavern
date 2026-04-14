@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c:*)",
+      "Bash(python -c \"print\\(''Python available''\\)\")",
+      "Bash(node -e \"console.log\\(''Node available''\\)\")",
+      "Bash(python -c \":*)",
+      "Bash(node -e \"const fs=require\\(''fs''\\); fs.writeFileSync\\(''C:/Users/cwadd/.claude/plans/vectorized-leaping-crescent-agent-a2c2b27dafce083d0.md'', ''placeholder'', ''utf8''\\); console.log\\(''ok''\\)\")",
+      "Bash(python -c:*)",
+      "Bash(node -e \":*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('vue:', p.dependencies.vue\\); console.log\\('vite:', p.devDependencies.vite\\); console.log\\('@vitejs/plugin-vue:', p.devDependencies['@vitejs/plugin-vue']\\);\")",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('postinstall:', p.scripts.postinstall\\); console.log\\('vue:build:', p.scripts['vue:build']\\); console.log\\('vue:watch:', p.scripts['vue:watch']\\);\")",
+      "Bash(npm run:*)",
+      "Bash(cp -r \"/c/Users/cwadd/Documents/GitHub/SillyTavern/SillyTavern/data\" \"/c/Edit/SillyTavern/\")",
+      "Bash(cp -r \"/c/Users/cwadd/Documents/GitHub/SillyTavern/SillyTavern/public\" \"/c/Edit/SillyTavern/\")",
+      "Bash(cp -r \"/c/Users/cwadd/Documents/GitHub/SillyTavern/SillyTavern/src\" \"/c/Edit/SillyTavern/\")",
+      "Bash(robocopy \"/c/Users/cwadd/Documents/GitHub/SillyTavern/SillyTavern/src\" \"/c/Edit/SillyTavern/src\" /E /MOVE /R:1 /W:1)",
+      "Read(//c//**)",
+      "Bash(xcopy \"C:\\\\Users\\\\cwadd\\\\Documents\\\\GitHub\\\\SillyTavern\\\\SillyTavern\\\\src\" \"C:\\\\Edit\\\\SillyTavern\\\\src\\\\\" /E /I /Y /Q 2>&1 | tail -5)",
+      "Bash(rm -rf \"C:\\\\Edit\\\\SillyTavern\\\\public\")",
+      "Bash(cp -r \"C:\\\\Users\\\\cwadd\\\\Documents\\\\GitHub\\\\SillyTavern\\\\SillyTavern\\\\public\" \"C:\\\\Edit\\\\SillyTavern\\\\public\")"
+    ]
+  }
+}
