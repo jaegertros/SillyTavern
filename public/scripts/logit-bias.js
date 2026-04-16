@@ -1,4 +1,4 @@
-import { saveSettingsDebounced } from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
 import { getTextTokens } from './tokenizers.js';
 import { getSortableDelay, uuidv4 } from './utils.js';
 

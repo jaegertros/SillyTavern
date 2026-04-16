@@ -1,4 +1,4 @@
-import { getRequestHeaders } from '../script.js';
+import { getRequestHeaders } from './request-utils.js';
 import { POPUP_RESULT, POPUP_TYPE, callGenericPopup } from './popup.js';
 import { renderTemplateAsync } from './templates.js';
 import { ensureImageFormatSupported, getBase64Async, humanFileSize } from './utils.js';

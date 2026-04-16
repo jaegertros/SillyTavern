@@ -1,19 +1,8 @@
-import {
-    abortStatusCheck,
-    eventSource,
-    event_types,
-    getRequestHeaders,
-    getStoppingStrings,
-    main_api,
-    max_context,
-    online_status,
-    resultCheckStatus,
-    saveSettingsDebounced,
-    setGenerationParamsFromPreset,
-    setOnlineStatus,
-    startStatusLoading,
-    substituteParams,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { abortStatusCheck, main_api, max_context, online_status } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { getStoppingStrings, resultCheckStatus, setGenerationParamsFromPreset, setOnlineStatus, startStatusLoading, substituteParams } from '../script.js';
 import { deriveTemplatesFromChatTemplate } from './chat-templates.js';
 import { t } from './i18n.js';
 import { autoSelectInstructPreset, selectContextPreset, selectInstructPreset } from './instruct-mode.js';

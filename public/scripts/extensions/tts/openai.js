@@ -1,4 +1,5 @@
-import { getRequestHeaders, substituteParams } from '../../../script.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { substituteParams } from '../../../script.js';
 import { saveTtsProviderSettings, sanitizeId } from './index.js';
 
 export { OpenAITtsProvider };

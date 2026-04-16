@@ -1,14 +1,9 @@
 export { translate };
 
-import {
-    eventSource,
-    event_types,
-    getRequestHeaders,
-    reloadCurrentChat,
-    saveSettingsDebounced,
-    substituteParams,
-    updateMessageBlock,
-} from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { eventSource, event_types } from '../../events.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { reloadCurrentChat, substituteParams, updateMessageBlock } from '../../../script.js';
 import { extension_settings, getContext, renderExtensionTemplateAsync } from '../../extensions.js';
 import { POPUP_TYPE, callGenericPopup } from '../../popup.js';
 import { updateReasoningUI } from '../../reasoning.js';

@@ -7,7 +7,10 @@ import {
 } from '../lib.js';
 
 import { getContext } from './extensions.js';
-import { characters, getRequestHeaders, processDroppedFiles, this_chid, user_avatar } from '../script.js';
+import { characters, this_chid } from './core/state.js';
+import { user_avatar } from './personas.js';
+import { getRequestHeaders } from './request-utils.js';
+import { processDroppedFiles } from '../script.js';
 import { isMobile } from './RossAscends-mods.js';
 import { collapseNewlines, power_user } from './power-user.js';
 import { debounce_timeout } from './constants.js';

@@ -1,15 +1,6 @@
-import {
-    animation_duration,
-    chat,
-    cleanUpMessage,
-    event_types,
-    eventSource,
-    Generate,
-    getGeneratingApi,
-    is_send_press,
-    isStreamingEnabled,
-    substituteParamsExtended,
-} from '../script.js';
+import { animation_duration, chat, is_send_press } from './core/state.js';
+import { event_types, eventSource } from './events.js';
+import { cleanUpMessage, Generate, getGeneratingApi, isStreamingEnabled, substituteParamsExtended } from '../script.js';
 import { debounce, delay, getStringHash } from './utils.js';
 import { decodeTextTokens, getTokenizerBestMatch } from './tokenizers.js';
 import { power_user } from './power-user.js';

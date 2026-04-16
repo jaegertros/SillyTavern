@@ -1,37 +1,11 @@
 import { Fuse, Handlebars } from '../lib.js';
 
-import {
-    saveSettingsDebounced,
-    scrollChatToBottom,
-    characters,
-    reloadMarkdownProcessor,
-    reloadCurrentChat,
-    getRequestHeaders,
-    substituteParams,
-    eventSource,
-    event_types,
-    getCurrentChatId,
-    printCharactersDebounced,
-    setCharacterId,
-    setEditedMessageId,
-    chat,
-    getFirstDisplayedMessageId,
-    showMoreMessages,
-    saveSettings,
-    saveChatConditional,
-    setAnimationDuration,
-    ANIMATION_DURATION_DEFAULT,
-    setActiveGroup,
-    setActiveCharacter,
-    entitiesFilter,
-    doNewChat,
-    online_status,
-    messageFormatting,
-    extension_prompt_types,
-    extension_prompt_roles,
-    deleteMessage,
-    settingsReady,
-} from '../script.js';
+import { saveSettingsDebounced, printCharactersDebounced, entitiesFilter } from './core/debounced.js';
+import { characters, chat, ANIMATION_DURATION_DEFAULT, online_status, extension_prompt_types, extension_prompt_roles, settingsReady } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { messageFormatting } from './message-renderer.js';
+import { getRequestHeaders } from './request-utils.js';
+import { scrollChatToBottom, reloadMarkdownProcessor, reloadCurrentChat, substituteParams, getCurrentChatId, setCharacterId, setEditedMessageId, getFirstDisplayedMessageId, showMoreMessages, saveSettings, saveChatConditional, setAnimationDuration, setActiveGroup, setActiveCharacter, doNewChat, deleteMessage } from '../script.js';
 import { isMobile, initMovingUI, favsToHotswap } from './RossAscends-mods.js';
 import {
     groups,

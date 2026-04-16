@@ -1,23 +1,12 @@
 import { Fuse, lodash } from '../lib.js';
 
-import {
-    amount_gen,
-    characters,
-    eventSource,
-    event_types,
-    getRequestHeaders,
-    koboldai_setting_names,
-    koboldai_settings,
-    main_api,
-    max_context,
-    nai_settings,
-    novelai_setting_names,
-    novelai_settings,
-    online_status,
-    saveSettings,
-    saveSettingsDebounced,
-    this_chid,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { amount_gen, characters, main_api, max_context, online_status, this_chid } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { koboldai_setting_names, koboldai_settings } from './kai-settings.js';
+import { nai_settings, novelai_setting_names, novelai_settings } from './nai-settings.js';
+import { getRequestHeaders } from './request-utils.js';
+import { saveSettings } from '../script.js';
 import { groups, selected_group } from './group-chats.js';
 import { t } from './i18n.js';
 import { instruct_presets } from './instruct-mode.js';

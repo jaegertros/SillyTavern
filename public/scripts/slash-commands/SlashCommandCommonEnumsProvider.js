@@ -1,4 +1,5 @@
-import { chat_metadata, characters, substituteParams, chat, extension_prompt_roles, extension_prompt_types, name2, neutralCharacterName } from '../../script.js';
+import { chat_metadata, characters, chat, extension_prompt_roles, extension_prompt_types, name2, neutralCharacterName } from '../core/state.js';
+import { substituteParams } from '../../script.js';
 import { extension_settings } from '../extensions.js';
 import { getGroupMembers, groups } from '../group-chats.js';
 import { power_user } from '../power-user.js';

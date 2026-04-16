@@ -1,61 +1,12 @@
 import { Fuse, DOMPurify } from '../lib.js';
 import { canUseNegativeLookbehind, copyText, findPersona, flashHighlight } from './utils.js';
 
-import {
-    Generate,
-    activateSendButtons,
-    addOneMessage,
-    characters,
-    chat,
-    chatElement,
-    chat_metadata,
-    comment_avatar,
-    deactivateSendButtons,
-    default_avatar,
-    deleteSwipe,
-    displayPastChats,
-    duplicateCharacter,
-    eventSource,
-    event_types,
-    extension_prompt_roles,
-    extension_prompt_types,
-    extractMessageBias,
-    generateQuietPrompt,
-    generateRaw,
-    getCurrentChatDetails,
-    getCurrentChatId,
-    getFirstDisplayedMessageId,
-    getThumbnailUrl,
-    is_send_press,
-    main_api,
-    name1,
-    name2,
-    neutralCharacterName,
-    newAssistantChat,
-    online_status,
-    reloadCurrentChat,
-    removeMacros,
-    renameCharacter,
-    renameChat,
-    saveChatConditional,
-    saveSettings,
-    saveSettingsDebounced,
-    sendMessageAsUser,
-    sendSystemMessage,
-    setActiveCharacter,
-    setActiveGroup,
-    setCharacterId,
-    setCharacterName,
-    setExtensionPrompt,
-    showMoreMessages,
-    stopGeneration,
-    substituteParams,
-    syncMesToSwipe,
-    system_avatar,
-    system_message_types,
-    this_chid,
-    updateMessageElement,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { characters, chat, chatElement, chat_metadata, comment_avatar, default_avatar, extension_prompt_roles, extension_prompt_types, is_send_press, main_api, name1, name2, neutralCharacterName, online_status, system_avatar, this_chid } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { sendSystemMessage, system_message_types } from './system-messages.js';
+import { getThumbnailUrl } from './thumbnail-url.js';
+import { Generate, activateSendButtons, addOneMessage, deactivateSendButtons, deleteSwipe, displayPastChats, duplicateCharacter, extractMessageBias, generateQuietPrompt, generateRaw, getCurrentChatDetails, getCurrentChatId, getFirstDisplayedMessageId, newAssistantChat, reloadCurrentChat, removeMacros, renameCharacter, renameChat, saveChatConditional, saveSettings, sendMessageAsUser, setActiveCharacter, setActiveGroup, setCharacterId, setCharacterName, setExtensionPrompt, showMoreMessages, stopGeneration, substituteParams, syncMesToSwipe, updateMessageElement } from '../script.js';
 import { SlashCommandParser } from './slash-commands/SlashCommandParser.js';
 import { SlashCommandParserError } from './slash-commands/SlashCommandParserError.js';
 import { getMessageTimeStamp, isMobile } from './RossAscends-mods.js';

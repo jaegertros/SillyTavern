@@ -1,13 +1,7 @@
-import {
-    amount_gen,
-    getRequestHeaders,
-    main_api,
-    max_context,
-    resultCheckStatus,
-    saveSettingsDebounced,
-    setGenerationProgress,
-    setOnlineStatus,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { amount_gen, main_api, max_context } from './core/state.js';
+import { getRequestHeaders } from './request-utils.js';
+import { resultCheckStatus, setGenerationProgress, setOnlineStatus } from '../script.js';
 import { SECRET_KEYS, writeSecret } from './secrets.js';
 import { delay } from './utils.js';
 import { isMobile } from './RossAscends-mods.js';

@@ -1,26 +1,9 @@
 import { DOMPurify, Bowser } from '../lib.js';
 
-import {
-    characters,
-    online_status,
-    main_api,
-    is_send_press,
-    max_context,
-    saveSettingsDebounced,
-    active_group,
-    active_character,
-    setActiveGroup,
-    setActiveCharacter,
-    getEntitiesList,
-    buildAvatarList,
-    selectCharacterById,
-    eventSource,
-    menu_type,
-    substituteParams,
-    sendTextareaMessage,
-    doNavbarIconClick,
-    isSwipingAllowed,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { characters, online_status, main_api, is_send_press, max_context, active_group, active_character, menu_type } from './core/state.js';
+import { eventSource } from './events.js';
+import { setActiveGroup, setActiveCharacter, getEntitiesList, buildAvatarList, selectCharacterById, substituteParams, sendTextareaMessage, doNavbarIconClick, isSwipingAllowed } from '../script.js';
 
 import {
     power_user,

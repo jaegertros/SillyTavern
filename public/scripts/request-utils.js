@@ -9,7 +9,7 @@
  */
 
 // Circular import — intentional and safe (read at call time, not init time)
-import { token } from '../script.js';
+import { token } from './core/state.js';
 
 /**
  * Returns the standard headers object for authenticated API requests.

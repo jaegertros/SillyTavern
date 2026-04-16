@@ -1,6 +1,8 @@
 import { DOMPurify, Fuse } from '../../../lib.js';
 
-import { event_types, eventSource, main_api, online_status, saveSettingsDebounced } from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { main_api, online_status } from '../../core/state.js';
+import { event_types, eventSource } from '../../events.js';
 import { extension_settings, renderExtensionTemplateAsync } from '../../extensions.js';
 import { callGenericPopup, Popup, POPUP_RESULT, POPUP_TYPE } from '../../popup.js';
 import { SlashCommand } from '../../slash-commands/SlashCommand.js';

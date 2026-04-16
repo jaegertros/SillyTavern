@@ -1,6 +1,11 @@
 import { Fuse } from '../../../lib.js';
 
-import { characters, eventSource, event_types, generateQuietPrompt, generateRaw, getRequestHeaders, online_status, saveSettingsDebounced, substituteParams, substituteParamsExtended, system_message_types, this_chid } from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { characters, online_status, this_chid } from '../../core/state.js';
+import { eventSource, event_types } from '../../events.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { system_message_types } from '../../system-messages.js';
+import { generateQuietPrompt, generateRaw, substituteParams, substituteParamsExtended } from '../../../script.js';
 import { dragElement, isMobile } from '../../RossAscends-mods.js';
 import { getContext, getApiUrl, modules, extension_settings, ModuleWorkerWrapper, doExtrasFetch, renderExtensionTemplateAsync } from '../../extensions.js';
 import { loadMovingUIState, performFuzzySearch, power_user } from '../../power-user.js';

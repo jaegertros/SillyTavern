@@ -11,7 +11,8 @@
 import { DOMPurify } from '../lib.js';
 
 // Circular imports from script.js — safe (read at call time)
-import { chat, substituteParams, systemUserName, converter } from '../script.js';
+import { chat, systemUserName, converter } from './core/state.js';
+import { substituteParams } from '../script.js';
 
 import { COMMENT_NAME_DEFAULT } from './slash-commands.js';
 import { getRegexedString, regex_placement } from './extensions/regex/engine.js';

@@ -1,34 +1,12 @@
 // Move chat functions here from script.js (eventually)
 
 import { Popper, css, DOMPurify } from '../lib.js';
-import {
-    addCopyToCodeBlocks,
-    appendMediaToMessage,
-    characters,
-    chat,
-    eventSource,
-    event_types,
-    getCurrentChatId,
-    getRequestHeaders,
-    name2,
-    reloadCurrentChat,
-    saveSettingsDebounced,
-    this_chid,
-    saveChatConditional,
-    chat_metadata,
-    neutralCharacterName,
-    updateChatMetadata,
-    system_message_types,
-    converter,
-    substituteParams,
-    getSystemMessageByType,
-    printMessages,
-    clearChat,
-    refreshSwipeButtons,
-    getMediaIndex,
-    getMediaDisplay,
-    chatElement,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { characters, chat, name2, this_chid, chat_metadata, neutralCharacterName, converter, chatElement } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { system_message_types, getSystemMessageByType } from './system-messages.js';
+import { addCopyToCodeBlocks, appendMediaToMessage, getCurrentChatId, reloadCurrentChat, saveChatConditional, updateChatMetadata, substituteParams, printMessages, clearChat, refreshSwipeButtons, getMediaIndex, getMediaDisplay } from '../script.js';
 import { selected_group } from './group-chats.js';
 import { power_user } from './power-user.js';
 import {

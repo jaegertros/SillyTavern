@@ -1,27 +1,9 @@
-import {
-    buildAvatarList,
-    characterToEntity,
-    characters,
-    chat,
-    chat_metadata,
-    createOrEditCharacter,
-    default_user_avatar,
-    eventSource,
-    event_types,
-    getCurrentChatId,
-    getRequestHeaders,
-    getThumbnailUrl,
-    groupToEntity,
-    menu_type,
-    name1,
-    name2,
-    reloadCurrentChat,
-    saveChatConditional,
-    saveMetadata,
-    saveSettingsDebounced,
-    setUserName,
-    this_chid,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { characters, chat, chat_metadata, default_user_avatar, menu_type, name1, name2, this_chid } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { getThumbnailUrl } from './thumbnail-url.js';
+import { buildAvatarList, characterToEntity, createOrEditCharacter, getCurrentChatId, groupToEntity, reloadCurrentChat, saveChatConditional, saveMetadata, setUserName } from '../script.js';
 import { persona_description_positions, power_user } from './power-user.js';
 import { getTokenCountAsync } from './tokenizers.js';
 import { PAGINATION_TEMPLATE, clearInfoBlock, debounce, delay, download, ensureImageFormatSupported, flashHighlight, getBase64Async, getCharIndex, isFalseBoolean, isTrueBoolean, onlyUnique, parseJsonFile, setInfoBlock, localizePagination, renderPaginationDropdown, paginationDropdownChangeHandler } from './utils.js';

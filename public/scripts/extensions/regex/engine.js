@@ -1,4 +1,6 @@
-import { characters, saveSettingsDebounced, substituteParams, substituteParamsExtended, this_chid } from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { characters, this_chid } from '../../core/state.js';
+import { substituteParams, substituteParamsExtended } from '../../../script.js';
 import { extension_settings, writeExtensionField } from '../../extensions.js';
 import { getPresetManager } from '../../preset-manager.js';
 import { regexFromString } from '../../utils.js';

@@ -1,5 +1,10 @@
 import { Fuse, localforage } from '../lib.js';
-import { characters, chat_metadata, eventSource, event_types, generateQuietPrompt, getCurrentChatId, getRequestHeaders, getThumbnailUrl, saveMetadata, saveSettingsDebounced, this_chid } from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { characters, chat_metadata, this_chid } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { getThumbnailUrl } from './thumbnail-url.js';
+import { generateQuietPrompt, getCurrentChatId, saveMetadata } from '../script.js';
 import { openThirdPartyExtensionMenu, saveMetadataDebounced } from './extensions.js';
 import { SlashCommand } from './slash-commands/SlashCommand.js';
 import { SlashCommandParser } from './slash-commands/SlashCommandParser.js';

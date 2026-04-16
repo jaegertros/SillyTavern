@@ -1,7 +1,11 @@
 import {
     moment,
 } from '../lib.js';
-import { chat, closeMessageEditor, event_types, eventSource, main_api, messageFormatting, saveChatConditional, saveChatDebounced, saveSettingsDebounced, substituteParams, syncMesToSwipe, updateMessageBlock } from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { chat, main_api } from './core/state.js';
+import { event_types, eventSource } from './events.js';
+import { messageFormatting } from './message-renderer.js';
+import { closeMessageEditor, saveChatConditional, saveChatDebounced, substituteParams, syncMesToSwipe, updateMessageBlock } from '../script.js';
 import { getRegexedString, regex_placement } from './extensions/regex/engine.js';
 import { getCurrentLocale, t, translate } from './i18n.js';
 import { macros, MacroCategory } from './macros/macro-system.js';

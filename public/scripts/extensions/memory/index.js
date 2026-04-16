@@ -1,23 +1,9 @@
 import { getStringHash, debounce, waitUntilCondition, extractAllWords, isTrueBoolean } from '../../utils.js';
 import { getContext, getApiUrl, extension_settings, doExtrasFetch, modules, renderExtensionTemplateAsync } from '../../extensions.js';
-import {
-    activateSendButtons,
-    deactivateSendButtons,
-    animation_duration,
-    eventSource,
-    event_types,
-    extension_prompt_roles,
-    extension_prompt_types,
-    generateQuietPrompt,
-    is_send_press,
-    saveSettingsDebounced,
-    substituteParamsExtended,
-    generateRaw,
-    getMaxContextSize,
-    setExtensionPrompt,
-    streamingProcessor,
-    animation_easing,
-} from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { animation_duration, extension_prompt_roles, extension_prompt_types, is_send_press, streamingProcessor, animation_easing } from '../../core/state.js';
+import { eventSource, event_types } from '../../events.js';
+import { activateSendButtons, deactivateSendButtons, generateQuietPrompt, substituteParamsExtended, generateRaw, getMaxContextSize, setExtensionPrompt } from '../../../script.js';
 import { is_group_generating, selected_group } from '../../group-chats.js';
 import { loadMovingUIState, power_user } from '../../power-user.js';
 import { dragElement } from '../../RossAscends-mods.js';

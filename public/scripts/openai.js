@@ -5,33 +5,12 @@
 */
 import { Fuse, DOMPurify } from '../lib.js';
 
-import {
-    abortStatusCheck,
-    cancelStatusCheck,
-    characters,
-    event_types,
-    eventSource,
-    extension_prompt_roles,
-    extension_prompt_types,
-    Generate,
-    getExtensionPrompt,
-    getExtensionPromptMaxDepth,
-    getMediaDisplay,
-    getMediaIndex,
-    getRequestHeaders,
-    is_send_press,
-    main_api,
-    name1,
-    name2,
-    resultCheckStatus,
-    saveSettingsDebounced,
-    setOnlineStatus,
-    startStatusLoading,
-    substituteParams,
-    substituteParamsExtended,
-    system_message_types,
-    this_chid,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { abortStatusCheck, characters, extension_prompt_roles, extension_prompt_types, is_send_press, main_api, name1, name2, this_chid } from './core/state.js';
+import { event_types, eventSource } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { system_message_types } from './system-messages.js';
+import { cancelStatusCheck, Generate, getExtensionPrompt, getExtensionPromptMaxDepth, getMediaDisplay, getMediaIndex, resultCheckStatus, setOnlineStatus, startStatusLoading, substituteParams, substituteParamsExtended } from '../script.js';
 import { getGroupNames, selected_group } from './group-chats.js';
 
 import {
@@ -291,6 +270,7 @@ export const settingsToUpdate = {
     openrouter_quantizations: ['#openrouter_quantizations_chat', 'openrouter_quantizations', false, true],
     openrouter_allow_fallbacks: ['#openrouter_allow_fallbacks', 'openrouter_allow_fallbacks', true, true],
     openrouter_middleout: ['#openrouter_middleout', 'openrouter_middleout', false, true],
+    openrouter_session_id: ['#openrouter_session_id', 'openrouter_session_id', false, true],
     ai21_model: ['#model_ai21_select', 'ai21_model', false, true],
     mistralai_model: ['#model_mistralai_select', 'mistralai_model', false, true],
     cohere_model: ['#model_cohere_select', 'cohere_model', false, true],
@@ -438,6 +418,7 @@ const default_settings = {
     openrouter_quantizations: [],
     openrouter_allow_fallbacks: true,
     openrouter_middleout: openrouter_middleout_types.ON,
+    openrouter_session_id: '',
     reverse_proxy: '',
     chat_completion_source: chat_completion_sources.OPENAI,
     max_context_unlocked: false,
@@ -2633,6 +2614,9 @@ export async function createGenerationParameters(settings, model, type, messages
         generate_data.quantizations = settings.openrouter_quantizations;
         generate_data.allow_fallbacks = settings.openrouter_allow_fallbacks;
         generate_data.middleout = settings.openrouter_middleout;
+        if (settings.openrouter_session_id) {
+            generate_data.openrouter_session_id = settings.openrouter_session_id;
+        }
     }
 
     if ([chat_completion_sources.MAKERSUITE, chat_completion_sources.VERTEXAI].includes(settings.chat_completion_source)) {
@@ -6563,6 +6547,11 @@ export function initOpenAI() {
 
     $('#openrouter_middleout').on('input', function () {
         oai_settings.openrouter_middleout = String($(this).val());
+        saveSettingsDebounced();
+    });
+
+    $('#openrouter_session_id').on('input', function () {
+        oai_settings.openrouter_session_id = String($(this).val()).trim();
         saveSettingsDebounced();
     });
 

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SillyTavern — Vue 3 Dependency Graphs</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-dim: #1f6feb33;
+    --danger: #f85149;
+    --success: #3fb950;
+    --warning: #d29922;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 2rem;
+  }
+
+  header {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .nav {
+    max-width: 1200px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .nav a {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .nav a:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+  }
+
+  .graph-section {
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+  }
+
+  .graph-section h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .graph-section h2 .badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-overview { background: var(--accent-dim); color: var(--accent); }
+  .badge-risk { background: #f8514922; color: var(--danger); }
+  .badge-clean { background: #3fb95022; color: var(--success); }
+  .badge-backend { background: #d2992222; color: var(--warning); }
+
+  .graph-section .desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    max-width: 800px;
+  }
+
+  .mermaid-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+
+  .mermaid-container .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .legend {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .legend strong {
+    color: var(--text);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .stat-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+  }
+
+  .stat-card .number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    .mermaid-container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SillyTavern &mdash; Vue 3 Dependency Graphs</h1>
+  <p>Visual companion to VUE3_DEPENDENCY_WALK.md &middot; Generated 2026-04-16 &middot; Static import analysis across 625 files, 2,716 edges</p>
+</header>
+
+<div class="stats-grid" style="max-width:1200px;margin:0 auto 2rem;">
+  <div class="stat-card"><div class="number">625</div><div class="label">Total files scanned</div></div>
+  <div class="stat-card"><div class="number">296</div><div class="label">Core files</div></div>
+  <div class="stat-card"><div class="number">329</div><div class="label">Third-party ext files</div></div>
+  <div class="stat-card"><div class="number">1,456</div><div class="label">Core internal edges</div></div>
+  <div class="stat-card"><div class="number">1,260</div><div class="label">TP &rarr; core edges</div></div>
+  <div class="stat-card"><div class="number">101</div><div class="label">Files in main cycle</div></div>
+</div>
+
+<nav class="nav">
+  <a href="#big-picture">Big Picture</a>
+  <a href="#core-cycle">101-File Core Cycle</a>
+  <a href="#modular-subsystems">Modular Subsystems</a>
+  <a href="#backend-tree">Backend Tree</a>
+  <a href="#backend-split">Backend Split Proposal</a>
+</nav>
+
+<section class="graph-section" id="big-picture">
+  <h2>
+    The Big Picture
+    <span class="badge badge-overview">overview</span>
+  </h2>
+  <p class="desc">
+    Overall architecture: frontend (public/) is a tightly-coupled blob centered on script.js;
+    backend (src/) is a clean tree rooted at server-startup.js. Extensions import from a narrow
+    surface. Dashed arrows (&lt;-.->)  indicate bidirectional/cyclic imports.
+  </p>
+  <div class="mermaid-container">
+    <div class="mermaid">
+flowchart LR
+    subgraph FE["Frontend — public/"]
+        direction TB
+        GOD["script.js\n12,149 LOC\n244 exports\nin=194 · out=76"]
+        EXT["extensions.js\nin=140"]
+        UTILS["utils.js\nin=117"]
+        POPUP["popup.js\nin=69"]
+        POWER["power-user.js\nin=60"]
+        I18N["i18n.js\nin=49"]
+        GROUP["group-chats.js\nin=49"]
+        SCP["slash-commands/\nSlashCommand*\nin=45+"]
+        OAI["openai.js\nin=36"]
+        WI["world-info.js\nin=18"]
+        SCX["st-context.js\npublic API aggregator"]
+    end
+    subgraph BE["Backend — src/"]
+        direction TB
+        SRT["server-startup.js\nout=48"]
+        SRM["server-main.js"]
+        UTIL2["src/util.js\nin=51"]
+        CC["endpoints/backends/\nchat-completions.js\n2,681 LOC"]
+        PC["prompt-converters.js\n1,422 LOC"]
+    end
+    subgraph XT["Extensions"]
+        BUILTIN["Built-in exts\n(tts, SD, quick-reply,\nvectors, memory, ...)"]
+        TP["Third-party exts\n329 files, 1,260 core edges"]
+    end
+
+    BUILTIN --> GOD
+    BUILTIN --> EXT
+    BUILTIN --> UTILS
+    TP --> EXT
+    TP --> GOD
+    TP --> UTILS
+    TP --> SCP
+    SCX --> GOD
+    SCX --> EXT
+    SCX --> GROUP
+    GOD <-.-> EXT
+    GOD <-.-> POWER
+    GOD <-.-> GROUP
+    GOD <-.-> OAI
+    GOD <-.-> WI
+    SRT --> CC
+    CC --> PC
+    CC --> UTIL2
+    </div>
+  </div>
+  <div class="legend">
+    <strong>Reading this graph:</strong> Solid arrows = one-directional import. Dotted bidirectional arrows = both files import from each other (cycle).
+    Node labels show file name, line count, and fan-in (number of files importing from it).
+  </div>
+</section>
+
+<section class="graph-section" id="core-cycle">
+  <h2>
+    The 101-File Core Cycle
+    <span class="badge badge-risk">critical risk</span>
+  </h2>
+  <p class="desc">
+    Tarjan's SCC analysis reveals one massive strongly-connected component of 101 files.
+    This simplified view shows the hub nodes — in reality, every file in the cluster transitively
+    depends on every other. This cycle <strong>must be broken</strong> (Phase 0) before any
+    meaningful extraction is possible.
+  </p>
+  <div class="mermaid-container">
+    <div class="mermaid">
+graph TD
+    subgraph SCC101["101-file core cycle"]
+        s[script.js]
+        e[extensions.js]
+        o[openai.js]
+        p[power-user.js]
+        g[group-chats.js]
+        w[world-info.js]
+        pm[PromptManager.js]
+        sc[slash-commands.js]
+    end
+    s <--> e
+    s <--> o
+    s <--> p
+    s <--> g
+    s <--> w
+    s <--> pm
+    s <--> sc
+    e <--> o
+    e <--> p
+    e <--> g
+    p <--> o
+    o <--> pm
+    sc --> s
+    style SCC101 fill:#1a0505,stroke:#f85149,stroke-width:2px,color:#e6edf3
+    </div>
+  </div>
+  <div class="legend">
+    <strong>Why this matters:</strong> You cannot safely extract any of these files in isolation.
+    Splitting script.js into chat-engine.js + character-manager.js would still pull the entire
+    cluster because of bidirectional imports. Phase 0 introduces a central <code>core/state.js</code>
+    that owns all mutable bindings, breaking the cycle by indirection.
+  </div>
+</section>
+
+<section class="graph-section" id="modular-subsystems">
+  <h2>
+    Already-Modular Subsystems
+    <span class="badge badge-clean">clean</span>
+  </h2>
+  <p class="desc">
+    Three subsystems are already well-factored internally: slash-commands, autocomplete, and macros.
+    They need thin Vue adapters but no structural rework. These are easy early migration wins.
+  </p>
+  <div class="mermaid-container">
+    <div class="mermaid">
+graph LR
+    subgraph SCSub["slash-commands/ — already a subsystem"]
+        SCP["SlashCommandParser.js\n1,357 LOC · in=45"]
+        SCM["SlashCommand.js\nin=47"]
+        SCA["SlashCommandArgument.js\nin=39"]
+        SCC["SlashCommandCommon\nEnumsProvider\nin=37"]
+        SCCl["SlashCommandClosure.js\nin=20"]
+        SCV["SlashCommandEnumValue.js\nin=32"]
+    end
+    subgraph ACSub["autocomplete/"]
+        AC[AutoComplete.js]
+        ACNR[AutoCompleteNameResult.js]
+        MAC[MacroAutoComplete.js]
+    end
+    subgraph MSub["macros/"]
+        ME["engine/MacroEngine.js"]
+        MR["engine/MacroRegistry.js"]
+        MD["definitions/*.js"]
+        MS["macro-system.js"]
+    end
+    ME --> MR
+    MD --> ME
+    MS --> ME
+    AC --> ACNR
+    MAC --> AC
+    </div>
+  </div>
+  <div class="legend">
+    <strong>Migration note:</strong> The slash-command classes are part of the third-party API contract
+    (SlashCommandParser imported by 12 third-party extensions, SlashCommand by 10). Their import paths
+    must be preserved.
+  </div>
+</section>
+
+<section class="graph-section" id="backend-tree">
+  <h2>
+    Backend Architecture
+    <span class="badge badge-backend">backend</span>
+  </h2>
+  <p class="desc">
+    The backend is a clean tree: server-startup.js registers 44 endpoint routers plus shared
+    utilities. No strongly-connected components exist. This does not block the Vue 3 migration
+    and can be modularized independently.
+  </p>
+  <div class="mermaid-container">
+    <div class="mermaid">
+flowchart LR
+    server["server.js"] --> main["src/server-main.js"]
+    main --> startup["src/server-startup.js"]
+    startup -->|"44 routers"| R1["endpoints/characters.js"]
+    startup --> R2["endpoints/chats.js"]
+    startup --> R3["endpoints/groups.js"]
+    startup --> R4["endpoints/worldinfo.js"]
+    startup --> R5["endpoints/settings.js"]
+    startup --> R6["endpoints/presets.js"]
+    startup --> R7["endpoints/secrets.js"]
+    startup --> R8["endpoints/stable-diffusion.js"]
+    startup --> R9["endpoints/tokenizers.js"]
+    startup --> R10["endpoints/vectors.js"]
+    startup --> CC["endpoints/backends/\nchat-completions.js\n2,681 LOC"]
+    startup --> TC["endpoints/backends/\ntext-completions.js"]
+    startup --> KB["endpoints/backends/\nkobold.js"]
+    CC --> PC["src/prompt-converters.js\n1,422 LOC"]
+    CC --> UT["src/util.js\n1,570 LOC, 58 exports, in=51"]
+    CC --> TOK["endpoints/tokenizers.js"]
+    CC --> SEC["endpoints/secrets.js"]
+    CC --> GO["endpoints/google.js"]
+    CC --> CON["src/constants.js"]
+    </div>
+  </div>
+</section>
+
+<section class="graph-section" id="backend-split">
+  <h2>
+    Backend Split Proposal
+    <span class="badge badge-backend">backend</span>
+  </h2>
+  <p class="desc">
+    chat-completions.js (2,681 LOC) handles all 25+ LLM providers in one file via a massive
+    switch/if chain. The proposed split extracts per-provider modules that mirror the frontend
+    provider split (Cluster G).
+  </p>
+  <div class="mermaid-container">
+    <div class="mermaid">
+flowchart TB
+    subgraph Current["Current: chat-completions.js — 2,681 LOC"]
+        CC["Giant switch/if over\nCHAT_COMPLETION_SOURCES"]
+    end
+    subgraph Proposed["Proposed split"]
+        Router["backends/chat-completions.js\nthin router"]
+        P1["providers/claude.js"]
+        P2["providers/openai.js"]
+        P3["providers/google.js"]
+        P4["providers/anthropic-compat.js"]
+        P5["providers/cohere.js"]
+        P6["providers/mistral.js"]
+        P7["providers/custom.js"]
+        PC["prompt-converters/\nsplit by provider"]
+    end
+    CC -.->|extract| Router
+    Router --> P1 --> PC
+    Router --> P2 --> PC
+    Router --> P3 --> PC
+    Router --> P5 --> PC
+    Router --> P6 --> PC
+    </div>
+  </div>
+  <div class="legend">
+    <strong>Mirrored naming:</strong> Frontend <code>providers/claude.ts</code> matches backend
+    <code>src/endpoints/backends/providers/claude.js</code>. Prompt converters split along the
+    same seam (<code>src/prompt-converters/claude.js</code>, <code>google.js</code>, etc.).
+  </div>
+</section>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#161b22',
+      primaryColor: '#1f6feb',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#30363d',
+      lineColor: '#58a6ff',
+      secondaryColor: '#21262d',
+      tertiaryColor: '#0d1117',
+      edgeLabelBackground: '#161b22',
+      nodeTextColor: '#e6edf3',
+      clusterBkg: '#161b22',
+      clusterBorder: '#30363d',
+    },
+    flowchart: {
+      htmlLabels: true,
+      curve: 'basis',
+      nodeSpacing: 50,
+      rankSpacing: 60,
+    },
+    securityLevel: 'loose',
+  });
+  await mermaid.run({ querySelector: '.mermaid' });
+</script>
+</body>
+</html>

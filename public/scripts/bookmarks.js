@@ -1,19 +1,9 @@
-import {
-    characters,
-    saveChat,
-    system_message_types,
-    this_chid,
-    openCharacterChat,
-    chat_metadata,
-    getRequestHeaders,
-    getThumbnailUrl,
-    getCharacters,
-    chat,
-    saveChatConditional,
-    saveItemizedPrompts,
-    setActiveGroup,
-    getCurrentChatDetails,
-} from '../script.js';
+import { characters, this_chid, chat_metadata, chat } from './core/state.js';
+import { saveItemizedPrompts } from './itemized-prompts.js';
+import { getRequestHeaders } from './request-utils.js';
+import { system_message_types } from './system-messages.js';
+import { getThumbnailUrl } from './thumbnail-url.js';
+import { saveChat, openCharacterChat, getCharacters, saveChatConditional, setActiveGroup, getCurrentChatDetails } from '../script.js';
 import { humanizedDateTime } from './RossAscends-mods.js';
 import {
     DEFAULT_AUTO_MODE_DELAY,

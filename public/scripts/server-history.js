@@ -1,4 +1,4 @@
-import { saveSettingsDebounced } from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
 import { power_user } from './power-user.js';
 import { isValidUrl } from './utils.js';
 

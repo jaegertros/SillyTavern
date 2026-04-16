@@ -1,6 +1,8 @@
 'use strict';
 
-import { extension_prompt_types, name1, name2, online_status, saveSettingsDebounced, substituteParams } from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { extension_prompt_types, name1, name2, online_status } from './core/state.js';
+import { substituteParams } from '../script.js';
 import { selected_group } from './group-chats.js';
 import { parseExampleIntoIndividual } from './openai.js';
 import {

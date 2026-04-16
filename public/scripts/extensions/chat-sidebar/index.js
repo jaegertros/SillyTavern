@@ -7,21 +7,12 @@
  * z-index: 1500 (safely below drawers at 3000 and Nemo Discord theme at 10000)
  */
 
-import {
-    eventSource,
-    event_types,
-    saveSettingsDebounced,
-    saveChatConditional,
-    selectCharacterById,
-    setActiveCharacter,
-    setActiveGroup,
-    this_chid,
-    getThumbnailUrl,
-    characters,
-    openCharacterChat,
-    getCurrentChatId,
-    getRequestHeaders,
-} from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { this_chid, characters } from '../../core/state.js';
+import { eventSource, event_types } from '../../events.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { getThumbnailUrl } from '../../thumbnail-url.js';
+import { saveChatConditional, selectCharacterById, setActiveCharacter, setActiveGroup, openCharacterChat, getCurrentChatId } from '../../../script.js';
 
 import {
     extension_settings,

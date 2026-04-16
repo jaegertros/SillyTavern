@@ -4,7 +4,9 @@ TODO:
 //const DEBUG_TONY_SAMA_FORK_MODE = true
 
 import { DOMPurify } from '../../../lib.js';
-import { getRequestHeaders, processDroppedFiles, eventSource, event_types } from '../../../script.js';
+import { eventSource, event_types } from '../../events.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { processDroppedFiles } from '../../../script.js';
 import { deleteExtension, extensionNames, getContext, installExtension, renderExtensionTemplateAsync } from '../../extensions.js';
 import { POPUP_TYPE, Popup, callGenericPopup } from '../../popup.js';
 import { executeSlashCommandsWithOptions } from '../../slash-commands.js';

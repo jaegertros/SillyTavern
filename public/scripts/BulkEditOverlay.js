@@ -1,17 +1,10 @@
 'use strict';
 
-import {
-    characterGroupOverlay,
-    characters,
-    event_types,
-    eventSource,
-    getCharacters,
-    getRequestHeaders,
-    buildAvatarList,
-    characterToEntity,
-    printCharactersDebounced,
-    deleteCharacter,
-} from '../script.js';
+import { printCharactersDebounced } from './core/debounced.js';
+import { characters } from './core/state.js';
+import { event_types, eventSource } from './events.js';
+import { getRequestHeaders } from './request-utils.js';
+import { characterGroupOverlay, getCharacters, buildAvatarList, characterToEntity, deleteCharacter } from '../script.js';
 
 import { favsToHotswap } from './RossAscends-mods.js';
 import { hideLoader, showLoader } from './loader.js';

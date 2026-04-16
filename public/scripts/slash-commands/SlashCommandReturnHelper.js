@@ -1,5 +1,5 @@
 import { DOMPurify, showdown } from '../../lib.js';
-import { sendSystemMessage, system_message_types } from '../../script.js';
+import { sendSystemMessage, system_message_types } from '../system-messages.js';
 import { callGenericPopup, POPUP_TYPE } from '../popup.js';
 import { escapeHtml } from '../utils.js';
 import { enumIcons } from './SlashCommandCommonEnumsProvider.js';

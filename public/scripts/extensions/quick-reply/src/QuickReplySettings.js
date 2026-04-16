@@ -1,4 +1,5 @@
-import { chat_metadata, saveSettingsDebounced } from '../../../../script.js';
+import { saveSettingsDebounced } from '../../../core/debounced.js';
+import { chat_metadata } from '../../../core/state.js';
 import { extension_settings, saveMetadataDebounced } from '../../../extensions.js';
 import { QuickReplyConfig } from './QuickReplyConfig.js';
 

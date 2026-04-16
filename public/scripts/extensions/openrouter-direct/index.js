@@ -9,7 +9,7 @@
  */
 
 import { extension_settings, getContext } from '../../extensions.js';
-import { saveSettingsDebounced } from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
 
 const MODULE_NAME = 'openrouter-direct';
 

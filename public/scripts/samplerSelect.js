@@ -1,7 +1,5 @@
-import {
-    main_api,
-    saveSettingsDebounced,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { main_api } from './core/state.js';
 //import { BIAS_CACHE, displayLogitBias, getLogitBiasListResult } from './logit-bias.js';
 //import { getEventSourceStream } from './sse-stream.js';
 //import { getSortableDelay, onlyUnique } from './utils.js';

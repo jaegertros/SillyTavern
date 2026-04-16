@@ -1,14 +1,6 @@
-import {
-    MAX_INJECTION_DEPTH,
-    animation_duration,
-    chat_metadata,
-    eventSource,
-    event_types,
-    extension_prompt_roles,
-    extension_prompt_types,
-    saveSettingsDebounced,
-    this_chid,
-} from '../script.js';
+import { saveSettingsDebounced } from './core/debounced.js';
+import { MAX_INJECTION_DEPTH, animation_duration, chat_metadata, extension_prompt_roles, extension_prompt_types, this_chid } from './core/state.js';
+import { eventSource, event_types } from './events.js';
 import { selected_group } from './group-chats.js';
 import { extension_settings, getContext, saveMetadataDebounced } from './extensions.js';
 import { getCharaFilename, debounce, delay } from './utils.js';

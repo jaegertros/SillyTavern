@@ -1,17 +1,8 @@
-import {
-    eventSource,
-    event_types,
-    extension_prompt_types,
-    extension_prompt_roles,
-    getCurrentChatId,
-    getRequestHeaders,
-    is_send_press,
-    saveSettingsDebounced,
-    setExtensionPrompt,
-    substituteParams,
-    generateRaw,
-    substituteParamsExtended,
-} from '../../../script.js';
+import { saveSettingsDebounced } from '../../core/debounced.js';
+import { extension_prompt_types, extension_prompt_roles, is_send_press } from '../../core/state.js';
+import { eventSource, event_types } from '../../events.js';
+import { getRequestHeaders } from '../../request-utils.js';
+import { getCurrentChatId, setExtensionPrompt, substituteParams, generateRaw, substituteParamsExtended } from '../../../script.js';
 import {
     ModuleWorkerWrapper,
     extension_settings,

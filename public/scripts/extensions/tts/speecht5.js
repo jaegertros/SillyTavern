@@ -1,6 +1,6 @@
 import { getPreviewString, saveTtsProviderSettings } from './index.js';
 import { getBase64Async } from '../../utils.js';
-import { getRequestHeaders } from '../../../script.js';
+import { getRequestHeaders } from '../../request-utils.js';
 
 export { SpeechT5TtsProvider };
 

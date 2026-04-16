@@ -1,5 +1,6 @@
 import { seedrandom, droll } from '../../../lib.js';
-import { chat_metadata, main_api, getMaxContextSize, extension_prompts, getCurrentChatId } from '../../../script.js';
+import { chat_metadata, main_api, extension_prompts } from '../../core/state.js';
+import { getMaxContextSize, getCurrentChatId } from '../../../script.js';
 import { getStringHash, isFalseBoolean } from '../../utils.js';
 import { textgenerationwebui_banned_in_macros } from '../../textgen-settings.js';
 import { inject_ids } from '../../constants.js';

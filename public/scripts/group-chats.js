@@ -23,63 +23,13 @@ import { RA_CountCharTokens, humanizedDateTime, dragElement, favsToHotswap, getM
 import { power_user, loadMovingUIState, sortEntitiesList } from './power-user.js';
 import { debounce_timeout } from './constants.js';
 
-import {
-    chat,
-    sendSystemMessage,
-    printMessages,
-    substituteParams,
-    characters,
-    default_avatar,
-    addOneMessage,
-    clearChat,
-    Generate,
-    select_rm_info,
-    setCharacterId,
-    setCharacterName,
-    setEditedMessageId,
-    is_send_press,
-    resetChatState,
-    setSendButtonState,
-    getCharacters,
-    system_message_types,
-    online_status,
-    talkativeness_default,
-    selectRightMenuWithAnimation,
-    deleteLastMessage,
-    showSwipeButtons,
-    hideSwipeButtons,
-    chat_metadata,
-    updateChatMetadata,
-    getThumbnailUrl,
-    getRequestHeaders,
-    setMenuType,
-    menu_type,
-    select_selected_character,
-    cancelTtsPlay,
-    displayPastChats,
-    sendMessageAsUser,
-    getBiasStrings,
-    saveChatConditional,
-    deactivateSendButtons,
-    activateSendButtons,
-    eventSource,
-    event_types,
-    getCurrentChatId,
-    setCharacterSettingsOverrides,
-    system_avatar,
-    isChatSaving,
-    setExternalAbortController,
-    baseChatReplace,
-    createLazyFields,
-    depth_prompt_depth_default,
-    loadItemizedPrompts,
-    animation_duration,
-    depth_prompt_role_default,
-    shouldAutoContinue,
-    unshallowCharacter,
-    chatElement,
-    ensureMessageMediaIsArray,
-} from '../script.js';
+import { chat, characters, default_avatar, is_send_press, online_status, talkativeness_default, chat_metadata, menu_type, system_avatar, isChatSaving, depth_prompt_depth_default, animation_duration, depth_prompt_role_default, chatElement } from './core/state.js';
+import { eventSource, event_types } from './events.js';
+import { loadItemizedPrompts } from './itemized-prompts.js';
+import { getRequestHeaders } from './request-utils.js';
+import { sendSystemMessage, system_message_types } from './system-messages.js';
+import { getThumbnailUrl } from './thumbnail-url.js';
+import { printMessages, substituteParams, addOneMessage, clearChat, Generate, select_rm_info, setCharacterId, setCharacterName, setEditedMessageId, resetChatState, setSendButtonState, getCharacters, selectRightMenuWithAnimation, deleteLastMessage, showSwipeButtons, hideSwipeButtons, updateChatMetadata, setMenuType, select_selected_character, cancelTtsPlay, displayPastChats, sendMessageAsUser, getBiasStrings, saveChatConditional, deactivateSendButtons, activateSendButtons, getCurrentChatId, setCharacterSettingsOverrides, setExternalAbortController, baseChatReplace, createLazyFields, shouldAutoContinue, unshallowCharacter, ensureMessageMediaIsArray } from '../script.js';
 import { printTagList, createTagMapFromList, applyTagsOnCharacterSelect, tag_map, applyTagsOnGroupSelect, printTagFilters, tag_filter_type } from './tags.js';
 import { FILTER_TYPES, FilterHelper } from './filters.js';
 import { isExternalMediaAllowed } from './chats.js';
