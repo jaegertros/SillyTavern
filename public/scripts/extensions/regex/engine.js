@@ -1,6 +1,6 @@
 import { saveSettingsDebounced } from '../../core/debounced.js';
 import { characters, this_chid } from '../../core/state.js';
-import { substituteParams, substituteParamsExtended } from '../../../script.js';
+import { substituteParams, substituteParamsExtended } from '../../core/chat-engine.js';
 import { extension_settings, writeExtensionField } from '../../extensions.js';
 import { getPresetManager } from '../../preset-manager.js';
 import { regexFromString } from '../../utils.js';

@@ -29,7 +29,44 @@ import { loadItemizedPrompts } from './itemized-prompts.js';
 import { getRequestHeaders } from './request-utils.js';
 import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import { printMessages, substituteParams, addOneMessage, clearChat, Generate, select_rm_info, setCharacterId, setCharacterName, setEditedMessageId, resetChatState, setSendButtonState, getCharacters, selectRightMenuWithAnimation, deleteLastMessage, showSwipeButtons, hideSwipeButtons, updateChatMetadata, setMenuType, select_selected_character, cancelTtsPlay, displayPastChats, sendMessageAsUser, getBiasStrings, saveChatConditional, deactivateSendButtons, activateSendButtons, getCurrentChatId, setCharacterSettingsOverrides, setExternalAbortController, baseChatReplace, createLazyFields, shouldAutoContinue, unshallowCharacter, ensureMessageMediaIsArray } from '../script.js';
+import {
+    Generate,
+    select_rm_info,
+    setCharacterId,
+    setCharacterName,
+    setSendButtonState,
+    getCharacters,
+    selectRightMenuWithAnimation,
+    setMenuType,
+    select_selected_character,
+    cancelTtsPlay,
+    deactivateSendButtons,
+    activateSendButtons,
+    setCharacterSettingsOverrides,
+    setExternalAbortController,
+    createLazyFields,
+    shouldAutoContinue,
+    unshallowCharacter,
+} from '../script.js';
+import {
+    printMessages,
+    substituteParams,
+    addOneMessage,
+    clearChat,
+    setEditedMessageId,
+    resetChatState,
+    deleteLastMessage,
+    showSwipeButtons,
+    hideSwipeButtons,
+    updateChatMetadata,
+    displayPastChats,
+    sendMessageAsUser,
+    getBiasStrings,
+    saveChatConditional,
+    getCurrentChatId,
+    baseChatReplace,
+    ensureMessageMediaIsArray,
+} from './core/chat-engine.js';
 import { printTagList, createTagMapFromList, applyTagsOnCharacterSelect, tag_map, applyTagsOnGroupSelect, printTagFilters, tag_filter_type } from './tags.js';
 import { FILTER_TYPES, FilterHelper } from './filters.js';
 import { isExternalMediaAllowed } from './chats.js';

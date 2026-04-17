@@ -1,6 +1,7 @@
 import { lodash } from '../lib.js';
 import { chat, displayVersion, system_avatar, systemUserName } from './core/state.js';
-import { addOneMessage, setSendButtonState } from '../script.js';
+import { setSendButtonState } from '../script.js';
+import { addOneMessage } from './core/chat-engine.js';
 import { t } from './i18n.js';
 import { getMessageTimeStamp } from './RossAscends-mods.js';
 import { getSlashCommandsHelp } from './slash-commands.js';

@@ -4,7 +4,23 @@ import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { getSystemMessageByType, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import { addOneMessage, deleteCharacterChatByName, doNewChat, getCharacters, getCurrentChatId, newAssistantChat, openCharacterChat, renameGroupOrCharacterChat, selectCharacterById, setActiveCharacter, setActiveGroup, unshallowCharacter, updateRemoteChatName } from '../script.js';
+import {
+    deleteCharacterChatByName,
+    getCharacters,
+    newAssistantChat,
+    openCharacterChat,
+    selectCharacterById,
+    setActiveCharacter,
+    setActiveGroup,
+    unshallowCharacter,
+} from '../script.js';
+import {
+    addOneMessage,
+    doNewChat,
+    getCurrentChatId,
+    renameGroupOrCharacterChat,
+    updateRemoteChatName,
+} from './core/chat-engine.js';
 import { getRegexedString, regex_placement } from './extensions/regex/engine.js';
 import { deleteGroupChatByName, getGroupAvatar, groups, is_group_generating, openGroupById, openGroupChat } from './group-chats.js';
 import { t } from './i18n.js';
