@@ -2385,6 +2385,11 @@ router.post('/generate', async function (request, response) {
             excludeKeysByYaml(requestBody, request.body.custom_exclude_body);
         }
 
+        // OpenRouter — optional session_id for grouping calls in the OR dashboard.
+        if (request.body.chat_completion_source === CHAT_COMPLETION_SOURCES.OPENROUTER && request.body.openrouter_session_id) {
+            requestBody.session_id = String(request.body.openrouter_session_id);
+        }
+
         /** @type {import('node-fetch').RequestInit} */
         const config = {
             method: 'post',
