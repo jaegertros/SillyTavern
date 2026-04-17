@@ -3,7 +3,7 @@ export { translate };
 import { saveSettingsDebounced } from '../../core/debounced.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { reloadCurrentChat, substituteParams, updateMessageBlock } from '../../core/chat-engine.js';
+import { reloadCurrentChat, substituteParams, updateMessageBlock } from '../../../script.js';
 import { extension_settings, getContext, renderExtensionTemplateAsync } from '../../extensions.js';
 import { POPUP_TYPE, callGenericPopup } from '../../popup.js';
 import { updateReasoningUI } from '../../reasoning.js';

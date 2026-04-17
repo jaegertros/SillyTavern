@@ -1,4 +1,4 @@
-import { substituteParams } from '../core/chat-engine.js';
+import { substituteParams } from '../../script.js';
 import { power_user } from '../power-user.js';
 import { delay, escapeRegex, uuidv4 } from '../utils.js';
 import { SlashCommand } from './SlashCommand.js';

@@ -1,6 +1,6 @@
 import { saveSettingsDebounced } from './core/debounced.js';
 import { chat_metadata } from './core/state.js';
-import { getCurrentChatId } from './core/chat-engine.js';
+import { getCurrentChatId } from '../script.js';
 import { extension_settings, saveMetadataDebounced } from './extensions.js';
 import { executeSlashCommandsWithOptions } from './slash-commands.js';
 import { SlashCommand } from './slash-commands/SlashCommand.js';

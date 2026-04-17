@@ -2,13 +2,7 @@ import { saveSettingsDebounced } from './core/debounced.js';
 import { main_api, online_status, abortStatusCheck } from './core/state.js';
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import {
-    setOnlineStatus,
-    resultCheckStatus,
-    startStatusLoading,
-    setGenerationParamsFromPreset,
-} from '../script.js';
-import { getStoppingStrings, substituteParams } from './core/chat-engine.js';
+import { getStoppingStrings, substituteParams, setOnlineStatus, resultCheckStatus, startStatusLoading, setGenerationParamsFromPreset } from '../script.js';
 import { t } from './i18n.js';
 import { autoSelectInstructPreset } from './instruct-mode.js';
 

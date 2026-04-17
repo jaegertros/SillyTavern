@@ -2,7 +2,7 @@ import { saveSettingsDebounced } from '../../core/debounced.js';
 import { characters, this_chid } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { messageFormatting } from '../../message-renderer.js';
-import { getCurrentChatId, reloadCurrentChat } from '../../core/chat-engine.js';
+import { getCurrentChatId, reloadCurrentChat } from '../../../script.js';
 import { extension_settings, renderExtensionTemplateAsync } from '../../extensions.js';
 import { selected_group } from '../../group-chats.js';
 import { callGenericPopup, Popup, POPUP_TYPE } from '../../popup.js';

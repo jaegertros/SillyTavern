@@ -4,14 +4,7 @@ import { animation_duration, systemUserName, this_chid } from '../../core/state.
 import { event_types, eventSource } from '../../events.js';
 import { getUserAvatar, user_avatar } from '../../personas.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { formatCharacterAvatar, getCharacterAvatar } from '../../../script.js';
-import {
-    appendMediaToMessage,
-    generateQuietPrompt,
-    getCurrentChatId,
-    substituteParams,
-    substituteParamsExtended,
-} from '../../core/chat-engine.js';
+import { appendMediaToMessage, formatCharacterAvatar, generateQuietPrompt, getCharacterAvatar, getCurrentChatId, substituteParams, substituteParamsExtended } from '../../../script.js';
 import {
     doExtrasFetch,
     extension_settings,

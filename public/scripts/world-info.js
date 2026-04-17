@@ -4,13 +4,7 @@ import { saveCharacterDebounced } from './core/debounced.js';
 import { chat_metadata, this_chid, characters, menu_type, extension_prompt_roles, create_save, name1 } from './core/state.js';
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import { saveSettings, createOrEditCharacter } from '../script.js';
-import {
-    substituteParams,
-    getExtensionPromptByName,
-    saveMetadata,
-    getCurrentChatId,
-} from './core/chat-engine.js';
+import { saveSettings, substituteParams, getExtensionPromptByName, saveMetadata, getCurrentChatId, createOrEditCharacter } from '../script.js';
 import { download, debounce, initScrollHeight, resetScrollHeight, parseJsonFile, extractDataFromPng, getFileBuffer, getCharaFilename, getSortableDelay, escapeRegex, PAGINATION_TEMPLATE, navigation_option, waitUntilCondition, isTrueBoolean, setValueByPath, flashHighlight, select2ModifyOptions, getSelect2OptionId, dynamicSelect2DataViaAjax, highlightRegex, select2ChoiceClickSubscribe, isFalseBoolean, getSanitizedFilename, checkOverwriteExistingData, getStringHash, parseStringArray, cancelDebounce, findChar, onlyUnique, equalsIgnoreCaseAndAccents, uuidv4, normalizeArray, getUniqueName, logSlashCommandWarn } from './utils.js';
 import { extension_settings, getContext } from './extensions.js';
 import { NOTE_MODULE_NAME, metadata_keys, shouldWIAddPrompt } from './authors-note.js';

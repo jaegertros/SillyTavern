@@ -6,41 +6,7 @@ import { characters, chat, chatElement, chat_metadata, comment_avatar, default_a
 import { eventSource, event_types } from './events.js';
 import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import {
-    Generate,
-    activateSendButtons,
-    deactivateSendButtons,
-    duplicateCharacter,
-    generateRaw,
-    getCurrentChatDetails,
-    newAssistantChat,
-    removeMacros,
-    renameCharacter,
-    saveSettings,
-    setActiveCharacter,
-    setActiveGroup,
-    setCharacterId,
-    setCharacterName,
-    setExtensionPrompt,
-    stopGeneration,
-} from '../script.js';
-import {
-    addOneMessage,
-    deleteSwipe,
-    displayPastChats,
-    extractMessageBias,
-    generateQuietPrompt,
-    getCurrentChatId,
-    getFirstDisplayedMessageId,
-    reloadCurrentChat,
-    renameChat,
-    saveChatConditional,
-    sendMessageAsUser,
-    showMoreMessages,
-    substituteParams,
-    syncMesToSwipe,
-    updateMessageElement,
-} from './core/chat-engine.js';
+import { Generate, activateSendButtons, addOneMessage, deactivateSendButtons, deleteSwipe, displayPastChats, duplicateCharacter, extractMessageBias, generateQuietPrompt, generateRaw, getCurrentChatDetails, getCurrentChatId, getFirstDisplayedMessageId, newAssistantChat, reloadCurrentChat, removeMacros, renameCharacter, renameChat, saveChatConditional, saveSettings, sendMessageAsUser, setActiveCharacter, setActiveGroup, setCharacterId, setCharacterName, setExtensionPrompt, showMoreMessages, stopGeneration, substituteParams, syncMesToSwipe, updateMessageElement } from '../script.js';
 import { SlashCommandParser } from './slash-commands/SlashCommandParser.js';
 import { SlashCommandParserError } from './slash-commands/SlashCommandParserError.js';
 import { getMessageTimeStamp, isMobile } from './RossAscends-mods.js';

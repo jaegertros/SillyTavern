@@ -1,7 +1,7 @@
 import { saveSettingsDebounced } from './core/debounced.js';
 import { chat_metadata, this_chid, animation_duration } from './core/state.js';
 import { eventSource, event_types } from './events.js';
-import { substituteParams } from './core/chat-engine.js';
+import { substituteParams } from '../script.js';
 import { extension_settings, saveMetadataDebounced } from './extensions.js';
 import { selected_group } from './group-chats.js';
 import { getCharaFilename, delay } from './utils.js';

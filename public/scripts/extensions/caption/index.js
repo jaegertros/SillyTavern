@@ -4,7 +4,7 @@ import { saveSettingsDebounced } from '../../core/debounced.js';
 import { chat_metadata } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { appendMediaToMessage, saveChatConditional, substituteParamsExtended } from '../../core/chat-engine.js';
+import { appendMediaToMessage, saveChatConditional, substituteParamsExtended } from '../../../script.js';
 import { getMessageTimeStamp } from '../../RossAscends-mods.js';
 import { SECRET_KEYS, secret_state } from '../../secrets.js';
 import { getMultimodalCaption } from '../shared.js';

@@ -10,21 +10,7 @@ import { abortStatusCheck, characters, extension_prompt_roles, extension_prompt_
 import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { system_message_types } from './system-messages.js';
-import {
-    cancelStatusCheck,
-    Generate,
-    resultCheckStatus,
-    setOnlineStatus,
-    startStatusLoading,
-} from '../script.js';
-import {
-    getExtensionPrompt,
-    getExtensionPromptMaxDepth,
-    getMediaDisplay,
-    getMediaIndex,
-    substituteParams,
-    substituteParamsExtended,
-} from './core/chat-engine.js';
+import { cancelStatusCheck, Generate, getExtensionPrompt, getExtensionPromptMaxDepth, getMediaDisplay, getMediaIndex, resultCheckStatus, setOnlineStatus, startStatusLoading, substituteParams, substituteParamsExtended } from '../script.js';
 import { getGroupNames, selected_group } from './group-chats.js';
 
 import {

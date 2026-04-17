@@ -1,8 +1,7 @@
 import { saveSettingsDebounced } from '../../core/debounced.js';
 import { name2 } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
-import { cancelTtsPlay, isStreamingEnabled } from '../../../script.js';
-import { getCurrentChatId, substituteParams } from '../../core/chat-engine.js';
+import { cancelTtsPlay, getCurrentChatId, isStreamingEnabled, substituteParams } from '../../../script.js';
 import { ModuleWorkerWrapper, extension_settings, getContext, renderExtensionTemplateAsync } from '../../extensions.js';
 import { delay, escapeRegex, getBase64Async, getStringHash, onlyUnique, regexFromString } from '../../utils.js';
 import { EdgeTtsProvider } from './edge.js';
