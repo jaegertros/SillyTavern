@@ -944,11 +944,28 @@ export async function loginPageMiddleware(request, response) {
  * @param {(req: import('express').Request) => string} directoryFn A function that returns the directory path to serve files from
  * @returns {import('express').RequestHandler}
  */
+/**
+ * Resolves the splat parameter from an Express 5 wildcard route. In Express 5
+ * the named wildcard ({*splat}) yields an array of path segments rather than
+ * the joined string Express 4 produced — joining with '/' keeps the rest of
+ * the file-serving code shape-compatible. URI-decoding is applied per-segment
+ * so encoded slashes inside a segment don't blow up the join.
+ * @param {import('express').Request} req
+ * @returns {string}
+ */
+function resolveSplatPath(req) {
+    const raw = req.params.splat ?? req.params[0];
+    if (Array.isArray(raw)) {
+        return raw.map(s => decodeURIComponent(String(s))).join('/');
+    }
+    return decodeURIComponent(String(raw ?? ''));
+}
+
 function createRouteHandler(directoryFn) {
     return async (req, res) => {
         try {
             const directory = directoryFn(req);
-            const filePath = decodeURIComponent(req.params.splat || req.params[0]);
+            const filePath = resolveSplatPath(req);
             const exists = fs.existsSync(path.join(directory, filePath));
             if (!exists) {
                 return res.sendStatus(404);
@@ -971,7 +988,7 @@ function createExtensionsRouteHandler(directoryFn) {
     return async (req, res) => {
         try {
             const directory = directoryFn(req);
-            const filePath = decodeURIComponent(req.params.splat || req.params[0]);
+            const filePath = resolveSplatPath(req);
 
             const existsLocal = fs.existsSync(path.join(directory, filePath));
             if (existsLocal) {
