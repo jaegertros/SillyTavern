@@ -18,6 +18,8 @@ export default defineConfig({
         lib: {
             entry: {
                 'extensions/token-counter/index': 'public/vue-src/extensions/token-counter/index.js',
+                'extensions/chat-portraits/index': 'public/vue-src/extensions/chat-portraits/index.js',
+                'extensions/third-party/SillyTavern-CacheChunker/index': 'public/vue-src/extensions/third-party/SillyTavern-CacheChunker/index.js',
             },
             formats: ['es'],
         },

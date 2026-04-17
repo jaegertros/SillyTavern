@@ -328,14 +328,13 @@ The manifest.json stays **completely unchanged** - it still points to `index.js`
 ```json
 {
   "scripts": {
-    "vue:build": "vite build",
-    "vue:watch": "vite build --watch",
-    "postinstall": "node post-install.js && npm run vue:build"
+        "vue:build": "vite build --config vite.config.js",
+        "vue:watch": "vite build --config vite.config.js --watch"
   }
 }
 ```
 
-The `postinstall` script ensures `vue:build` runs after `npm install`, so end users get compiled output automatically. Developers use `vue:watch` during active development for fast rebuilds.
+These scripts are used for Vue extension development builds. `vue:build` performs a one-shot compile and `vue:watch` keeps rebuilding while source files change.
 
 ---
 
@@ -446,7 +445,7 @@ BUILD PIPELINE:
 
 ## Verification
 
-1. **Build:** `npm run vue:build` succeeds, creates `public/vue-dist/extensions/token-counter/index.js`
+1. **Build:** `npm run vue:build` succeeds, creates `public/vue-dist/extensions/token-counter/index.js` and `public/vue-dist/extensions/chat-portraits/index.js`
 2. **Start:** `npm start` works normally, no errors in console
 3. **Token Counter button:** Appears in the wand menu (extensions magic wand icon), looks identical to before
 4. **Token Counter popup:** Click button, popup opens, type text, see token count update with debounce, see colored chunks, see token IDs
