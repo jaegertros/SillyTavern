@@ -19,7 +19,9 @@
 }
 
 #st-director-settings input[type="text"],
-#st-director-settings input[type="number"] {
+#st-director-settings input[type="password"],
+#st-director-settings input[type="number"],
+#st-director-settings select {
     width: 100%;
     box-sizing: border-box;
 }
