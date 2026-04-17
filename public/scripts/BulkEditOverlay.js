@@ -4,7 +4,13 @@ import { printCharactersDebounced } from './core/debounced.js';
 import { characters } from './core/state.js';
 import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import { characterGroupOverlay, getCharacters, buildAvatarList, characterToEntity, deleteCharacter } from '../script.js';
+import { characterGroupOverlay } from '../script.js';
+import {
+    getCharacters,
+    buildAvatarList,
+    characterToEntity,
+    deleteCharacter,
+} from './core/character-manager.js';
 
 import { favsToHotswap } from './RossAscends-mods.js';
 import { hideLoader, showLoader } from './loader.js';

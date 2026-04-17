@@ -7,12 +7,12 @@ import { messageFormatting } from './message-renderer.js';
 import { getRequestHeaders } from './request-utils.js';
 import {
     reloadMarkdownProcessor,
-    setCharacterId,
     saveSettings,
     setAnimationDuration,
     setActiveGroup,
     setActiveCharacter,
 } from '../script.js';
+import { setCharacterId } from './core/character-manager.js';
 import {
     scrollChatToBottom,
     reloadCurrentChat,

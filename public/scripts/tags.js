@@ -3,7 +3,7 @@ import { DOMPurify } from '../lib.js';
 import { saveSettingsDebounced, entitiesFilter, printCharactersDebounced } from './core/debounced.js';
 import { characters, this_chid, menu_type, DEFAULT_PRINT_TIMEOUT } from './core/state.js';
 import { eventSource, event_types } from './events.js';
-import { buildAvatarList, printCharacters } from '../script.js';
+import { buildAvatarList, printCharacters } from './core/character-manager.js';
 import { FILTER_TYPES, FILTER_STATES, DEFAULT_FILTER_STATE, isFilterState, FilterHelper } from './filters.js';
 
 import { groupCandidatesFilter, groupMembersFilter, groups, selected_group } from './group-chats.js';

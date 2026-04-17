@@ -31,14 +31,9 @@ import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
 import {
     Generate,
-    select_rm_info,
-    setCharacterId,
-    setCharacterName,
     setSendButtonState,
-    getCharacters,
     selectRightMenuWithAnimation,
     setMenuType,
-    select_selected_character,
     cancelTtsPlay,
     deactivateSendButtons,
     activateSendButtons,
@@ -46,8 +41,15 @@ import {
     setExternalAbortController,
     createLazyFields,
     shouldAutoContinue,
-    unshallowCharacter,
 } from '../script.js';
+import {
+    select_rm_info,
+    setCharacterId,
+    setCharacterName,
+    getCharacters,
+    select_selected_character,
+    unshallowCharacter,
+} from './core/character-manager.js';
 import {
     printMessages,
     substituteParams,

@@ -10,20 +10,22 @@ import {
     Generate,
     activateSendButtons,
     deactivateSendButtons,
-    duplicateCharacter,
     generateRaw,
     getCurrentChatDetails,
-    newAssistantChat,
     removeMacros,
-    renameCharacter,
     saveSettings,
     setActiveCharacter,
     setActiveGroup,
-    setCharacterId,
-    setCharacterName,
     setExtensionPrompt,
     stopGeneration,
 } from '../script.js';
+import {
+    duplicateCharacter,
+    newAssistantChat,
+    renameCharacter,
+    setCharacterId,
+    setCharacterName,
+} from './core/character-manager.js';
 import {
     addOneMessage,
     deleteSwipe,

@@ -6,7 +6,7 @@ TODO:
 import { DOMPurify } from '../../../lib.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { processDroppedFiles } from '../../../script.js';
+import { processDroppedFiles } from '../../core/character-manager.js';
 import { deleteExtension, extensionNames, getContext, installExtension, renderExtensionTemplateAsync } from '../../extensions.js';
 import { POPUP_TYPE, Popup, callGenericPopup } from '../../popup.js';
 import { executeSlashCommandsWithOptions } from '../../slash-commands.js';

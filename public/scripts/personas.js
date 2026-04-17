@@ -3,13 +3,13 @@ import { characters, chat, chat_metadata, default_user_avatar, menu_type, name1,
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
+import { setUserName } from '../script.js';
 import {
     buildAvatarList,
     characterToEntity,
     createOrEditCharacter,
     groupToEntity,
-    setUserName,
-} from '../script.js';
+} from './core/character-manager.js';
 import {
     getCurrentChatId,
     reloadCurrentChat,

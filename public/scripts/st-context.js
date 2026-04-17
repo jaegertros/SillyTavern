@@ -11,19 +11,21 @@ import {
     callPopup,
     deactivateSendButtons,
     Generate,
-    getCharacters,
     openCharacterChat,
-    selectCharacterById,
     sendGenerationRequest,
     sendStreamingRequest,
     setExtensionPrompt,
     stopGeneration,
-    unshallowCharacter,
     getCharacterCardFields,
     generateRaw,
+} from '../script.js';
+import {
+    getCharacters,
+    selectCharacterById,
+    unshallowCharacter,
     getOneCharacter,
     getCharacterSource,
-} from '../script.js';
+} from './core/character-manager.js';
 import {
     addOneMessage,
     appendMediaToMessage,

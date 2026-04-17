@@ -3,12 +3,8 @@ import { saveItemizedPrompts } from './itemized-prompts.js';
 import { getRequestHeaders } from './request-utils.js';
 import { system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import {
-    openCharacterChat,
-    getCharacters,
-    setActiveGroup,
-    getCurrentChatDetails,
-} from '../script.js';
+import { openCharacterChat, setActiveGroup, getCurrentChatDetails } from '../script.js';
+import { getCharacters } from './core/character-manager.js';
 import { saveChat, saveChatConditional } from './core/chat-engine.js';
 import { humanizedDateTime } from './RossAscends-mods.js';
 import {

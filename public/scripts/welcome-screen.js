@@ -6,14 +6,16 @@ import { getSystemMessageByType, system_message_types } from './system-messages.
 import { getThumbnailUrl } from './thumbnail-url.js';
 import {
     deleteCharacterChatByName,
-    getCharacters,
-    newAssistantChat,
     openCharacterChat,
-    selectCharacterById,
     setActiveCharacter,
     setActiveGroup,
-    unshallowCharacter,
 } from '../script.js';
+import {
+    getCharacters,
+    newAssistantChat,
+    selectCharacterById,
+    unshallowCharacter,
+} from './core/character-manager.js';
 import {
     addOneMessage,
     doNewChat,
