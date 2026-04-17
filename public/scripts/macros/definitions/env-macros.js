@@ -1,7 +1,7 @@
 import { MacroRegistry, MacroCategory, MacroValueType } from '../engine/MacroRegistry.js';
 import { isMobile } from '../../RossAscends-mods.js';
 import { main_api } from '../../core/state.js';
-import { parseMesExamples } from '../../../script.js';
+import { parseMesExamples } from '../../core/chat-engine.js';
 import { power_user } from '../../power-user.js';
 import { formatInstructModeExamples } from '../../instruct-mode.js';
 

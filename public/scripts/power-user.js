@@ -5,7 +5,26 @@ import { characters, chat, ANIMATION_DURATION_DEFAULT, online_status, extension_
 import { eventSource, event_types } from './events.js';
 import { messageFormatting } from './message-renderer.js';
 import { getRequestHeaders } from './request-utils.js';
-import { scrollChatToBottom, reloadMarkdownProcessor, reloadCurrentChat, substituteParams, getCurrentChatId, setCharacterId, setEditedMessageId, getFirstDisplayedMessageId, showMoreMessages, saveSettings, saveChatConditional, setAnimationDuration, setActiveGroup, setActiveCharacter, doNewChat, deleteMessage } from '../script.js';
+import {
+    reloadMarkdownProcessor,
+    setCharacterId,
+    saveSettings,
+    setAnimationDuration,
+    setActiveGroup,
+    setActiveCharacter,
+} from '../script.js';
+import {
+    scrollChatToBottom,
+    reloadCurrentChat,
+    substituteParams,
+    getCurrentChatId,
+    setEditedMessageId,
+    getFirstDisplayedMessageId,
+    showMoreMessages,
+    saveChatConditional,
+    doNewChat,
+    deleteMessage,
+} from './core/chat-engine.js';
 import { isMobile, initMovingUI, favsToHotswap } from './RossAscends-mods.js';
 import {
     groups,

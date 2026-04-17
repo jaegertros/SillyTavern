@@ -2,7 +2,7 @@ import { t } from './i18n.js';
 import { callGenericPopup, Popup, POPUP_TYPE } from './popup.js';
 import { getFileExtension, sortMoments, timestampToMoment } from './utils.js';
 import { getRequestHeaders } from './request-utils.js';
-import { displayPastChats, importCharacterChat } from '/script.js';
+import { displayPastChats, importCharacterChat } from './core/chat-engine.js';
 import { importGroupChat } from './group-chats.js';
 
 class BackupsBrowser {

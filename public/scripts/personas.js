@@ -3,7 +3,19 @@ import { characters, chat, chat_metadata, default_user_avatar, menu_type, name1,
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import { buildAvatarList, characterToEntity, createOrEditCharacter, getCurrentChatId, groupToEntity, reloadCurrentChat, saveChatConditional, saveMetadata, setUserName } from '../script.js';
+import {
+    buildAvatarList,
+    characterToEntity,
+    createOrEditCharacter,
+    groupToEntity,
+    setUserName,
+} from '../script.js';
+import {
+    getCurrentChatId,
+    reloadCurrentChat,
+    saveChatConditional,
+    saveMetadata,
+} from './core/chat-engine.js';
 import { persona_description_positions, power_user } from './power-user.js';
 import { getTokenCountAsync } from './tokenizers.js';
 import { PAGINATION_TEMPLATE, clearInfoBlock, debounce, delay, download, ensureImageFormatSupported, flashHighlight, getBase64Async, getCharIndex, isFalseBoolean, isTrueBoolean, onlyUnique, parseJsonFile, setInfoBlock, localizePagination, renderPaginationDropdown, paginationDropdownChangeHandler } from './utils.js';

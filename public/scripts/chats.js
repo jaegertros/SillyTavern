@@ -6,7 +6,20 @@ import { characters, chat, name2, this_chid, chat_metadata, neutralCharacterName
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { system_message_types, getSystemMessageByType } from './system-messages.js';
-import { addCopyToCodeBlocks, appendMediaToMessage, getCurrentChatId, reloadCurrentChat, saveChatConditional, updateChatMetadata, substituteParams, printMessages, clearChat, refreshSwipeButtons, getMediaIndex, getMediaDisplay } from '../script.js';
+import {
+    addCopyToCodeBlocks,
+    appendMediaToMessage,
+    getCurrentChatId,
+    reloadCurrentChat,
+    saveChatConditional,
+    updateChatMetadata,
+    substituteParams,
+    printMessages,
+    clearChat,
+    refreshSwipeButtons,
+    getMediaIndex,
+    getMediaDisplay,
+} from './core/chat-engine.js';
 import { selected_group } from './group-chats.js';
 import { power_user } from './power-user.js';
 import {

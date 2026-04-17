@@ -1,5 +1,5 @@
 import { getRequestHeaders } from '../../request-utils.js';
-import { substituteParams } from '../../../script.js';
+import { substituteParams } from '../../core/chat-engine.js';
 import { saveTtsProviderSettings, sanitizeId } from './index.js';
 
 export { OpenAITtsProvider };
