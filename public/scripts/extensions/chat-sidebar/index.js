@@ -12,7 +12,8 @@ import { this_chid, characters } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
 import { getThumbnailUrl } from '../../thumbnail-url.js';
-import { setActiveCharacter, setActiveGroup, openCharacterChat } from '../../../script.js';
+import { openCharacterChat } from '../../../script.js';
+import { setActiveCharacter, setActiveGroup } from '../../core/settings-manager.js';
 import { selectCharacterById } from '../../core/character-manager.js';
 import { saveChatConditional, getCurrentChatId } from '../../core/chat-engine.js';
 

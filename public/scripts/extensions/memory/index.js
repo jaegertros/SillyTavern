@@ -3,13 +3,8 @@ import { getContext, getApiUrl, extension_settings, doExtrasFetch, modules, rend
 import { saveSettingsDebounced } from '../../core/debounced.js';
 import { animation_duration, extension_prompt_roles, extension_prompt_types, is_send_press, streamingProcessor, animation_easing } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
-import {
-    activateSendButtons,
-    deactivateSendButtons,
-    generateRaw,
-    getMaxContextSize,
-    setExtensionPrompt,
-} from '../../../script.js';
+import { generateRaw, getMaxContextSize } from '../../../script.js';
+import { activateSendButtons, deactivateSendButtons, setExtensionPrompt } from '../../core/settings-manager.js';
 import { generateQuietPrompt, substituteParamsExtended } from '../../core/chat-engine.js';
 import { is_group_generating, selected_group } from '../../group-chats.js';
 import { loadMovingUIState, power_user } from '../../power-user.js';

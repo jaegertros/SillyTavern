@@ -31,17 +31,19 @@ import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
 import {
     Generate,
-    setSendButtonState,
-    selectRightMenuWithAnimation,
-    setMenuType,
     cancelTtsPlay,
-    deactivateSendButtons,
-    activateSendButtons,
     setCharacterSettingsOverrides,
     setExternalAbortController,
     createLazyFields,
     shouldAutoContinue,
 } from '../script.js';
+import {
+    setSendButtonState,
+    selectRightMenuWithAnimation,
+    setMenuType,
+    deactivateSendButtons,
+    activateSendButtons,
+} from './core/settings-manager.js';
 import {
     select_rm_info,
     setCharacterId,

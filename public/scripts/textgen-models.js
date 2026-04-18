@@ -3,7 +3,7 @@ import { isMobile } from './RossAscends-mods.js';
 import { amount_gen, max_context, online_status } from './core/state.js';
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import { setGenerationParamsFromPreset } from '../script.js';
+import { setGenerationParamsFromPreset } from './core/settings-manager.js';
 import { textgenerationwebui_settings as textgen_settings, textgen_types } from './textgen-settings.js';
 import { tokenizers } from './tokenizers.js';
 import { renderTemplateAsync } from './templates.js';

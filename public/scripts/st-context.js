@@ -7,18 +7,16 @@ import { CONNECT_API_MAP } from './slash-commands.js';
 import { sendSystemMessage } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
 import {
-    activateSendButtons,
     callPopup,
-    deactivateSendButtons,
     Generate,
     openCharacterChat,
     sendGenerationRequest,
     sendStreamingRequest,
-    setExtensionPrompt,
     stopGeneration,
     getCharacterCardFields,
     generateRaw,
 } from '../script.js';
+import { activateSendButtons, deactivateSendButtons, setExtensionPrompt } from './core/settings-manager.js';
 import {
     getCharacters,
     selectCharacterById,

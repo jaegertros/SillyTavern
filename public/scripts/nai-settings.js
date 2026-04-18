@@ -7,7 +7,7 @@ import {
     setGenerationParamsFromPreset,
     setOnlineStatus,
     startStatusLoading,
-} from '../script.js';
+} from './core/settings-manager.js';
 import { getStoppingStrings } from './core/chat-engine.js';
 import { MAX_CONTEXT_DEFAULT, MAX_RESPONSE_DEFAULT, power_user } from './power-user.js';
 import { getTextTokens, tokenizers } from './tokenizers.js';

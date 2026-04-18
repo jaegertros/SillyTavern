@@ -5,13 +5,13 @@ import { characters, chat, ANIMATION_DURATION_DEFAULT, online_status, extension_
 import { eventSource, event_types } from './events.js';
 import { messageFormatting } from './message-renderer.js';
 import { getRequestHeaders } from './request-utils.js';
+import { reloadMarkdownProcessor } from '../script.js';
 import {
-    reloadMarkdownProcessor,
     saveSettings,
     setAnimationDuration,
     setActiveGroup,
     setActiveCharacter,
-} from '../script.js';
+} from './core/settings-manager.js';
 import { setCharacterId } from './core/character-manager.js';
 import {
     scrollChatToBottom,

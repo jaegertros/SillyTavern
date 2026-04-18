@@ -3,7 +3,7 @@ import { registerDirectorCallback, group_activation_strategy } from '../../../sc
 import { extension_prompt_types, extension_prompt_roles, characters as globalCharacters } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { setExtensionPrompt } from '../../../script.js';
+import { setExtensionPrompt } from '../../core/settings-manager.js';
 
 const MODULE_NAME = 'st-director';
 const INJECT_KEY = 'st-director-direction';

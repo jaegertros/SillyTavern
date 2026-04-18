@@ -7,7 +7,7 @@ import {
     resultCheckStatus,
     startStatusLoading,
     setGenerationParamsFromPreset,
-} from '../script.js';
+} from './core/settings-manager.js';
 import { getStoppingStrings, substituteParams } from './core/chat-engine.js';
 import { t } from './i18n.js';
 import { autoSelectInstructPreset } from './instruct-mode.js';

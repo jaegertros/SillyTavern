@@ -6,7 +6,7 @@ import { eventSource, event_types } from './events.js';
 import { koboldai_setting_names, koboldai_settings } from './kai-settings.js';
 import { nai_settings, novelai_setting_names, novelai_settings } from './nai-settings.js';
 import { getRequestHeaders } from './request-utils.js';
-import { saveSettings } from '../script.js';
+import { saveSettings } from './core/settings-manager.js';
 import { groups, selected_group } from './group-chats.js';
 import { t } from './i18n.js';
 import { instruct_presets } from './instruct-mode.js';

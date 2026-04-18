@@ -4,12 +4,8 @@ import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { getSystemMessageByType, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import {
-    deleteCharacterChatByName,
-    openCharacterChat,
-    setActiveCharacter,
-    setActiveGroup,
-} from '../script.js';
+import { deleteCharacterChatByName, openCharacterChat } from '../script.js';
+import { setActiveCharacter, setActiveGroup } from './core/settings-manager.js';
 import {
     getCharacters,
     newAssistantChat,

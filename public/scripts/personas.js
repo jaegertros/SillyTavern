@@ -3,7 +3,7 @@ import { characters, chat, chat_metadata, default_user_avatar, menu_type, name1,
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import { setUserName } from '../script.js';
+import { setUserName } from './core/settings-manager.js';
 import {
     buildAvatarList,
     characterToEntity,

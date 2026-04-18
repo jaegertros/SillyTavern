@@ -4,7 +4,7 @@ import { saveSettingsDebounced } from './core/debounced.js';
 import { animation_duration, CLIENT_VERSION } from './core/state.js';
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import { saveSettings } from '../script.js';
+import { saveSettings } from './core/settings-manager.js';
 import { showLoader } from './loader.js';
 import { POPUP_RESULT, POPUP_TYPE, Popup, callGenericPopup } from './popup.js';
 import { renderTemplate, renderTemplateAsync } from './templates.js';

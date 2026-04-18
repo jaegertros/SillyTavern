@@ -8,17 +8,19 @@ import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
 import {
     Generate,
+    generateRaw,
+    removeMacros,
+    stopGeneration,
+} from '../script.js';
+import {
     activateSendButtons,
     deactivateSendButtons,
-    generateRaw,
     getCurrentChatDetails,
-    removeMacros,
     saveSettings,
     setActiveCharacter,
     setActiveGroup,
     setExtensionPrompt,
-    stopGeneration,
-} from '../script.js';
+} from './core/settings-manager.js';
 import {
     duplicateCharacter,
     newAssistantChat,

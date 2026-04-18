@@ -4,7 +4,7 @@ import { saveCharacterDebounced } from './core/debounced.js';
 import { chat_metadata, this_chid, characters, menu_type, extension_prompt_roles, create_save, name1 } from './core/state.js';
 import { eventSource, event_types } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
-import { saveSettings } from '../script.js';
+import { saveSettings } from './core/settings-manager.js';
 import { createOrEditCharacter } from './core/character-manager.js';
 import {
     substituteParams,

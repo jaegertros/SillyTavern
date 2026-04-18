@@ -10,13 +10,13 @@ import { abortStatusCheck, characters, extension_prompt_roles, extension_prompt_
 import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { system_message_types } from './system-messages.js';
+import { Generate } from '../script.js';
 import {
     cancelStatusCheck,
-    Generate,
     resultCheckStatus,
     setOnlineStatus,
     startStatusLoading,
-} from '../script.js';
+} from './core/settings-manager.js';
 import {
     getExtensionPrompt,
     getExtensionPromptMaxDepth,

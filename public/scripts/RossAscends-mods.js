@@ -3,7 +3,8 @@ import { DOMPurify, Bowser } from '../lib.js';
 import { saveSettingsDebounced } from './core/debounced.js';
 import { characters, online_status, main_api, is_send_press, max_context, active_group, active_character, menu_type } from './core/state.js';
 import { eventSource } from './events.js';
-import { setActiveGroup, setActiveCharacter, doNavbarIconClick } from '../script.js';
+import { doNavbarIconClick } from '../script.js';
+import { setActiveGroup, setActiveCharacter } from './core/settings-manager.js';
 import { getEntitiesList, buildAvatarList, selectCharacterById } from './core/character-manager.js';
 import { substituteParams, sendTextareaMessage, isSwipingAllowed } from './core/chat-engine.js';
 
