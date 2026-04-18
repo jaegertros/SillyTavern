@@ -1,7 +1,7 @@
 import { getPresetManager } from './preset-manager.js';
 import { name1, name2 } from './core/state.js';
 import { getRequestHeaders } from './request-utils.js';
-import { getGenerateUrl } from '../script.js';
+import { getGenerateUrl } from './core/generation-controller.js';
 import { extractJsonFromData, extractMessageFromData } from './core/chat-engine.js';
 import { getTextGenServer, createTextGenGenerationData, setting_names, textgenerationwebui_settings } from './textgen-settings.js';
 import { extractReasoningFromData } from './reasoning.js';

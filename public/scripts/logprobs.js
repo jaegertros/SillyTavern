@@ -1,6 +1,6 @@
 import { animation_duration, chat, is_send_press } from './core/state.js';
 import { event_types, eventSource } from './events.js';
-import { Generate, getGeneratingApi, isStreamingEnabled } from '../script.js';
+import { Generate, getGeneratingApi, isStreamingEnabled } from './core/generation-controller.js';
 import { cleanUpMessage, substituteParamsExtended } from './core/chat-engine.js';
 import { debounce, delay, getStringHash } from './utils.js';
 import { decodeTextTokens, getTokenizerBestMatch } from './tokenizers.js';

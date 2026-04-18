@@ -172,6 +172,9 @@ export function _set_token(val) { token = val; }
 export function _set_active_character(val) { active_character = val; }
 export function _set_active_group(val) { active_group = val; }
 
+export let scrollLock = false;
+export function _set_scrollLock(val) { scrollLock = val; }
+
 /** Append to displayVersion (used during init). */
 export function _append_displayVersion(suffix) { displayVersion += suffix; }
 

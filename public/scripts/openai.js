@@ -10,7 +10,7 @@ import { abortStatusCheck, characters, extension_prompt_roles, extension_prompt_
 import { event_types, eventSource } from './events.js';
 import { getRequestHeaders } from './request-utils.js';
 import { system_message_types } from './system-messages.js';
-import { Generate } from '../script.js';
+import { Generate } from './core/generation-controller.js';
 import {
     cancelStatusCheck,
     resultCheckStatus,

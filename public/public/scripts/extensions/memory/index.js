@@ -12,12 +12,11 @@ import {
     is_send_press,
     saveSettingsDebounced,
     substituteParamsExtended,
-    generateRaw,
-    getMaxContextSize,
     setExtensionPrompt,
     streamingProcessor,
     animation_easing,
 } from '../../../script.js';
+import { generateRaw, getMaxContextSize } from '../../../../scripts/core/generation-controller.js';
 import { is_group_generating, selected_group } from '../../group-chats.js';
 import { loadMovingUIState, power_user } from '../../power-user.js';
 import { dragElement } from '../../RossAscends-mods.js';

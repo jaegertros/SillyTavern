@@ -11,7 +11,7 @@ import {
     generateRaw,
     removeMacros,
     stopGeneration,
-} from '../script.js';
+} from './core/generation-controller.js';
 import {
     activateSendButtons,
     deactivateSendButtons,

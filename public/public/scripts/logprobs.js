@@ -4,12 +4,10 @@ import {
     cleanUpMessage,
     event_types,
     eventSource,
-    Generate,
-    getGeneratingApi,
     is_send_press,
-    isStreamingEnabled,
     substituteParamsExtended,
 } from '../script.js';
+import { Generate, getGeneratingApi, isStreamingEnabled } from '../../scripts/core/generation-controller.js';
 import { debounce, delay, getStringHash } from './utils.js';
 import { decodeTextTokens, getTokenizerBestMatch } from './tokenizers.js';
 import { power_user } from './power-user.js';

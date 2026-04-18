@@ -2,7 +2,6 @@ import { Fuse, DOMPurify } from '../lib.js';
 import { canUseNegativeLookbehind, copyText, findPersona, flashHighlight } from './utils.js';
 
 import {
-    Generate,
     activateSendButtons,
     addOneMessage,
     characters,
@@ -21,7 +20,6 @@ import {
     extension_prompt_types,
     extractMessageBias,
     generateQuietPrompt,
-    generateRaw,
     getCurrentChatDetails,
     getCurrentChatId,
     getFirstDisplayedMessageId,
@@ -34,7 +32,6 @@ import {
     newAssistantChat,
     online_status,
     reloadCurrentChat,
-    removeMacros,
     renameCharacter,
     renameChat,
     saveChatConditional,
@@ -48,7 +45,6 @@ import {
     setCharacterName,
     setExtensionPrompt,
     showMoreMessages,
-    stopGeneration,
     substituteParams,
     syncMesToSwipe,
     system_avatar,
@@ -56,6 +52,12 @@ import {
     this_chid,
     updateMessageElement,
 } from '../script.js';
+import {
+    Generate,
+    generateRaw,
+    removeMacros,
+    stopGeneration,
+} from '../../scripts/core/generation-controller.js';
 import { SlashCommandParser } from './slash-commands/SlashCommandParser.js';
 import { SlashCommandParserError } from './slash-commands/SlashCommandParserError.js';
 import { getMessageTimeStamp, isMobile } from './RossAscends-mods.js';

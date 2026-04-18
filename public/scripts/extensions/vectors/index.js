@@ -2,7 +2,7 @@ import { saveSettingsDebounced } from '../../core/debounced.js';
 import { extension_prompt_types, extension_prompt_roles, is_send_press } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
-import { generateRaw } from '../../../script.js';
+import { generateRaw } from '../../core/generation-controller.js';
 import { setExtensionPrompt } from '../../core/settings-manager.js';
 import { getCurrentChatId, substituteParams, substituteParamsExtended } from '../../core/chat-engine.js';
 import {

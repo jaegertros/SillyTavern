@@ -9,9 +9,9 @@ import {
     saveSettingsDebounced,
     setExtensionPrompt,
     substituteParams,
-    generateRaw,
     substituteParamsExtended,
 } from '../../../script.js';
+import { generateRaw } from '../../../../scripts/core/generation-controller.js';
 import {
     ModuleWorkerWrapper,
     extension_settings,

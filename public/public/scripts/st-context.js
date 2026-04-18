@@ -13,7 +13,6 @@ import {
     eventSource,
     extension_prompts,
     extractMessageFromData,
-    Generate,
     generateQuietPrompt,
     getCharacters,
     getCurrentChatId,
@@ -34,11 +33,8 @@ import {
     saveReply,
     saveSettingsDebounced,
     selectCharacterById,
-    sendGenerationRequest,
-    sendStreamingRequest,
     sendSystemMessage,
     setExtensionPrompt,
-    stopGeneration,
     streamingProcessor,
     substituteParams,
     substituteParamsExtended,
@@ -52,7 +48,6 @@ import {
     getCharacterCardFields,
     swipe_right,
     swipe_left,
-    generateRaw,
     showSwipeButtons,
     hideSwipeButtons,
     deleteMessage,
@@ -68,6 +63,13 @@ import {
     getOneCharacter,
     getCharacterSource,
 } from '../script.js';
+import {
+    Generate,
+    sendGenerationRequest,
+    sendStreamingRequest,
+    stopGeneration,
+    generateRaw,
+} from '../../scripts/core/generation-controller.js';
 import {
     extension_settings,
     ModuleWorkerWrapper,

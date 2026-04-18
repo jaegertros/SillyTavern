@@ -29,14 +29,8 @@ import { loadItemizedPrompts } from './itemized-prompts.js';
 import { getRequestHeaders } from './request-utils.js';
 import { sendSystemMessage, system_message_types } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
-import {
-    Generate,
-    cancelTtsPlay,
-    setCharacterSettingsOverrides,
-    setExternalAbortController,
-    createLazyFields,
-    shouldAutoContinue,
-} from '../script.js';
+import { cancelTtsPlay, setCharacterSettingsOverrides, createLazyFields } from '../script.js';
+import { Generate, setExternalAbortController, shouldAutoContinue } from './core/generation-controller.js';
 import {
     setSendButtonState,
     selectRightMenuWithAnimation,

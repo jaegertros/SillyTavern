@@ -32,7 +32,6 @@ import {
     default_avatar,
     addOneMessage,
     clearChat,
-    Generate,
     select_rm_info,
     setCharacterId,
     setCharacterName,
@@ -68,18 +67,17 @@ import {
     setCharacterSettingsOverrides,
     system_avatar,
     isChatSaving,
-    setExternalAbortController,
     baseChatReplace,
     createLazyFields,
     depth_prompt_depth_default,
     loadItemizedPrompts,
     animation_duration,
     depth_prompt_role_default,
-    shouldAutoContinue,
     unshallowCharacter,
     chatElement,
     ensureMessageMediaIsArray,
 } from '../script.js';
+import { Generate, setExternalAbortController, shouldAutoContinue } from '../../scripts/core/generation-controller.js';
 import { printTagList, createTagMapFromList, applyTagsOnCharacterSelect, tag_map, applyTagsOnGroupSelect, printTagFilters, tag_filter_type } from './tags.js';
 import { FILTER_TYPES, FilterHelper } from './filters.js';
 import { isExternalMediaAllowed } from './chats.js';

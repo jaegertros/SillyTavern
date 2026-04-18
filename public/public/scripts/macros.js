@@ -1,5 +1,15 @@
 import { Handlebars, moment, seedrandom, droll } from '../lib.js';
-import { chat, chat_metadata, main_api, getMaxContextSize, getCurrentChatId, substituteParams, eventSource, event_types, extension_prompts } from '../script.js';
+import {
+    chat,
+    chat_metadata,
+    main_api,
+    getCurrentChatId,
+    substituteParams,
+    eventSource,
+    event_types,
+    extension_prompts,
+} from '../script.js';
+import { getMaxContextSize } from '../../scripts/core/generation-controller.js';
 import { timestampToMoment, isDigitsOnly, getStringHash, escapeRegex, uuidv4 } from './utils.js';
 import { textgenerationwebui_banned_in_macros } from './textgen-settings.js';
 import { getInstructMacros } from './instruct-mode.js';

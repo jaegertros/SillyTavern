@@ -6,16 +6,14 @@ import { getRequestHeaders } from './request-utils.js';
 import { CONNECT_API_MAP } from './slash-commands.js';
 import { sendSystemMessage } from './system-messages.js';
 import { getThumbnailUrl } from './thumbnail-url.js';
+import { callPopup, openCharacterChat, getCharacterCardFields } from '../script.js';
 import {
-    callPopup,
     Generate,
-    openCharacterChat,
     sendGenerationRequest,
     sendStreamingRequest,
     stopGeneration,
-    getCharacterCardFields,
     generateRaw,
-} from '../script.js';
+} from './core/generation-controller.js';
 import { activateSendButtons, deactivateSendButtons, setExtensionPrompt } from './core/settings-manager.js';
 import {
     getCharacters,

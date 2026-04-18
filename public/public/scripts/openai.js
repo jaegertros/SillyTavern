@@ -13,7 +13,6 @@ import {
     eventSource,
     extension_prompt_roles,
     extension_prompt_types,
-    Generate,
     getExtensionPrompt,
     getExtensionPromptMaxDepth,
     getMediaDisplay,
@@ -32,6 +31,7 @@ import {
     system_message_types,
     this_chid,
 } from '../script.js';
+import { Generate } from '../../scripts/core/generation-controller.js';
 import { getGroupNames, selected_group } from './group-chats.js';
 
 import {
