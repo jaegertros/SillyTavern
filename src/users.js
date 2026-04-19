@@ -1,33 +1,34 @@
+/**
+ * User management — directory listing, storage, avatars, and file-serving router.
+ * Auth/session logic extracted to users/user-auth.js
+ * Migration logic extracted to users/user-migration.js
+ */
 // Native Node Modules
 import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import os from 'node:os';
-import process from 'node:process';
-import { Buffer } from 'node:buffer';
 
 // Express and other dependencies
 import storage from 'node-persist';
 import express from 'express';
 import mime from 'mime-types';
 import archiver from 'archiver';
-import _ from 'lodash';
 import { sync as writeFileAtomicSync } from 'write-file-atomic';
 import sanitize from 'sanitize-filename';
 
 import { USER_DIRECTORY_TEMPLATE, DEFAULT_USER, PUBLIC_DIRECTORIES, SETTINGS_FILE, UPLOADS_DIRECTORY } from './constants.js';
-import { getConfigValue, color, delay, generateTimestamp, invalidateFirefoxCache } from './util.js';
-import { readSecret, writeSecret } from './endpoints/secrets.js';
-import { getContentOfType } from './endpoints/content-manager.js';
-import { serverDirectory } from './server-directory.js';
+import { getConfigValue, color, generateTimestamp, invalidateFirefoxCache } from './util.js';
 
 export const KEY_PREFIX = 'user:';
 const AVATAR_PREFIX = 'avatar:';
-const ENABLE_ACCOUNTS = getConfigValue('enableUserAccounts', false, 'boolean');
-const AUTHELIA_AUTH = getConfigValue('sso.autheliaAuth', false, 'boolean');
-const AUTHENTIK_AUTH = getConfigValue('sso.authentikAuth', false, 'boolean');
-const PER_USER_BASIC_AUTH = getConfigValue('perUserBasicAuth', false, 'boolean');
-const ANON_CSRF_SECRET = crypto.randomBytes(64).toString('base64');
+const COOKIE_SECRET_PATH = 'cookie-secret.txt';
+
+const STORAGE_KEYS = {
+    /**
+     * @deprecated Read from COOKIE_SECRET_PATH in DATA_ROOT instead.
+     */
+    cookieSecret: 'cookieSecret',
+};
 
 /**
  * Cache for user directories.
@@ -35,15 +36,6 @@ const ANON_CSRF_SECRET = crypto.randomBytes(64).toString('base64');
  */
 const DIRECTORIES_CACHE = new Map();
 const PUBLIC_USER_AVATAR = '/img/default-user.png';
-const COOKIE_SECRET_PATH = 'cookie-secret.txt';
-
-const STORAGE_KEYS = {
-    csrfSecret: 'csrfSecret',
-    /**
-     * @deprecated Read from COOKIE_SECRET_PATH in DATA_ROOT instead.
-     */
-    cookieSecret: 'cookieSecret',
-};
 
 /**
  * @typedef {Object} User
@@ -125,72 +117,6 @@ export async function ensurePublicDirectoriesExist() {
     return directoriesList;
 }
 
-/**
- * Prints an error message and exits the process if necessary
- * @param {string} message The error message to print
- * @returns {void}
- */
-function logSecurityAlert(message) {
-    const { basicAuthMode, whitelistMode } = globalThis.COMMAND_LINE_ARGS;
-    if (basicAuthMode || whitelistMode) return; // safe!
-    console.error(color.red(message));
-    if (getConfigValue('securityOverride', false, 'boolean')) {
-        console.warn(color.red('Security has been overridden. If it\'s not a trusted network, change the settings.'));
-        return;
-    }
-    process.exit(1);
-}
-
-/**
- * Verifies the security settings and prints warnings if necessary
- * @returns {Promise<void>}
- */
-export async function verifySecuritySettings() {
-    const { listen, basicAuthMode } = globalThis.COMMAND_LINE_ARGS;
-
-    // Skip all security checks as listen is set to false
-    if (!listen) {
-        return;
-    }
-
-    if (!ENABLE_ACCOUNTS) {
-        logSecurityAlert('Your current SillyTavern configuration is insecure (listening to non-localhost). Enable whitelisting, basic authentication or user accounts.');
-    }
-
-    const users = await getAllEnabledUsers();
-    const unprotectedUsers = users.filter(x => !x.password);
-    const unprotectedAdminUsers = unprotectedUsers.filter(x => x.admin);
-
-    if (unprotectedUsers.length > 0) {
-        console.warn(color.blue('A friendly reminder that the following users are not password protected:'));
-        unprotectedUsers.map(x => `${color.yellow(x.handle)} ${color.red(x.admin ? '(admin)' : '')}`).forEach(x => console.warn(x));
-        console.log();
-        console.warn(`Consider setting a password in the admin panel or by using the ${color.blue('recover.js')} script.`);
-        console.log();
-
-        if (unprotectedAdminUsers.length > 0) {
-            logSecurityAlert('If you are not using basic authentication or whitelisting, you should set a password for all admin users.');
-        }
-    }
-
-    if (basicAuthMode) {
-        const perUserBasicAuth = getConfigValue('perUserBasicAuth', false, 'boolean');
-        if (perUserBasicAuth && !ENABLE_ACCOUNTS) {
-            console.error(color.red(
-                'Per-user basic authentication is enabled, but user accounts are disabled. This configuration may be insecure.',
-            ));
-        } else if (!perUserBasicAuth) {
-            const basicAuthUserName = getConfigValue('basicAuthUser.username', '');
-            const basicAuthUserPassword = getConfigValue('basicAuthUser.password', '');
-            if (!basicAuthUserName || !basicAuthUserPassword) {
-                console.warn(color.yellow(
-                    'Basic Authentication is enabled, but username or password is not set or empty!',
-                ));
-            }
-        }
-    }
-}
-
 export function cleanUploads() {
     try {
         const uploadsPath = path.join(globalThis.DATA_ROOT, UPLOADS_DIRECTORY);
@@ -220,268 +146,6 @@ export async function getUserDirectoriesList() {
     const userHandles = await getAllUserHandles();
     const directoriesList = userHandles.map(handle => getUserDirectories(handle));
     return directoriesList;
-}
-
-/**
- * Perform migration from the old user data format to the new one.
- */
-export async function migrateUserData() {
-    const publicDirectory = path.join(process.cwd(), 'public');
-
-    // No need to migrate if the characters directory doesn't exists
-    if (!fs.existsSync(path.join(publicDirectory, 'characters'))) {
-        return;
-    }
-
-    const TIMEOUT = 10;
-
-    console.log();
-    console.log(color.magenta('Preparing to migrate user data...'));
-    console.log(`All public data will be moved to the ${globalThis.DATA_ROOT} directory.`);
-    console.log('This process may take a while depending on the amount of data to move.');
-    console.log(`Backups will be placed in the ${PUBLIC_DIRECTORIES.backups} directory.`);
-    console.log(`The process will start in ${TIMEOUT} seconds. Press Ctrl+C to cancel.`);
-
-    for (let i = TIMEOUT; i > 0; i--) {
-        console.log(`${i}...`);
-        await delay(1000);
-    }
-
-    console.log(color.magenta('Starting migration... Do not interrupt the process!'));
-
-    const userDirectories = getUserDirectories(DEFAULT_USER.handle);
-
-    const dataMigrationMap = [
-        {
-            old: path.join(publicDirectory, 'assets'),
-            new: userDirectories.assets,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'backgrounds'),
-            new: userDirectories.backgrounds,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'characters'),
-            new: userDirectories.characters,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'chats'),
-            new: userDirectories.chats,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'context'),
-            new: userDirectories.context,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'group chats'),
-            new: userDirectories.groupChats,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'groups'),
-            new: userDirectories.groups,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'instruct'),
-            new: userDirectories.instruct,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'KoboldAI Settings'),
-            new: userDirectories.koboldAI_Settings,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'movingUI'),
-            new: userDirectories.movingUI,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'NovelAI Settings'),
-            new: userDirectories.novelAI_Settings,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'OpenAI Settings'),
-            new: userDirectories.openAI_Settings,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'QuickReplies'),
-            new: userDirectories.quickreplies,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'TextGen Settings'),
-            new: userDirectories.textGen_Settings,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'themes'),
-            new: userDirectories.themes,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'user'),
-            new: userDirectories.user,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'User Avatars'),
-            new: userDirectories.avatars,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'worlds'),
-            new: userDirectories.worlds,
-            file: false,
-        },
-        {
-            old: path.join(publicDirectory, 'scripts/extensions/third-party'),
-            new: userDirectories.extensions,
-            file: false,
-        },
-        {
-            old: path.join(process.cwd(), 'thumbnails'),
-            new: userDirectories.thumbnails,
-            file: false,
-        },
-        {
-            old: path.join(process.cwd(), 'vectors'),
-            new: userDirectories.vectors,
-            file: false,
-        },
-        {
-            old: path.join(process.cwd(), 'secrets.json'),
-            new: path.join(userDirectories.root, 'secrets.json'),
-            file: true,
-        },
-        {
-            old: path.join(publicDirectory, 'settings.json'),
-            new: path.join(userDirectories.root, 'settings.json'),
-            file: true,
-        },
-        {
-            old: path.join(publicDirectory, 'stats.json'),
-            new: path.join(userDirectories.root, 'stats.json'),
-            file: true,
-        },
-    ];
-
-    const currentDate = new Date().toISOString().split('T')[0];
-    const backupDirectory = path.join(process.cwd(), PUBLIC_DIRECTORIES.backups, '_migration', currentDate);
-
-    if (!fs.existsSync(backupDirectory)) {
-        fs.mkdirSync(backupDirectory, { recursive: true });
-    }
-
-    const errors = [];
-
-    for (const migration of dataMigrationMap) {
-        console.log(`Migrating ${migration.old} to ${migration.new}...`);
-
-        try {
-            if (!fs.existsSync(migration.old)) {
-                console.log(color.yellow(`Skipping migration of ${migration.old} as it does not exist.`));
-                continue;
-            }
-
-            if (migration.file) {
-                // Copy the file to the new location
-                fs.cpSync(migration.old, migration.new, { force: true });
-                // Move the file to the backup location
-                fs.cpSync(
-                    migration.old,
-                    path.join(backupDirectory, path.basename(migration.old)),
-                    { recursive: true, force: true },
-                );
-                fs.rmSync(migration.old, { recursive: true, force: true });
-            } else {
-                // Copy the directory to the new location
-                fs.cpSync(migration.old, migration.new, { recursive: true, force: true });
-                // Move the directory to the backup location
-                fs.cpSync(
-                    migration.old,
-                    path.join(backupDirectory, path.basename(migration.old)),
-                    { recursive: true, force: true },
-                );
-                fs.rmSync(migration.old, { recursive: true, force: true });
-            }
-        } catch (error) {
-            console.error(color.red(`Error migrating ${migration.old} to ${migration.new}:`), error.message);
-            errors.push(migration.old);
-        }
-    }
-
-    if (errors.length > 0) {
-        console.log(color.red('Migration completed with errors. Move the following files manually:'));
-        errors.forEach(error => console.error(error));
-    }
-
-    console.log(color.green('Migration completed!'));
-}
-
-export async function migrateSystemPrompts() {
-    /**
-     * Gets the default system prompts.
-     * @returns {Promise<any[]>} - The list of default system prompts
-     */
-    async function getDefaultSystemPrompts() {
-        try {
-            return getContentOfType('sysprompt', 'json');
-        } catch {
-            return [];
-        }
-    }
-
-    const directories = await getUserDirectoriesList();
-    for (const directory of directories) {
-        try {
-            const migrateMarker = path.join(directory.sysprompt, '.migrated');
-            if (fs.existsSync(migrateMarker)) {
-                continue;
-            }
-            const backupsPath = path.join(directory.backups, '_sysprompt');
-            fs.mkdirSync(backupsPath, { recursive: true });
-            const defaultPrompts = await getDefaultSystemPrompts();
-            const instucts = fs.readdirSync(directory.instruct);
-            let migratedPrompts = [];
-            for (const instruct of instucts) {
-                const instructPath = path.join(directory.instruct, instruct);
-                const sysPromptPath = path.join(directory.sysprompt, instruct);
-                if (path.extname(instruct) === '.json' && !fs.existsSync(sysPromptPath)) {
-                    const instructData = JSON.parse(fs.readFileSync(instructPath, 'utf8'));
-                    if ('system_prompt' in instructData && 'name' in instructData) {
-                        const backupPath = path.join(backupsPath, `${instructData.name}.json`);
-                        fs.cpSync(instructPath, backupPath, { force: true });
-                        const syspromptData = { name: instructData.name, content: instructData.system_prompt };
-                        migratedPrompts.push(syspromptData);
-                        delete instructData.system_prompt;
-                        writeFileAtomicSync(instructPath, JSON.stringify(instructData, null, 4));
-                    }
-                }
-            }
-            // Only leave unique contents
-            migratedPrompts = _.uniqBy(migratedPrompts, 'content');
-            // Only leave contents that are not in the default prompts
-            migratedPrompts = migratedPrompts.filter(x => !defaultPrompts.some(y => y.content === x.content));
-            for (const sysPromptData of migratedPrompts) {
-                sysPromptData.name = `[Migrated] ${sysPromptData.name}`;
-                const syspromptPath = path.join(directory.sysprompt, `${sysPromptData.name}.json`);
-                writeFileAtomicSync(syspromptPath, JSON.stringify(sysPromptData, null, 4));
-                console.log(`Migrated system prompt ${sysPromptData.name} for ${directory.root.split(path.sep).pop()}`);
-            }
-            writeFileAtomicSync(migrateMarker, '');
-        } catch (error) {
-            console.error('Error migrating system prompts:', error);
-        }
-    }
 }
 
 /**
@@ -549,74 +213,6 @@ export function getCookieSecret(dataRoot) {
     const secret = crypto.randomBytes(64).toString('base64');
     writeFileAtomicSync(cookieSecretPath, secret, { encoding: 'utf8' });
     return secret;
-}
-
-/**
- * Generates a random password salt.
- * @returns {string} The password salt
- */
-export function getPasswordSalt() {
-    return crypto.randomBytes(16).toString('base64');
-}
-
-/**
- * Get the session name for the current server.
- * @returns {string} The session name
- */
-export function getCookieSessionName() {
-    // Get server hostname and hash it to generate a session suffix
-    const hostname = os.hostname() || 'localhost';
-    const suffix = crypto.createHash('sha256').update(hostname).digest('hex').slice(0, 8);
-    return `session-${suffix}`;
-}
-
-export function getSessionCookieAge() {
-    // Defaults to "no expiration" if not set
-    const configValue = getConfigValue('sessionTimeout', -1, 'number');
-
-    // Convert to milliseconds
-    if (configValue > 0) {
-        return configValue * 1000;
-    }
-
-    // "No expiration" is just 400 days as per RFC 6265
-    if (configValue < 0) {
-        return 400 * 24 * 60 * 60 * 1000;
-    }
-
-    // 0 means session cookie is deleted when the browser session ends
-    // (depends on the implementation of the browser)
-    return undefined;
-}
-
-/**
- * Hashes a password using scrypt with the provided salt.
- * @param {string} password Password to hash
- * @param {string} salt Salt to use for hashing
- * @returns {string} Hashed password
- */
-export function getPasswordHash(password, salt) {
-    return crypto.scryptSync(password.normalize(), salt, 64).toString('base64');
-}
-
-/**
- * Get the CSRF secret from the storage.
- * @param {import('express').Request} [request] HTTP request object
- * @returns {string} The CSRF secret
- */
-export function getCsrfSecret(request) {
-    if (!request || !request.user) {
-        return ANON_CSRF_SECRET;
-    }
-
-    let csrfSecret = readSecret(request.user.directories, STORAGE_KEYS.csrfSecret);
-
-    if (!csrfSecret) {
-        csrfSecret = crypto.randomBytes(64).toString('base64');
-        writeSecret(request.user.directories, STORAGE_KEYS.csrfSecret, csrfSecret);
-    }
-
-    return csrfSecret;
 }
 
 /**
@@ -688,268 +284,68 @@ export async function getUserAvatar(handle) {
 }
 
 /**
- * Checks if the user should be redirected to the login page.
- * @param {import('express').Request} request Request object
- * @returns {boolean} Whether the user should be redirected to the login page
+ * Gets all of the users.
+ * @returns {Promise<User[]>}
  */
-export function shouldRedirectToLogin(request) {
-    return ENABLE_ACCOUNTS && !request.user;
-}
-
-/**
- * Tries auto-login if there is only one user and it's not password protected.
- * or another configured method such authlia or basic
- * @param {import('express').Request} request Request object
- * @param {boolean} basicAuthMode If Basic auth mode is enabled
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-export async function tryAutoLogin(request, basicAuthMode) {
-    if (!ENABLE_ACCOUNTS || request.user || !request.session) {
-        return false;
-    }
-
-    if (!request.query.noauto) {
-        if (await singleUserLogin(request)) {
-            return true;
-        }
-
-        if (AUTHELIA_AUTH && await autheliaUserLogin(request)) {
-            return true;
-        }
-
-        if (AUTHENTIK_AUTH && await authentikUserLogin(request)) {
-            return true;
-        }
-
-        if (basicAuthMode && PER_USER_BASIC_AUTH && await basicUserLogin(request)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Tries auto-login if there is only one user and it's not password protected.
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function singleUserLogin(request) {
-    if (!request.session) {
-        return false;
-    }
-
-    const userHandles = await getAllUserHandles();
-    if (userHandles.length === 1) {
-        const user = await storage.getItem(toKey(userHandles[0]));
-        if (user && !user.password) {
-            request.session.handle = userHandles[0];
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * Attempts auto-login using an Authelia header.
- * https://www.authelia.com/integration/trusted-header-sso/introduction/
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function autheliaUserLogin(request) {
-    return headerUserLogin(request, 'Remote-User');
-}
-
-/**
- * Attempts auto-login using an Authentik header.
- * https://docs.goauthentik.io/add-secure-apps/providers/proxy/forward_auth/
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function authentikUserLogin(request) {
-    return headerUserLogin(request, 'X-Authentik-Username');
-}
-
-/**
- * Tries auto-login with a given header.
- * @param {import('express').Request} request Request object
- * @param {string} [header='Remote-User'] The header to use for the trusted user
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function headerUserLogin(request, header = 'Remote-User') {
-    if (!request.session) {
-        return false;
-    }
-
-    const remoteUser = request.get(header);
-    if (!remoteUser) {
-        return false;
-    }
-    console.debug(`Attempting auto-login for user from header ${header}: ${remoteUser}`);
-
-    const userHandles = await getAllUserHandles();
-    for (const userHandle of userHandles) {
-        if (remoteUser.toLowerCase() === userHandle) {
-            const user = await storage.getItem(toKey(userHandle));
-            if (user && user.enabled) {
-                request.session.handle = userHandle;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-/**
- * Tries auto-login with basic auth username.
- * @param {import('express').Request} request Request object
- * @returns {Promise<boolean>} Whether auto-login was performed
- */
-async function basicUserLogin(request) {
-    if (!request.session) {
-        return false;
-    }
-
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader) {
-        return false;
-    }
-
-    const [scheme, credentials] = authHeader.split(' ');
-
-    if (scheme !== 'Basic' || !credentials) {
-        return false;
-    }
-
-    const [username, ...passwordParts] = Buffer.from(credentials, 'base64')
-        .toString('utf8')
-        .split(':');
-    const password = passwordParts.join(':');
-
-    const userHandles = await getAllUserHandles();
-    for (const userHandle of userHandles) {
-        if (username === userHandle) {
-            const user = await storage.getItem(toKey(userHandle));
-            // Verify pass again here just to be sure
-            if (user && user.enabled && user.password && user.password === getPasswordHash(password, user.salt)) {
-                request.session.handle = userHandle;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-/**
- * Middleware to add user data to the request object.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- * @param {import('express').NextFunction} next Next function
- */
-export async function setUserDataMiddleware(request, response, next) {
-    // If user accounts are disabled, use the default user
+async function getAllUsers() {
+    const ENABLE_ACCOUNTS = getConfigValue('enableUserAccounts', false, 'boolean');
     if (!ENABLE_ACCOUNTS) {
-        const handle = DEFAULT_USER.handle;
-        const directories = getUserDirectories(handle);
-        request.user = {
-            profile: DEFAULT_USER,
-            directories: directories,
-        };
-        return next();
+        return [];
     }
+    /**
+     * @type {User[]}
+     */
+    const users = await storage.values();
+    return users;
+}
 
-    if (!request.session) {
-        console.error('Session not available');
-        return response.sendStatus(500);
-    }
+/**
+ * Gets all of the enabled users.
+ * @returns {Promise<User[]>}
+ */
+export async function getAllEnabledUsers() {
+    const users = await getAllUsers();
+    return users.filter(x => x.enabled);
+}
 
-    // If user accounts are enabled, get the user from the session
-    let handle = request.session?.handle;
-
-    // If we have the only user and it's not password protected, use it
-    if (!handle) {
-        return next();
-    }
-
-    /** @type {User} */
-    const user = await storage.getItem(toKey(handle));
-
-    if (!user) {
-        console.error('User not found:', handle);
-        return next();
-    }
-
-    if (!user.enabled) {
-        console.error('User is disabled:', handle);
-        return next();
-    }
-
+/**
+ * Creates an archive of the user's data root directory.
+ * @param {string} handle User handle
+ * @param {import('express').Response} response Express response object to write to
+ * @returns {Promise<void>} Promise that resolves when the archive is created
+ */
+export async function createBackupArchive(handle, response) {
     const directories = getUserDirectories(handle);
-    request.user = {
-        profile: user,
-        directories: directories,
-    };
 
-    // Touch the session if loading the home page
-    if (request.method === 'GET' && request.path === '/') {
-        request.session.touch = Date.now();
-    }
+    console.info('Backup requested for', handle);
+    const archive = archiver('zip');
 
-    return next();
+    archive.on('error', function (err) {
+        response.status(500).send({ error: err.message });
+    });
+
+    // On stream closed we can end the request
+    archive.on('end', function () {
+        console.info('Archive wrote %d bytes', archive.pointer());
+        response.end(); // End the Express response
+    });
+
+    const timestamp = generateTimestamp();
+
+    // Set the archive name
+    response.attachment(`${handle}-${timestamp}.zip`);
+
+    // This is the streaming magic
+    // @ts-ignore
+    archive.pipe(response);
+
+    // Append files from a sub-directory, putting its contents at the root of archive
+    archive.directory(directories.root, false);
+    archive.finalize();
 }
 
 /**
- * Middleware to add user data to the request object.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- * @param {import('express').NextFunction} next Next function
- */
-export function requireLoginMiddleware(request, response, next) {
-    if (!request.user) {
-        return response.sendStatus(403);
-    }
-
-    return next();
-}
-
-/**
- * Middleware to host the login page.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- */
-export async function loginPageMiddleware(request, response) {
-    if (!ENABLE_ACCOUNTS) {
-        console.log('User accounts are disabled. Redirecting to index page.');
-        return response.redirect('/');
-    }
-
-    try {
-        const { basicAuthMode } = globalThis.COMMAND_LINE_ARGS;
-        const autoLogin = await tryAutoLogin(request, basicAuthMode);
-
-        if (autoLogin) {
-            return response.redirect('/');
-        }
-    } catch (error) {
-        console.error('Error during auto-login:', error);
-    }
-
-    return response.sendFile('login.html', { root: path.join(serverDirectory, 'public') });
-}
-
-/**
- * Creates a route handler for serving files from a specific directory.
- * @param {(req: import('express').Request) => string} directoryFn A function that returns the directory path to serve files from
- * @returns {import('express').RequestHandler}
- */
-/**
- * Resolves the splat parameter from an Express 5 wildcard route. In Express 5
- * the named wildcard ({*splat}) yields an array of path segments rather than
- * the joined string Express 4 produced — joining with '/' keeps the rest of
- * the file-serving code shape-compatible. URI-decoding is applied per-segment
- * so encoded slashes inside a segment don't blow up the join.
+ * Resolves the splat parameter from an Express 5 wildcard route.
  * @param {import('express').Request} req
  * @returns {string}
  */
@@ -961,6 +357,11 @@ function resolveSplatPath(req) {
     return decodeURIComponent(String(raw ?? ''));
 }
 
+/**
+ * Creates a route handler for serving files from a specific directory.
+ * @param {(req: import('express').Request) => string} directoryFn A function that returns the directory path to serve files from
+ * @returns {import('express').RequestHandler}
+ */
 function createRouteHandler(directoryFn) {
     return async (req, res) => {
         try {
@@ -1008,86 +409,6 @@ function createExtensionsRouteHandler(directoryFn) {
 }
 
 /**
- * Verifies that the current user is an admin.
- * @param {import('express').Request} request Request object
- * @param {import('express').Response} response Response object
- * @param {import('express').NextFunction} next Next function
- * @returns {any}
- */
-export function requireAdminMiddleware(request, response, next) {
-    if (!request.user) {
-        return response.sendStatus(403);
-    }
-
-    if (request.user.profile.admin) {
-        return next();
-    }
-
-    console.warn('Unauthorized access to admin endpoint:', request.originalUrl);
-    return response.sendStatus(403);
-}
-
-/**
- * Creates an archive of the user's data root directory.
- * @param {string} handle User handle
- * @param {import('express').Response} response Express response object to write to
- * @returns {Promise<void>} Promise that resolves when the archive is created
- */
-export async function createBackupArchive(handle, response) {
-    const directories = getUserDirectories(handle);
-
-    console.info('Backup requested for', handle);
-    const archive = archiver('zip');
-
-    archive.on('error', function (err) {
-        response.status(500).send({ error: err.message });
-    });
-
-    // On stream closed we can end the request
-    archive.on('end', function () {
-        console.info('Archive wrote %d bytes', archive.pointer());
-        response.end(); // End the Express response
-    });
-
-    const timestamp = generateTimestamp();
-
-    // Set the archive name
-    response.attachment(`${handle}-${timestamp}.zip`);
-
-    // This is the streaming magic
-    // @ts-ignore
-    archive.pipe(response);
-
-    // Append files from a sub-directory, putting its contents at the root of archive
-    archive.directory(directories.root, false);
-    archive.finalize();
-}
-
-/**
- * Gets all of the users.
- * @returns {Promise<User[]>}
- */
-async function getAllUsers() {
-    if (!ENABLE_ACCOUNTS) {
-        return [];
-    }
-    /**
-     * @type {User[]}
-     */
-    const users = await storage.values();
-    return users;
-}
-
-/**
- * Gets all of the enabled users.
- * @returns {Promise<User[]>}
- */
-export async function getAllEnabledUsers() {
-    const users = await getAllUsers();
-    return users.filter(x => x.enabled);
-}
-
-/**
  * Express router for serving files from the user's directories.
  */
 export const router = express.Router();
@@ -1098,3 +419,24 @@ router.use('/assets/{*splat}', createRouteHandler(req => req.user.directories.as
 router.use('/user/images/{*splat}', createRouteHandler(req => req.user.directories.userImages));
 router.use('/user/files/{*splat}', createRouteHandler(req => req.user.directories.files));
 router.use('/scripts/extensions/third-party/{*splat}', createExtensionsRouteHandler(req => req.user.directories.extensions));
+
+// Re-exports for backward compatibility
+export {
+    verifySecuritySettings,
+    getPasswordSalt,
+    getCookieSessionName,
+    getSessionCookieAge,
+    getPasswordHash,
+    getCsrfSecret,
+    shouldRedirectToLogin,
+    tryAutoLogin,
+    setUserDataMiddleware,
+    requireLoginMiddleware,
+    loginPageMiddleware,
+    requireAdminMiddleware,
+} from './users/user-auth.js';
+
+export {
+    migrateUserData,
+    migrateSystemPrompts,
+} from './users/user-migration.js';
