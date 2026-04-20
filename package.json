@@ -108,6 +108,7 @@
   },
   "version": "1.16.0",
   "scripts": {
+    "prestart": "node check-updates.js",
     "start": "node server.js",
     "debug": "node --inspect server.js",
     "start:global": "node server.js --global",

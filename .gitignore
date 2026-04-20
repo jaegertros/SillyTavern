@@ -67,3 +67,4 @@ test-results/
 /_webpack/
 /default-user/
 cookie-secret.txt
+updates-available.txt
