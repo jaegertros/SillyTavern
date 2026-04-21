@@ -1,0 +1,108 @@
+[submodule "public/scripts/extensions/third-party/Carmy-InfoBoard"]
+	path = public/scripts/extensions/third-party/Carmy-InfoBoard
+	url = https://github.com/CarmentaGit/Carmy-InfoBoard
+[submodule "public/scripts/extensions/third-party/CarrotKernel"]
+	path = public/scripts/extensions/third-party/CarrotKernel
+	url = https://github.com/Coneja-Chibi/CarrotKernel
+[submodule "public/scripts/extensions/third-party/Ember"]
+	path = public/scripts/extensions/third-party/Ember
+	url = https://github.com/NemoVonNirgend/Ember
+[submodule "public/scripts/extensions/third-party/Extension-Dice"]
+	path = public/scripts/extensions/third-party/Extension-Dice
+	url = https://github.com/SillyTavern/Extension-Dice
+[submodule "public/scripts/extensions/third-party/Extension-PromptInspector"]
+	path = public/scripts/extensions/third-party/Extension-PromptInspector
+	url = https://github.com/SillyTavern/Extension-PromptInspector
+[submodule "public/scripts/extensions/third-party/Extension-QuickPersona"]
+	path = public/scripts/extensions/third-party/Extension-QuickPersona
+	url = https://github.com/SillyTavern/Extension-QuickPersona
+[submodule "public/scripts/extensions/third-party/Guided-Generations"]
+	path = public/scripts/extensions/third-party/Guided-Generations
+	url = https://github.com/Samueras/Guided-Generations
+[submodule "public/scripts/extensions/third-party/GuidedGenerations-Extension"]
+	path = public/scripts/extensions/third-party/GuidedGenerations-Extension
+	url = https://github.com/Samueras/GuidedGenerations-Extension
+[submodule "public/scripts/extensions/third-party/NemoLore"]
+	path = public/scripts/extensions/third-party/NemoLore
+	url = https://github.com/NemoVonNirgend/NemoLore
+[submodule "public/scripts/extensions/third-party/NemoPresetExt"]
+	path = public/scripts/extensions/third-party/NemoPresetExt
+	url = https://github.com/NemoVonNirgend/NemoPresetExt
+[submodule "public/scripts/extensions/third-party/SillyTavern-AlternateDescriptions"]
+	path = public/scripts/extensions/third-party/SillyTavern-AlternateDescriptions
+	url = https://github.com/nbrown725/SillyTavern-AlternateDescriptions
+[submodule "public/scripts/extensions/third-party/SillyTavern-AlternativeMarkdownConverter"]
+	path = public/scripts/extensions/third-party/SillyTavern-AlternativeMarkdownConverter
+	url = https://github.com/LenAnderson/SillyTavern-AlternativeMarkdownConverter
+[submodule "public/scripts/extensions/third-party/SillyTavern-AssetRepoManager"]
+	path = public/scripts/extensions/third-party/SillyTavern-AssetRepoManager
+	url = https://github.com/LenAnderson/SillyTavern-AssetRepoManager
+[submodule "public/scripts/extensions/third-party/SillyTavern-BananaGen"]
+	path = public/scripts/extensions/third-party/SillyTavern-BananaGen
+	url = https://github.com/welvet/SillyTavern-BananaGen
+[submodule "public/scripts/extensions/third-party/SillyTavern-CacheChunker"]
+	path = public/scripts/extensions/third-party/SillyTavern-CacheChunker
+	url = https://github.com/Omegastick/SillyTavern-CacheChunker
+[submodule "public/scripts/extensions/third-party/SillyTavern-Character-Creator"]
+	path = public/scripts/extensions/third-party/SillyTavern-Character-Creator
+	url = https://github.com/bmen25124/SillyTavern-Character-Creator
+[submodule "public/scripts/extensions/third-party/SillyTavern-CharacterLibrary"]
+	path = public/scripts/extensions/third-party/SillyTavern-CharacterLibrary
+	url = https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary
+[submodule "public/scripts/extensions/third-party/SillyTavern-ComfyUI"]
+	path = public/scripts/extensions/third-party/SillyTavern-ComfyUI
+	url = https://github.com/LenAnderson/SillyTavern-ComfyUI
+[submodule "public/scripts/extensions/third-party/SillyTavern-Costumes"]
+	path = public/scripts/extensions/third-party/SillyTavern-Costumes
+	url = https://github.com/LenAnderson/SillyTavern-Costumes
+[submodule "public/scripts/extensions/third-party/SillyTavern-Flowchart"]
+	path = public/scripts/extensions/third-party/SillyTavern-Flowchart
+	url = https://github.com/bmen25124/SillyTavern-Flowchart
+[submodule "public/scripts/extensions/third-party/SillyTavern-LALib"]
+	path = public/scripts/extensions/third-party/SillyTavern-LALib
+	url = https://github.com/LenAnderson/SillyTavern-LALib
+[submodule "public/scripts/extensions/third-party/SillyTavern-LandingPage"]
+	path = public/scripts/extensions/third-party/SillyTavern-LandingPage
+	url = https://github.com/LenAnderson/SillyTavern-LandingPage
+[submodule "public/scripts/extensions/third-party/SillyTavern-MessageSummarize"]
+	path = public/scripts/extensions/third-party/SillyTavern-MessageSummarize
+	url = https://github.com/qvink/SillyTavern-MessageSummarize
+[submodule "public/scripts/extensions/third-party/SillyTavern-MoreFlexibleContinues"]
+	path = public/scripts/extensions/third-party/SillyTavern-MoreFlexibleContinues
+	url = https://github.com/LenAnderson/SillyTavern-MoreFlexibleContinues
+[submodule "public/scripts/extensions/third-party/SillyTavern-Pronouns"]
+	path = public/scripts/extensions/third-party/SillyTavern-Pronouns
+	url = https://github.com/Wolfsblvt/SillyTavern-Pronouns
+[submodule "public/scripts/extensions/third-party/SillyTavern-Roadway"]
+	path = public/scripts/extensions/third-party/SillyTavern-Roadway
+	url = https://github.com/bmen25124/SillyTavern-Roadway
+[submodule "public/scripts/extensions/third-party/SillyTavern-Tracker-Enhanced"]
+	path = public/scripts/extensions/third-party/SillyTavern-Tracker-Enhanced
+	url = https://github.com/harrywenjie/SillyTavern-Tracker-Enhanced
+[submodule "public/scripts/extensions/third-party/SillyTavern-WTracker"]
+	path = public/scripts/extensions/third-party/SillyTavern-WTracker
+	url = https://github.com/bmen25124/SillyTavern-WTracker
+[submodule "public/scripts/extensions/third-party/SillyTavern-WorldInfo-Recommender"]
+	path = public/scripts/extensions/third-party/SillyTavern-WorldInfo-Recommender
+	url = https://github.com/bmen25124/SillyTavern-WorldInfo-Recommender
+[submodule "public/scripts/extensions/third-party/SillyTavern-WorldInfoInfo"]
+	path = public/scripts/extensions/third-party/SillyTavern-WorldInfoInfo
+	url = https://github.com/LenAnderson/SillyTavern-WorldInfoInfo
+[submodule "public/scripts/extensions/third-party/SillyTavern-zTracker"]
+	path = public/scripts/extensions/third-party/SillyTavern-zTracker
+	url = https://github.com/Zaakh/SillyTavern-zTracker
+[submodule "public/scripts/extensions/third-party/rpg-companion-sillytavern"]
+	path = public/scripts/extensions/third-party/rpg-companion-sillytavern
+	url = https://github.com/SpicyMarinara/rpg-companion-sillytavern
+[submodule "public/scripts/extensions/third-party/st-image-auto-generation"]
+	path = public/scripts/extensions/third-party/st-image-auto-generation
+	url = https://github.com/wickedcode01/st-image-auto-generation
+[submodule "public/scripts/extensions/third-party/st-qdrant-memory"]
+	path = public/scripts/extensions/third-party/st-qdrant-memory
+	url = https://github.com/HO-git/st-qdrant-memory
+[submodule "public/scripts/extensions/third-party/st-stepped-thinking"]
+	path = public/scripts/extensions/third-party/st-stepped-thinking
+	url = https://github.com/cierru/st-stepped-thinking
+[submodule "public/scripts/extensions/third-party/Bronie-Parser-Extension"]
+	path = public/scripts/extensions/third-party/Bronie-Parser-Extension
+	url = https://github.com/Bronya-Rand/Bronie-Parser-Extension

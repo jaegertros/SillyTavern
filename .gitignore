@@ -50,9 +50,7 @@ public/error/
 /plugins/
 /data
 /default/scaffold
-public/scripts/extensions/third-party/*
-# Un-ignore Vue-converted third-party extensions (committed with the repo)
-!public/scripts/extensions/third-party/Bronie-Parser-Extension/
+# Third-party extensions are tracked as git submodules (see .gitmodules)
 /certs
 .aider*
 .env
