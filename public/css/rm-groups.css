@@ -82,6 +82,57 @@
     color: rgb(190, 0, 0);
 }
 
+/* ---------- Group action buttons (Create / Back / Delete) ---------- */
+#group_action_buttons {
+    margin-top: 8px;
+    gap: 6px;
+}
+
+.group_action_btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    height: auto !important;
+    aspect-ratio: unset !important;
+}
+
+.group_action_btn--create {
+    background-color: rgba(34, 139, 34, 0.3);
+    border: 1px solid rgba(34, 139, 34, 0.6) !important;
+    color: #6fcf6f;
+}
+
+.group_action_btn--create:hover {
+    background-color: rgba(34, 139, 34, 0.5);
+}
+
+.group_action_btn--back {
+    background-color: rgba(100, 100, 120, 0.25);
+    border: 1px solid rgba(100, 100, 120, 0.5) !important;
+    color: var(--SmartThemeBodyColor, #dbdee1);
+}
+
+.group_action_btn--back:hover {
+    background-color: rgba(100, 100, 120, 0.4);
+}
+
+.group_action_btn--delete {
+    background-color: rgba(190, 0, 0, 0.2);
+    border: 1px solid rgba(190, 0, 0, 0.5) !important;
+    color: rgb(220, 80, 80);
+}
+
+.group_action_btn--delete:hover {
+    background-color: rgba(190, 0, 0, 0.35);
+}
+
 #rm_group_members:empty {
     width: 100%;
     padding: 0.5em 0;

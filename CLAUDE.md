@@ -1,5 +1,11 @@
 # SillyTavern - Project Guide
 
+## Host Environment
+
+- **Windows path:** `C:\Edit\SillyTavern\`
+- **Git repo:** `C:\Edit\SillyTavern\.git`
+- **User:** Caleb (cwaddell13@gmail.com)
+
 ## What This Is
 
 SillyTavern (v1.16.0) is a self-hosted LLM frontend for power users. It provides a rich chat UI that connects to 25+ AI backends (OpenAI, Claude, Gemini, Mistral, NovelAI, local models, etc.) with features like character cards, world info, group chats, extensions, and prompt management.

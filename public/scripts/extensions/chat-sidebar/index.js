@@ -12,10 +12,12 @@ import { this_chid, characters } from '../../core/state.js';
 import { eventSource, event_types } from '../../events.js';
 import { getRequestHeaders } from '../../request-utils.js';
 import { getThumbnailUrl } from '../../thumbnail-url.js';
-import { openCharacterChat } from '../../../script.js';
+import { openCharacterChat, deleteCharacterChatByName } from '../../../script.js';
 import { setActiveCharacter, setActiveGroup } from '../../core/settings-manager.js';
 import { selectCharacterById } from '../../core/character-manager.js';
 import { saveChatConditional, getCurrentChatId } from '../../core/chat-engine.js';
+import { callGenericPopup, POPUP_TYPE } from '../../popup.js';
+import { t } from '../../i18n.js';
 
 import {
     extension_settings,
@@ -23,7 +25,7 @@ import {
     renderExtensionTemplateAsync,
 } from '../../extensions.js';
 
-import { openGroupById, openGroupChat } from '../../group-chats.js';
+import { openGroupById, openGroupChat, deleteGroupChatByName } from '../../group-chats.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -219,7 +221,9 @@ function getActiveChatId() {
 function formatRelativeTime(timestamp) {
     if (!timestamp) return '';
     const now = Date.now();
-    const diff = now - timestamp;
+    const parsed = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime();
+    if (isNaN(parsed)) return '';
+    const diff = now - parsed;
     const minutes = Math.floor(diff / 60000);
     if (minutes < 1) return 'now';
     if (minutes < 60) return `${minutes}m`;
@@ -309,6 +313,30 @@ function createItemElement(entry, settings) {
     info.appendChild(previewEl);
 
     row.appendChild(info);
+
+    // Delete button
+    const deleteBtn = document.createElement('div');
+    deleteBtn.className = 'csb-delete-btn';
+    deleteBtn.title = 'Delete chat';
+    deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+    deleteBtn.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        const confirm = await callGenericPopup(t`Delete this chat file permanently?`, POPUP_TYPE.CONFIRM);
+        if (!confirm) return;
+
+        try {
+            if (entry.type === 'group') {
+                await deleteGroupChatByName(entry.id, entry.chatId);
+            } else {
+                await deleteCharacterChatByName(String(entry.id), entry.chatId);
+            }
+            // Re-render the sidebar to reflect the deletion
+            await renderRail();
+        } catch (error) {
+            console.error('[Chat Sidebar] Error deleting chat:', error);
+        }
+    });
+    row.appendChild(deleteBtn);
 
     // Click handler — switch to this specific chat session
     // Mirrors the pattern from welcome-screen.js for safe chat switching

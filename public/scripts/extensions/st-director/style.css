@@ -24,6 +24,11 @@
 #st-director-settings select {
     width: 100%;
     box-sizing: border-box;
+    background-color: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3));
+    color: var(--SmartThemeBodyColor, #dbdee1);
+    border: 1px solid var(--SmartThemeBorderColor, #3f4147);
+    border-radius: 5px;
+    padding: 5px 8px;
 }
 
 #st-director-settings textarea {
@@ -33,6 +38,11 @@
     font-family: monospace;
     font-size: 12px;
     resize: vertical;
+    background-color: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3));
+    color: var(--SmartThemeBodyColor, #dbdee1);
+    border: 1px solid var(--SmartThemeBorderColor, #3f4147);
+    border-radius: 5px;
+    padding: 5px 8px;
 }
 
 #st-director-settings .director-char-summary {
@@ -46,6 +56,9 @@
 
 #st-director-settings .director-char-summary textarea {
     min-height: 60px;
+    background-color: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3));
+    color: var(--SmartThemeBodyColor, #dbdee1);
+    border: 1px solid var(--SmartThemeBorderColor, #3f4147);
 }
 
 #st-director-test-btn,

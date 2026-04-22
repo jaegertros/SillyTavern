@@ -212,6 +212,31 @@
     border-color: #404249;
 }
 
+/* ---------- delete button ---------- */
+.csb-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    color: #6d6f78;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+
+.csb-item:hover .csb-delete-btn {
+    opacity: 1;
+}
+
+.csb-delete-btn:hover {
+    color: rgb(220, 80, 80);
+    background: rgba(190, 0, 0, 0.2);
+}
+
 /* ---------- text info (name + session + preview) ---------- */
 .csb-info {
     display: flex;

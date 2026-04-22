@@ -3184,6 +3184,10 @@ select option[disabled]:not(:checked) {
     aspect-ratio: 1 / 1;
 }
 
+#group_action_buttons .menu_button {
+    aspect-ratio: unset;
+}
+
 #character_sort_order {
     flex: 1;
     border-radius: 5px;

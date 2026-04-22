@@ -2239,6 +2239,7 @@
                             <option value="novel" data-i18n="NovelAI">NovelAI</option>
                             <option value="koboldhorde" data-i18n="AI Horde">AI Horde</option>
                             <option value="kobold" data-i18n="KoboldAI">KoboldAI Classic</option>
+                            <option value="pipboy">Pip-Boy Bridge</option>
                         </select>
                     </div>
                     <div id="kobold_horde" style="position: relative;"> <!-- shows the kobold settings -->
@@ -6147,7 +6148,6 @@
                                             </div>
                                         </div>
                                         <div id="GroupFavDelOkBack" class="flex-container flexGap5 spaceEvenly flex1">
-                                            <div id="rm_button_back_from_group" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-left-long"></div>
                                             <div id="rm_group_scenario" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-scroll" title="Set group chat character settings overrides" data-i18n="[title]Set group chat character settings overrides"></div>
                                             <div id="group_favorite_button" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-star" title="Add to Favorites" data-i18n="[title]Add to Favorites"></div>
                                             <input id="rm_group_fav" type="hidden" />
@@ -6155,9 +6155,7 @@
                                                 <i id="group_media_allowed_icon" class="fa-solid fa-fw fa-link"></i>
                                                 <i id="group_media_forbidden_icon" class="fa-solid fa-fw fa-link-slash"></i>
                                             </div>
-                                            <div id="rm_group_submit" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-check" title="Create" data-i18n="[title]Create"></div>
                                             <div id="rm_group_restore_avatar" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-images" title="Restore collage avatar" data-i18n="[title]Restore collage avatar"></div>
-                                            <div id="rm_group_delete" class="heightFitContent margin0 menu_button fa-solid fa-fw fa-trash-can" title="Delete" data-i18n="[title]Delete"></div>
                                             <div class="flex1">
                                                 <label class="checkbox_label whitespacenowrap">
                                                     <input id="rm_group_allow_self_responses" type="checkbox" />
@@ -6172,6 +6170,20 @@
                                                     <input id="rm_group_hidemutedsprites" type="checkbox" />
                                                     <span data-i18n="Hide Muted Member Sprites">Hide Muted Member Sprites</span>
                                                 </label>
+                                            </div>
+                                        </div>
+                                        <div id="group_action_buttons" class="flex-container flexGap5 wide100p flexFlowColumn">
+                                            <div id="rm_group_submit" class="group_action_btn group_action_btn--create menu_button" title="Create" data-i18n="[title]Create">
+                                                <i class="fa-solid fa-fw fa-check"></i>
+                                                <span data-i18n="Create Group">Create Group</span>
+                                            </div>
+                                            <div id="rm_button_back_from_group" class="group_action_btn group_action_btn--back menu_button" title="Back">
+                                                <i class="fa-solid fa-fw fa-left-long"></i>
+                                                <span data-i18n="Back">Back</span>
+                                            </div>
+                                            <div id="rm_group_delete" class="group_action_btn group_action_btn--delete menu_button" title="Delete" data-i18n="[title]Delete">
+                                                <i class="fa-solid fa-fw fa-trash-can"></i>
+                                                <span data-i18n="Delete Group">Delete Group</span>
                                             </div>
                                         </div>
                                     </div>
