@@ -1,0 +1,47 @@
+{
+    "manifest_version": 3,
+    "name": "Pip-Boy 3000 Bridge",
+    "version": "0.1.0",
+    "description": "Relays Claude.ai narrator responses to the Pip-Boy 3000 extension in SillyTavern. Parses STATE blocks, speaker tags, and game state in real time.",
+
+    "permissions": [
+        "storage",
+        "tabs",
+        "scripting"
+    ],
+
+    "host_permissions": [
+        "https://claude.ai/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+    ],
+
+    "background": {
+        "service_worker": "background.js"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["https://claude.ai/*"],
+            "js": ["content-claude.js"],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "http://localhost/*",
+                "http://127.0.0.1/*"
+            ],
+            "js": ["content-st.js"],
+            "run_at": "document_idle"
+        }
+    ],
+
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": true
+    },
+
+    "action": {
+        "default_title": "Pip-Boy 3000 Bridge"
+    }
+}

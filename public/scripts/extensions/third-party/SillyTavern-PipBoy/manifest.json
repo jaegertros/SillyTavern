@@ -1,0 +1,12 @@
+{
+    "display_name": "Pip-Boy 3000",
+    "loading_order": 500,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Caleb Waddell",
+    "version": "0.2.0",
+    "homePage": "",
+    "generate_interceptor": "pipboyBridgeInterceptor"
+}

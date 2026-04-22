@@ -1,0 +1,515 @@
+/* ═══════════════════════════════════════════════════════
+   Pip-Boy 3000 — Fallout-themed state display for ST
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* ── Main Container ─────────────────────────────────── */
+#pipboy-panel {
+    position: fixed;
+    right: 10px;
+    top: 80px;
+    width: 340px;
+    min-height: 200px;
+    max-height: 80vh;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    background: #0a0a0a;
+    border: 2px solid #18ff6a;
+    border-radius: 6px;
+    box-shadow:
+        0 0 8px rgba(24, 255, 106, 0.3),
+        0 0 20px rgba(24, 255, 106, 0.1),
+        inset 0 0 30px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    color: #18ff6a;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+#pipboy-panel.pipboy-visible {
+    display: flex;
+}
+
+/* ── CRT Scanline Overlay ────────────────────────────── */
+#pipboy-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ── CRT Flicker (subtle) ────────────────────────────── */
+@keyframes pipboy-flicker {
+    0%   { opacity: 0.97; }
+    5%   { opacity: 1; }
+    10%  { opacity: 0.98; }
+    15%  { opacity: 1; }
+    50%  { opacity: 0.99; }
+    80%  { opacity: 1; }
+    95%  { opacity: 0.98; }
+    100% { opacity: 0.97; }
+}
+
+#pipboy-panel {
+    animation: pipboy-flicker 4s infinite;
+}
+
+/* ── Header / Drag Bar ───────────────────────────────── */
+#pipboy-panelheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: linear-gradient(180deg, #1a3a1a 0%, #0d1f0d 100%);
+    border-bottom: 1px solid #18ff6a;
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+#pipboy-panelheader:active {
+    cursor: grabbing;
+}
+
+.pipboy-title-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.pipboy-title {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 6px rgba(24, 255, 106, 0.8);
+}
+
+.pipboy-subtitle {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #0e8c3a;
+    margin-top: 1px;
+}
+
+.pipboy-header-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pipboy-header-btn {
+    background: none;
+    border: none;
+    color: #18ff6a;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px;
+    opacity: 0.7;
+    transition: opacity 0.15s, text-shadow 0.15s;
+}
+
+.pipboy-header-btn:hover {
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(24, 255, 106, 0.9);
+}
+
+/* ── Tab Bar ─────────────────────────────────────────── */
+.pipboy-tabs {
+    display: flex;
+    border-bottom: 1px solid #0e5c2a;
+    background: #060d06;
+    flex-shrink: 0;
+}
+
+.pipboy-tab {
+    flex: 1;
+    padding: 5px 4px;
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #0e8c3a;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+}
+
+.pipboy-tab:hover {
+    color: #18ff6a;
+}
+
+.pipboy-tab.active {
+    color: #18ff6a;
+    border-bottom-color: #18ff6a;
+    text-shadow: 0 0 4px rgba(24, 255, 106, 0.6);
+}
+
+/* ── Content Area ────────────────────────────────────── */
+.pipboy-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    min-height: 120px;
+}
+
+.pipboy-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pipboy-content::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+.pipboy-content::-webkit-scrollbar-thumb {
+    background: #0e5c2a;
+    border-radius: 3px;
+}
+
+.pipboy-content::-webkit-scrollbar-thumb:hover {
+    background: #18ff6a;
+}
+
+/* ── Tab Panels ──────────────────────────────────────── */
+.pipboy-tab-panel {
+    display: none;
+}
+
+.pipboy-tab-panel.active {
+    display: block;
+}
+
+/* ── Stat Section ────────────────────────────────────── */
+.pipboy-section {
+    margin-bottom: 12px;
+}
+
+.pipboy-section-header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #0e8c3a;
+    border-bottom: 1px solid #0e3a1a;
+    padding-bottom: 3px;
+    margin-bottom: 6px;
+}
+
+/* ── Stat Rows ───────────────────────────────────────── */
+.pipboy-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2px 0;
+}
+
+.pipboy-stat-label {
+    color: #0eaa4a;
+    font-size: 12px;
+}
+
+.pipboy-stat-value {
+    color: #18ff6a;
+    font-size: 13px;
+    text-shadow: 0 0 4px rgba(24, 255, 106, 0.4);
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* ── Inventory Items ─────────────────────────────────── */
+.pipboy-inv-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.pipboy-inv-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 0;
+    border-bottom: 1px solid #0a1f0a;
+}
+
+.pipboy-inv-item:last-child {
+    border-bottom: none;
+}
+
+.pipboy-inv-name {
+    color: #18ff6a;
+}
+
+.pipboy-inv-qty {
+    color: #0eaa4a;
+    font-size: 11px;
+    min-width: 24px;
+    text-align: right;
+}
+
+/* ── Quest Display ───────────────────────────────────── */
+.pipboy-quest {
+    padding: 4px 0;
+    border-bottom: 1px solid #0a1f0a;
+}
+
+.pipboy-quest:last-child {
+    border-bottom: none;
+}
+
+.pipboy-quest-name {
+    color: #18ff6a;
+    font-size: 13px;
+}
+
+.pipboy-quest-desc {
+    color: #0e8c3a;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.pipboy-quest-active {
+    position: relative;
+    padding-left: 12px;
+}
+
+.pipboy-quest-active::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: #18ff6a;
+    text-shadow: 0 0 6px rgba(24, 255, 106, 0.8);
+    animation: pipboy-blink 1s infinite;
+}
+
+@keyframes pipboy-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ── Status Bar (bottom) ─────────────────────────────── */
+.pipboy-status-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 10px;
+    border-top: 1px solid #0e3a1a;
+    background: #060d06;
+    font-size: 10px;
+    color: #0e8c3a;
+    flex-shrink: 0;
+}
+
+.pipboy-status-bar .pipboy-connection {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pipboy-connection-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #333;
+    display: inline-block;
+}
+
+.pipboy-connection-dot.connected {
+    background: #18ff6a;
+    box-shadow: 0 0 4px rgba(24, 255, 106, 0.8);
+}
+
+.pipboy-connection-dot.disconnected {
+    background: #ff3333;
+    box-shadow: 0 0 4px rgba(255, 51, 51, 0.6);
+}
+
+/* ── Day Dial ────────────────────────────────────────── */
+.pipboy-day-dial {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 8px;
+}
+
+.pipboy-day-cell {
+    flex: 1;
+    text-align: center;
+    padding: 5px 2px;
+    border: 1px solid #0e3a1a;
+    background: transparent;
+    cursor: default;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.pipboy-day-cell.active {
+    background: #0e5c2a;
+    border-color: #18ff6a;
+}
+
+.pipboy-day-num {
+    display: block;
+    font-size: 12px;
+    color: #18ff6a;
+}
+
+.pipboy-day-cell:not(.active) .pipboy-day-num {
+    color: #0e5c2a;
+}
+
+.pipboy-day-name {
+    display: block;
+    font-size: 7px;
+    letter-spacing: 1px;
+    color: #0e8c3a;
+    margin-top: 1px;
+}
+
+.pipboy-day-cell:not(.active) .pipboy-day-name {
+    color: #0a3a1a;
+}
+
+/* ── Inventory Marker ────────────────────────────────── */
+.pipboy-inv-marker {
+    color: #0e8c3a;
+    font-size: 9px;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+/* ── Empty State ─────────────────────────────────────── */
+.pipboy-empty {
+    text-align: center;
+    padding: 20px 10px;
+    color: #0e5c2a;
+    font-style: italic;
+}
+
+/* ── Phosphor Glow on Text ───────────────────────────── */
+.pipboy-glow {
+    text-shadow:
+        0 0 4px rgba(24, 255, 106, 0.6),
+        0 0 8px rgba(24, 255, 106, 0.3);
+}
+
+/* ── Settings Panel (in ST extension settings) ───────── */
+#pipboy-settings .inline-drawer-toggle {
+    cursor: pointer;
+}
+
+#pipboy-settings .inline-drawer-content {
+    padding: 8px 0;
+}
+
+.pipboy-settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.pipboy-settings-row label {
+    font-size: 13px;
+}
+
+/* ── Resize Handle ───────────────────────────────────── */
+#pipboy-panel .ui-resizable-handle {
+    background: transparent;
+}
+
+#pipboy-panel .ui-resizable-se {
+    width: 12px;
+    height: 12px;
+    right: 2px;
+    bottom: 2px;
+    cursor: se-resize;
+}
+
+#pipboy-panel .ui-resizable-se::after {
+    content: '///';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #0e5c2a;
+    font-size: 8px;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Speaker Segment Formatting (in-chat message styling)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Base segment ───────────────────────────────────── */
+.pipboy-seg {
+    margin-bottom: 0.6em;
+    padding: 0;
+    line-height: 1.5;
+}
+
+.pipboy-seg:last-child {
+    margin-bottom: 0;
+}
+
+.pipboy-seg p {
+    margin: 0;
+}
+
+/* ── Narrator prose — muted, no speaker tag ─────────── */
+.pipboy-seg-narrator {
+    color: #888a8e;
+    font-style: italic;
+}
+
+/* ── Known character — has a card, green speaker tag ── */
+.pipboy-seg-known .pipboy-seg-speaker {
+    display: inline-block;
+    color: #4ae080;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.pipboy-seg-known .pipboy-seg-speaker::after {
+    content: ':';
+}
+
+.pipboy-seg-known p {
+    color: inherit;
+}
+
+/* ── Unknown character — no card, amber speaker tag ── */
+.pipboy-seg-unknown .pipboy-seg-speaker {
+    display: inline-block;
+    color: #e0a030;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.pipboy-seg-unknown .pipboy-seg-speaker::after {
+    content: ':';
+}
+
+.pipboy-seg-unknown p {
+    color: #d4a050;
+}
+
+/* ── Formatted message container ────────────────────── */
+.mes_text.pipboy-formatted {
+    /* Subtle left-border accent to indicate formatted content */
+    border-left: 2px solid rgba(74, 224, 128, 0.15);
+    padding-left: 8px;
+}
