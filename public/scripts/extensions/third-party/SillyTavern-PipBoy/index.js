@@ -10,8 +10,7 @@
  */
 
 import { animation_duration, saveSettingsDebounced } from '../../../../script.js';
-import { dragElement, getMessageTimeStamp } from '../../../../scripts/RossAscends-mods.js';
-import { loadMovingUIState } from '../../../../scripts/power-user.js';
+import { getMessageTimeStamp } from '../../../../scripts/RossAscends-mods.js';
 import { getContext } from '../../../../scripts/extensions.js';
 import { eventSource, event_types } from '../../../../scripts/events.js';
 import { setOnlineStatus } from '../../../../scripts/core/settings-manager.js';
@@ -1130,6 +1129,55 @@ function updateApiConnectionStatus() {
     }
 }
 
+// ── Self-contained drag (independent of ST MovingUI) ──
+function initPipboyDrag() {
+    const panel = document.getElementById('pipboy-panel');
+    const header = document.getElementById('pipboy-panelheader');
+    if (!panel || !header) return;
+
+    let dragging = false;
+    let offsetX = 0, offsetY = 0;
+
+    // Restore saved position
+    const saved = getSettings()._panelPos;
+    if (saved) {
+        panel.style.top = saved.top;
+        panel.style.left = saved.left;
+        panel.style.right = 'unset';
+        panel.style.bottom = 'unset';
+    }
+
+    header.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button, .fa-xmark, .fa-minus')) return;
+        dragging = true;
+        offsetX = e.clientX - panel.getBoundingClientRect().left;
+        offsetY = e.clientY - panel.getBoundingClientRect().top;
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const x = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - 60));
+        const y = Math.max(0, Math.min(e.clientY - offsetY, window.innerHeight - 40));
+        panel.style.left = x + 'px';
+        panel.style.top = y + 'px';
+        panel.style.right = 'unset';
+        panel.style.bottom = 'unset';
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        // Persist position
+        const settings = getSettings();
+        settings._panelPos = {
+            top: panel.style.top,
+            left: panel.style.left,
+        };
+        saveSettingsDebounced();
+    });
+}
+
 // ── Utility ────────────────────────────────────────────
 function escapeHtml(str) {
     const div = document.createElement('div');
@@ -1239,9 +1287,8 @@ function escapeHtml(str) {
     $('#pipboy-btn-close').on('click', () => hidePanel());
     $('#pipboy-btn-minimize').on('click', () => hidePanel());
 
-    // Make draggable via ST's built-in system
-    loadMovingUIState();
-    dragElement($('#pipboy-panel'));
+    // Make draggable — self-contained, independent of ST's MovingUI setting
+    initPipboyDrag();
 
     // Init subsystems
     initTabs();

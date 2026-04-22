@@ -27,6 +27,8 @@ import {
     _set_is_send_press,
     _set_streamingProcessor,
     _set_scrollLock,
+    depth_prompt_depth_default,
+    depth_prompt_role_default,
 } from './state.js';
 
 import { saveSettingsDebounced } from './debounced.js';
@@ -78,7 +80,8 @@ import {
     hideStopButton,
 } from './settings-manager.js';
 
-import { unshallowCharacter, getCharacterCardFields } from './character-manager.js';
+import { unshallowCharacter } from './character-manager.js';
+import { getCharacterCardFields } from '../../script.js';
 
 import { event_types, eventSource } from '../events.js';
 
