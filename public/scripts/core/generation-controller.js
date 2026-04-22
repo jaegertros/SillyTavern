@@ -29,6 +29,8 @@ import {
     _set_scrollLock,
     depth_prompt_depth_default,
     depth_prompt_role_default,
+    extension_prompt_types,
+    animation_duration,
 } from './state.js';
 
 import { saveSettingsDebounced } from './debounced.js';
