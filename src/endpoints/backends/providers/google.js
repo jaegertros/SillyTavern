@@ -18,7 +18,7 @@ const API_VERTEX_AI = 'https://us-central1-aiplatform.googleapis.com';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendMakerSuiteRequest(request, response) {
+export async function sendMakerSuiteRequest(request, response) {
     const useVertexAi = request.body.chat_completion_source === CHAT_COMPLETION_SOURCES.VERTEXAI;
     const apiName = useVertexAi ? 'Google Vertex AI' : 'Google AI Studio';
     let apiUrl;

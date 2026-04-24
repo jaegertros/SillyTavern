@@ -15,7 +15,7 @@ const API_MISTRAL = 'https://api.mistral.ai/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendMistralAIRequest(request, response) {
+export async function sendMistralAIRequest(request, response) {
     const apiUrl = new URL(request.body.reverse_proxy || API_MISTRAL).toString();
     const apiKey = request.body.reverse_proxy ? request.body.proxy_password : readSecret(request.user.directories, SECRET_KEYS.MISTRALAI);
 

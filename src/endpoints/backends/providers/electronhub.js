@@ -22,7 +22,7 @@ const API_ELECTRONHUB = 'https://api.electronhub.ai/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendElectronHubRequest(request, response) {
+export async function sendElectronHubRequest(request, response) {
     const apiUrl = API_ELECTRONHUB;
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.ELECTRONHUB);
 

@@ -21,7 +21,7 @@ const API_DEEPSEEK = 'https://api.deepseek.com/beta';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendDeepSeekRequest(request, response) {
+export async function sendDeepSeekRequest(request, response) {
     const apiUrl = new URL(request.body.reverse_proxy || API_DEEPSEEK).toString();
     const apiKey = request.body.reverse_proxy ? request.body.proxy_password : readSecret(request.user.directories, SECRET_KEYS.DEEPSEEK);
 

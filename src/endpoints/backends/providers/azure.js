@@ -13,7 +13,7 @@ import { readSecret, SECRET_KEYS } from '../../secrets.js';
  * @param {express.Request} request Express request object (contains request.body with all generate_data)
  * @param {express.Response} response Express response object
  */
-async function sendAzureOpenAIRequest(request, response) {
+export async function sendAzureOpenAIRequest(request, response) {
     // 1. GATHER & VALIDATE SETTINGS
     const { azure_base_url, azure_deployment_name, azure_api_version } = request.body;
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.AZURE_OPENAI);

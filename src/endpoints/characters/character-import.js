@@ -31,7 +31,7 @@ import {
  * @param {import('../users.js').UserDirectoryList} directories User directories
  * @returns {string} - The name for the uploaded PNG file
  */
-function getPngName(file, directories) {
+export function getPngName(file, directories) {
     let i = 1;
     const baseName = file;
     while (fs.existsSync(path.join(directories.characters, `${file}.png`))) {
@@ -46,7 +46,7 @@ function getPngName(file, directories) {
  * @param {import("express").Request} request - Express request object
  * @returns {string | undefined} - The preserved name if the request is valid, otherwise undefined
  */
-function getPreservedName(request) {
+export function getPreservedName(request) {
     return typeof request.body.preserved_name === 'string' && request.body.preserved_name.length > 0
         ? path.parse(request.body.preserved_name).name
         : undefined;

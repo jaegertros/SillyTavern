@@ -15,7 +15,7 @@ const API_COHERE_V2 = 'https://api.cohere.ai/v2';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendCohereRequest(request, response) {
+export async function sendCohereRequest(request, response) {
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.COHERE);
     const controller = new AbortController();
     request.socket.removeAllListeners('close');

@@ -30,7 +30,7 @@ const API_CLAUDE = 'https://api.anthropic.com/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendClaudeRequest(request, response) {
+export async function sendClaudeRequest(request, response) {
     const apiUrl = new URL(request.body.reverse_proxy || API_CLAUDE).toString();
     const apiKey = request.body.reverse_proxy ? request.body.proxy_password : readSecret(request.user.directories, SECRET_KEYS.CLAUDE);
     const divider = '-'.repeat(process.stdout.columns);

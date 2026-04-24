@@ -15,7 +15,7 @@ const API_XAI = 'https://api.x.ai/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendXaiRequest(request, response) {
+export async function sendXaiRequest(request, response) {
     const apiUrl = new URL(request.body.reverse_proxy || API_XAI).toString();
     const apiKey = request.body.reverse_proxy ? request.body.proxy_password : readSecret(request.user.directories, SECRET_KEYS.XAI);
 

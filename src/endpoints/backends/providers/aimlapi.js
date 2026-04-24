@@ -15,7 +15,7 @@ const API_AIMLAPI = 'https://api.aimlapi.com/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendAimlapiRequest(request, response) {
+export async function sendAimlapiRequest(request, response) {
     const apiUrl = API_AIMLAPI;
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.AIMLAPI);
 

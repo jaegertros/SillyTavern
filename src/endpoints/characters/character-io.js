@@ -231,7 +231,7 @@ const toShallow = (character) => {
     };
 };
 
-export /**
+/**
  * processCharacter - Process a given character, read its data and calculate its statistics.
  *
  * @param  {string} item The name of the character.
@@ -240,7 +240,7 @@ export /**
  * @param  {boolean} options.shallow If true, only return the core character's metadata
  * @return {Promise<object>}     A Promise that resolves when the character processing is done.
  */
-const processCharacter = async (item, directories, { shallow }) => {
+export const processCharacter = async (item, directories, { shallow }) => {
     try {
         const imgFile = path.join(directories.characters, item);
         const imgData = await readCharacterData(imgFile);
@@ -285,7 +285,7 @@ const processCharacter = async (item, directories, { shallow }) => {
  * @param {boolean} hoistDate Will set the chat and create_date fields to the current date if they are missing
  * @returns {object} Character object in Spec V2 format
  */
-function getCharaCardV2(jsonObject, directories, hoistDate = true) {
+export function getCharaCardV2(jsonObject, directories, hoistDate = true) {
     if (jsonObject.spec === undefined) {
         jsonObject = convertToV2(jsonObject, directories);
 
@@ -304,7 +304,7 @@ function getCharaCardV2(jsonObject, directories, hoistDate = true) {
  * @param {import('../users.js').UserDirectoryList} directories User directories
  * @returns {object} Character object in Spec V2 format
  */
-function convertToV2(char, directories) {
+export function convertToV2(char, directories) {
     // Simulate incoming data from frontend form
     const result = charaFormatData({
         json_data: JSON.stringify(char),
@@ -400,7 +400,7 @@ export function readFromV2(char) {
  * @param {import('../users.js').UserDirectoryList} directories User directories
  * @returns
  */
-function charaFormatData(data, directories) {
+export function charaFormatData(data, directories) {
     // This is supposed to save all the foreign keys that ST doesn't care about
     const char = tryParse(data.json_data) || {};
 

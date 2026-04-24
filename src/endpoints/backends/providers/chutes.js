@@ -14,7 +14,7 @@ const API_CHUTES = 'https://llm.chutes.ai/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendChutesRequest(request, response) {
+export async function sendChutesRequest(request, response) {
     const apiUrl = API_CHUTES;
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.CHUTES);
 

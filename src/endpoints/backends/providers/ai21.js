@@ -15,7 +15,7 @@ const API_AI21 = 'https://api.ai21.com/studio/v1';
  * @param {express.Request} request Express request
  * @param {express.Response} response Express response
  */
-async function sendAI21Request(request, response) {
+export async function sendAI21Request(request, response) {
     if (!request.body) return response.sendStatus(400);
 
     const apiKey = readSecret(request.user.directories, SECRET_KEYS.AI21);
