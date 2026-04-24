@@ -3,259 +3,259 @@
     "commit": "920f43b11f113c551f2543cc937f487855c17142",
     "remote": "https://github.com/jaegertros/SillyTavern.git",
     "branch": "release",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "37f5632d8bae05e3e4b7db15d084ce81e96d519a"
   },
   "Bronie-Parser-Extension": {
     "commit": "4f67be4058926635ab0049f1da246fde55e9770d",
     "remote": "https://github.com/Bronya-Rand/Bronie-Parser-Extension",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "4f67be4058926635ab0049f1da246fde55e9770d"
   },
   "Carmy-InfoBoard": {
     "commit": "a31eb3210a7eff6445a037bb9954780cd163006d",
     "remote": "https://github.com/CarmentaGit/Carmy-InfoBoard",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "a31eb3210a7eff6445a037bb9954780cd163006d"
   },
   "CarrotKernel": {
     "commit": "b2601d0a2a3927dc7b5042543e3caceff61c3c28",
     "remote": "https://github.com/Coneja-Chibi/CarrotKernel",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "b2601d0a2a3927dc7b5042543e3caceff61c3c28"
   },
   "Ember": {
     "commit": "a565eaf78abf975fcdabcc29e311ac2bbad3565e",
     "remote": "https://github.com/NemoVonNirgend/Ember",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "a565eaf78abf975fcdabcc29e311ac2bbad3565e"
   },
   "Extension-Dice": {
     "commit": "b4047508a1191ba3b32cb20f64ebc5f7877d689b",
     "remote": "https://github.com/SillyTavern/Extension-Dice",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "b4047508a1191ba3b32cb20f64ebc5f7877d689b"
   },
   "Extension-PromptInspector": {
     "commit": "97a9fd90afbc156db27478e9097b143dc27b9c7a",
     "remote": "https://github.com/SillyTavern/Extension-PromptInspector",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "97a9fd90afbc156db27478e9097b143dc27b9c7a"
   },
   "Extension-QuickPersona": {
     "commit": "5509fb6bee903c833683cb860fbf437d4479b1cb",
     "remote": "https://github.com/SillyTavern/Extension-QuickPersona",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "5509fb6bee903c833683cb860fbf437d4479b1cb"
   },
   "Guided-Generations": {
     "commit": "9b6caa63a1b92b7d56687c67749c07b441994861",
     "remote": "https://github.com/Samueras/Guided-Generations",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "9b6caa63a1b92b7d56687c67749c07b441994861"
   },
   "GuidedGenerations-Extension": {
     "commit": "1cbbebe5a1256b9bfc5912b99e2a93f1ac3ba440",
     "remote": "https://github.com/Samueras/GuidedGenerations-Extension",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "1cbbebe5a1256b9bfc5912b99e2a93f1ac3ba440"
   },
   "NemoLore": {
     "commit": "e456824e26b1f6e386f37dfe4b34ca42d905b016",
     "remote": "https://github.com/NemoVonNirgend/NemoLore",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "e456824e26b1f6e386f37dfe4b34ca42d905b016"
   },
   "NemoPresetExt": {
     "commit": "2b87baadae215b105de4205b2d15b7376bb57b33",
     "remote": "https://github.com/NemoVonNirgend/NemoPresetExt",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "2b87baadae215b105de4205b2d15b7376bb57b33"
   },
   "SillyTavern-AlternateDescriptions": {
     "commit": "980f932cefb29c96dee075dae3edacbaccdb6874",
     "remote": "https://github.com/nbrown725/SillyTavern-AlternateDescriptions",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "980f932cefb29c96dee075dae3edacbaccdb6874"
   },
   "SillyTavern-AlternativeMarkdownConverter": {
     "commit": "02ee8492ad048af14bc4d5706d7647535b314e55",
     "remote": "https://github.com/LenAnderson/SillyTavern-AlternativeMarkdownConverter",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "02ee8492ad048af14bc4d5706d7647535b314e55"
   },
   "SillyTavern-AssetRepoManager": {
     "commit": "d57c9e841fc4d72bc9d771f34dc16fce82cd1f28",
     "remote": "https://github.com/LenAnderson/SillyTavern-AssetRepoManager",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "d57c9e841fc4d72bc9d771f34dc16fce82cd1f28"
   },
   "SillyTavern-BananaGen": {
     "commit": "aec41031a54ec3b58669679c0e077b9a63897d1b",
     "remote": "https://github.com/welvet/SillyTavern-BananaGen",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "41b578843ca27abfb6b2d2d3394249d4e5861e76"
   },
   "SillyTavern-CacheChunker": {
     "commit": "872df69827789e79115e4976de0a7d198694f140",
     "remote": "https://github.com/Omegastick/SillyTavern-CacheChunker",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "872df69827789e79115e4976de0a7d198694f140"
   },
   "SillyTavern-Character-Creator": {
     "commit": "d4bf14b03cb79a7e0b21c4614a8feea1bb203dc9",
     "remote": "https://github.com/bmen25124/SillyTavern-Character-Creator",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "ff90ae031ada8151d7b34ab10610b1887593a881"
   },
   "SillyTavern-CharacterLibrary": {
-    "commit": "ef773f97ebf1a3999b5ca4adcfbc632d2d3a7973",
+    "commit": "ebd07a136cb799b048fc51ecab5c3be6de1267f8",
     "remote": "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
-    "remoteHead": "69132d80348c197f080dbcd1413fa04e1eb13643"
+    "lastChecked": "2026-04-24T21:54:03.810Z",
+    "remoteHead": "ebd07a136cb799b048fc51ecab5c3be6de1267f8"
   },
   "SillyTavern-ComfyUI": {
     "commit": "08015e093fbac315d9ae56aec32c9e8ab6974da5",
     "remote": "https://github.com/LenAnderson/SillyTavern-ComfyUI",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "08015e093fbac315d9ae56aec32c9e8ab6974da5"
   },
   "SillyTavern-Costumes": {
     "commit": "e1c761c16fce46de9d7a0018f8129f57c9b8939b",
     "remote": "https://github.com/LenAnderson/SillyTavern-Costumes",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "e1c761c16fce46de9d7a0018f8129f57c9b8939b"
   },
   "SillyTavern-Flowchart": {
     "commit": "1fdf74bef43e771ed5ccea4ecdc406ba373ec59c",
     "remote": "https://github.com/bmen25124/SillyTavern-Flowchart",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "eaf17f9a4126c250b339d8398ec61b1bb76e2f60"
   },
   "SillyTavern-LALib": {
     "commit": "6715da13bd27d53bab2eaf5a2eb2509825723718",
     "remote": "https://github.com/LenAnderson/SillyTavern-LALib",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "6715da13bd27d53bab2eaf5a2eb2509825723718"
   },
   "SillyTavern-LandingPage": {
     "commit": "62e39827e666373369822fbbdd7c2599a19fafcb",
     "remote": "https://github.com/LenAnderson/SillyTavern-LandingPage/",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "62e39827e666373369822fbbdd7c2599a19fafcb"
   },
   "SillyTavern-MessageSummarize": {
-    "commit": "aca9782fc429aba997f879051e9c600ec2dd1bfb",
+    "commit": "4b187ec28b1f582d334e6f2d9de8f60932e72f5c",
     "remote": "https://github.com/qvink/SillyTavern-MessageSummarize",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
-    "remoteHead": "aca9782fc429aba997f879051e9c600ec2dd1bfb"
+    "lastChecked": "2026-04-24T21:54:03.810Z",
+    "remoteHead": "4b187ec28b1f582d334e6f2d9de8f60932e72f5c"
   },
   "SillyTavern-MoreFlexibleContinues": {
     "commit": "569ec3662470600b76e3c3d6a2e1713fdbf7adbf",
     "remote": "https://github.com/LenAnderson/SillyTavern-MoreFlexibleContinues/",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "569ec3662470600b76e3c3d6a2e1713fdbf7adbf"
   },
   "SillyTavern-Pronouns": {
-    "commit": "dcd63af7a9ab55bc0422f9cd5858a2707693f8e9",
+    "commit": "c0dca691da8d36e2e8b06565b8497ca775e8cfbe",
     "remote": "https://github.com/Wolfsblvt/SillyTavern-Pronouns",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "c0dca691da8d36e2e8b06565b8497ca775e8cfbe"
   },
   "SillyTavern-Roadway": {
     "commit": "cf7f9b25d2c8fab4d7952f021ab9695c4c54059f",
     "remote": "https://github.com/bmen25124/SillyTavern-Roadway",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "cf7f9b25d2c8fab4d7952f021ab9695c4c54059f"
   },
   "SillyTavern-Tracker-Enhanced": {
     "commit": "000cee41dcc97c989eeafc2ce692aadd9e08a7c4",
     "remote": "https://github.com/harrywenjie/SillyTavern-Tracker-Enhanced",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "000cee41dcc97c989eeafc2ce692aadd9e08a7c4"
   },
   "SillyTavern-WTracker": {
     "commit": "294f4256f91a2b60053424de876bcadfc0876bda",
     "remote": "https://github.com/bmen25124/SillyTavern-WTracker",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "4254324221afec42ebf7229063dd8ae1054bc5bc"
   },
   "SillyTavern-WorldInfo-Recommender": {
     "commit": "1010895546a0e5f61119ae0e4894f0fd80264b5d",
     "remote": "https://github.com/bmen25124/SillyTavern-WorldInfo-Recommender",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "fc15ad757a4cde45d1c6ee6ae4a1ff338eb35f92"
   },
   "SillyTavern-WorldInfoInfo": {
     "commit": "86a3bbba78558714f76e1c7f74b8e23b60d7f38c",
     "remote": "https://github.com/LenAnderson/SillyTavern-WorldInfoInfo",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "86a3bbba78558714f76e1c7f74b8e23b60d7f38c"
   },
   "SillyTavern-zTracker": {
-    "commit": "993eff0f33ba11addb3921c633c2a56381bd79cb",
+    "commit": "d4a6f89b59966ea9b438154085288196b1c12bdd",
     "remote": "https://github.com/Zaakh/SillyTavern-zTracker",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
-    "remoteHead": "4ddff79879cb02dcc02bbfd586fa971217aae3ce"
+    "lastChecked": "2026-04-24T21:54:03.810Z",
+    "remoteHead": "d4a6f89b59966ea9b438154085288196b1c12bdd"
   },
   "rpg-companion-sillytavern": {
-    "commit": "bda43208a266f62dd58e74020c0420a3a456b293",
+    "commit": "ed9c12e9690c8726f8f21dee20b56bb75040363b",
     "remote": "https://github.com/SpicyMarinara/rpg-companion-sillytavern",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "ed9c12e9690c8726f8f21dee20b56bb75040363b"
   },
   "st-image-auto-generation": {
     "commit": "44f770615ce991f54032ef69cf49a8e85fe4f652",
     "remote": "https://github.com/wickedcode01/st-image-auto-generation",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "44f770615ce991f54032ef69cf49a8e85fe4f652"
   },
   "st-qdrant-memory": {
     "commit": "707c49739c36f5f5dc853cff2ebbf885fee58d40",
     "remote": "https://github.com/HO-git/st-qdrant-memory",
     "branch": "main",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "707c49739c36f5f5dc853cff2ebbf885fee58d40"
   },
   "st-stepped-thinking": {
     "commit": "9b58956c8e5fe95598e5ad771bcb5c0f9de4fa09",
     "remote": "https://github.com/cierru/st-stepped-thinking",
     "branch": "master",
-    "lastChecked": "2026-04-20T16:19:57.157Z",
+    "lastChecked": "2026-04-24T21:54:03.810Z",
     "remoteHead": "9b58956c8e5fe95598e5ad771bcb5c0f9de4fa09"
   }
 }
