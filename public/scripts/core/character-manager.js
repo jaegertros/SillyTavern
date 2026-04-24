@@ -2053,7 +2053,7 @@ export async function newAssistantChat({ temporary = false } = {}) { stTrack('ne
     sendSystemMessage(system_message_types.ASSISTANT_NOTE);
 }
 
-function initCharacterSearch() {
+export function initCharacterSearch() {
     const debouncedCharacterSearch = debounce((searchQuery) => {
         entitiesFilter.setFilterData(FILTER_TYPES.SEARCH, searchQuery);
     });

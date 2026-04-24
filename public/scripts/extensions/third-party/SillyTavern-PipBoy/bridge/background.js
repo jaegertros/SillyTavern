@@ -1,173 +1,263 @@
 // ============================================================
-// Claude ↔ SillyTavern Bridge — Background Service Worker
+// Claude ↔ SillyTavern Bridge — Background Script (MV3, universal)
 // ============================================================
-//
-// Manages tab discovery and message relay between:
-//   - content-claude.js (watches claude.ai for assistant responses)
-//   - content-st.js (posts messages into the SillyTavern page)
 //
 // Message flow:
-//   claude.ai tab → content-claude.js → background.js → content-st.js → ST page
-//   ST page (user send) → content-st.js → background.js → (future: content-claude.js)
+//   claude.ai tab → content-claude.js → background → content-st.js → ST page
+//   ST page (user send) → content-st.js → background → content-claude.js → claude.ai
 //
+// Tab discovery: content scripts register on load. No tab scanning.
 // ============================================================
 
-console.log('[Bridge/bg] Service worker loaded.');
-
-const bridgeTabs = {
-    claude: null,
-    st: null,
-};
-
-// ── Config helpers ─────────────────────────────────────────
-async function getConfig() {
-    const { claudeUrl, stUrl } = await chrome.storage.local.get(['claudeUrl', 'stUrl']);
-    return { claudeUrl: claudeUrl || '', stUrl: stUrl || '' };
+// Load browser-api.js in service worker context (Chrome MV3).
+// In Firefox MV3, it's loaded via manifest "scripts" array — this is a no-op.
+if (typeof importScripts === 'function') {
+    try { importScripts('browser-api.js'); } catch (e) { /* loaded via scripts array */ }
 }
 
-function urlMatches(candidateUrl, targetUrl) {
-    if (!candidateUrl || !targetUrl) return false;
-    try {
-        const a = new URL(candidateUrl);
-        const b = new URL(targetUrl);
-        if (a.origin !== b.origin) return false;
+console.log('[Bridge/bg] Background loaded.');
 
-        if (b.hostname.endsWith('claude.ai')) {
-            return a.pathname === b.pathname;
+const bridgeTabs = { claude: null, st: null };
+
+// ── Config ─────────────────────────────────────────────────
+
+let config = { claudeUrl: '', stUrl: '' };
+
+async function loadConfig() {
+    const data = await browserAPI.storage.local.get(['claudeUrl', 'stUrl']);
+    config.claudeUrl = data.claudeUrl || '';
+    config.stUrl = data.stUrl || '';
+    console.log('[Bridge/bg] Config:',
+        'claude=' + (config.claudeUrl || '(not set)'),
+        'st=' + (config.stUrl || '(not set)'));
+}
+
+// Reload config when options page saves
+if (browserAPI.storage?.onChanged) {
+    browserAPI.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local') {
+            loadConfig().then(() => {
+                console.log('[Bridge/bg] Config updated');
+            });
         }
+    });
+}
+
+// ── URL matching ───────────────────────────────────────────
+
+function urlMatchesClaude(url) {
+    if (!url) return false;
+    try {
+        const u = new URL(url);
+        if (!u.hostname.includes('claude.ai')) return false;
+
+        // If a specific chat URL is configured, require exact path match
+        if (config.claudeUrl) {
+            const c = new URL(config.claudeUrl);
+            return u.origin === c.origin && u.pathname === c.pathname;
+        }
+
+        // No config — accept any claude.ai chat page
         return true;
-    } catch {
-        return false;
-    }
+    } catch { return false; }
 }
 
-// ── Tab lookup ─────────────────────────────────────────────
-async function findTabs() {
-    const { claudeUrl, stUrl } = await getConfig();
+function urlMatchesST(url) {
+    if (!url) return false;
+    try {
+        const u = new URL(url);
 
-    if (!claudeUrl || !stUrl) {
-        return {
-            ok: false,
-            reason: 'Missing URL config. Open the extension options and save both URLs.',
-        };
+        // If configured, match by origin
+        if (config.stUrl) {
+            return u.origin === new URL(config.stUrl).origin;
+        }
+
+        // No config — accept localhost / 127.0.0.1
+        return u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+    } catch { return false; }
+}
+
+// ── Tab registration ───────────────────────────────────────
+
+function registerTab(side, tabId, url) {
+    if (!tabId) return false;
+    const old = bridgeTabs[side];
+    bridgeTabs[side] = tabId;
+    if (old !== tabId) {
+        console.log(`[Bridge/bg] Registered ${side}: tab ${tabId} (${url || '?'})`);
+        broadcastConnection();
+        return true;
     }
+    return false;
+}
 
-    const tabs = await chrome.tabs.query({});
-    const claudeTab = tabs.find(t => urlMatches(t.url, claudeUrl));
-    const stTab     = tabs.find(t => urlMatches(t.url, stUrl));
+// ── Broadcasting ───────────────────────────────────────────
 
-    return {
-        ok: !!(claudeTab && stTab),
-        claudeTab: claudeTab || null,
-        stTab: stTab || null,
-        reason: !claudeTab ? 'No claude.ai tab matching the saved URL is open.'
-              : !stTab     ? 'No SillyTavern tab matching the saved URL is open.'
-              : null,
+function broadcastConnection() {
+    const msg = {
+        type: 'bridge-status',
+        connected: !!(bridgeTabs.claude && bridgeTabs.st),
+        claude: !!bridgeTabs.claude,
+        st: !!bridgeTabs.st,
     };
+
+    console.log('[Bridge/bg] Status:',
+        msg.claude ? 'Claude:YES' : 'Claude:NO',
+        msg.st ? 'ST:YES' : 'ST:NO');
+
+    [bridgeTabs.claude, bridgeTabs.st].forEach(id => {
+        if (id) browserAPI.tabs.sendMessage(id, msg).catch(() => {});
+    });
 }
 
-// ── Icon-click liveness test ──────────────────────────────
-chrome.action.onClicked.addListener(async () => {
-    const status = await findTabs();
-    if (status.ok) {
-        console.log('[Bridge/bg] Both tabs found:');
-        console.log('  claude.ai →', status.claudeTab.id, status.claudeTab.url);
-        console.log('  SillyTavern →', status.stTab.id, status.stTab.url);
-    } else {
-        console.warn('[Bridge/bg]', status.reason);
-    }
-    console.log('[Bridge/bg] Registered tab IDs:', bridgeTabs);
-});
+function broadcastState(state, color) {
+    const msg = { type: 'BRIDGE_STATE', state, color };
+    [bridgeTabs.claude, bridgeTabs.st].forEach(id => {
+        if (id) browserAPI.tabs.sendMessage(id, msg).catch(() => {});
+    });
+}
 
-// ── Message handler ──────────────────────────────────────
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    // Content-script registration
-    if (msg?.type === 'register' && (msg.side === 'claude' || msg.side === 'st')) {
-        const tabId = sender.tab?.id;
-        if (tabId) {
-            bridgeTabs[msg.side] = tabId;
-            console.log(`[Bridge/bg] Registered ${msg.side} tab:`, tabId);
-            sendResponse({ ok: true, tabId });
+// ── Event bindings ─────────────────────────────────────────
 
-            // If both sides are now registered, notify the ST tab
+// Toolbar icon — manual diagnostic + rescan
+if (browserAPI.action?.onClicked) {
+    browserAPI.action.onClicked.addListener(async () => {
+        console.log('[Bridge/bg] Toolbar click — scanning tabs');
+        await loadConfig();
+
+        if (browserAPI.tabs?.query) {
+            const tabs = await browserAPI.tabs.query({});
+            for (const t of tabs) {
+                if (!t.url) continue;
+                if (urlMatchesClaude(t.url)) bridgeTabs.claude = t.id;
+                if (urlMatchesST(t.url))     bridgeTabs.st = t.id;
+            }
+        }
+
+        console.log('[Bridge/bg] Scan:', JSON.stringify(bridgeTabs));
+        broadcastConnection();
+    });
+}
+
+// Clean up closed tabs
+if (browserAPI.tabs?.onRemoved) {
+    browserAPI.tabs.onRemoved.addListener((tabId) => {
+        for (const side of ['claude', 'st']) {
+            if (bridgeTabs[side] === tabId) {
+                console.log(`[Bridge/bg] ${side} tab closed`);
+                bridgeTabs[side] = null;
+
+                // Notify the surviving side
+                const other = side === 'claude' ? 'st' : 'claude';
+                if (bridgeTabs[other]) {
+                    browserAPI.tabs.sendMessage(bridgeTabs[other], {
+                        type: 'bridge-status',
+                        connected: false,
+                        claude: side !== 'claude',
+                        st: side !== 'st',
+                    }).catch(() => {});
+                }
+            }
+        }
+    });
+}
+
+// ── Message handler ────────────────────────────────────────
+
+let lastUserSend = '';
+let lastUserSendTime = 0;
+let lastClaudeResponse = '';
+let lastClaudeResponseTime = 0;
+
+browserAPI.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    const tabId = sender?.tab?.id;
+    const tabUrl = sender?.tab?.url || '';
+
+    // ── Registration ───────────────────────────────────
+    if (msg?.type === 'register') {
+        const side = msg.side;
+        if ((side === 'claude' && urlMatchesClaude(tabUrl)) ||
+            (side === 'st' && urlMatchesST(tabUrl))) {
+            registerTab(side, tabId, tabUrl);
+            if (sendResponse) sendResponse({ ok: true, tabId });
+
+            // If both sides connected, notify
             if (bridgeTabs.claude && bridgeTabs.st) {
-                chrome.tabs.sendMessage(bridgeTabs.st, {
-                    type: 'bridge-status',
-                    connected: true,
-                }).catch(() => {});
+                broadcastConnection();
             }
         } else {
-            sendResponse({ ok: false, reason: 'No tab ID on sender.' });
+            console.warn(`[Bridge/bg] Registration rejected: ${side} URL doesn't match config:`, tabUrl);
+            if (sendResponse) sendResponse({ ok: false, reason: 'URL does not match config' });
         }
-        return true;
+        return true; // keep sendResponse channel open
     }
 
-    // Claude response — relay to ST tab
-    if (msg?.type === 'claude-response') {
-        console.log('[Bridge/bg] Claude response:', msg.text?.length, 'chars');
-
-        if (bridgeTabs.st) {
-            chrome.tabs.sendMessage(bridgeTabs.st, {
-                type: 'claude-response',
-                text: msg.text,
-            }).then(() => {
-                console.log('[Bridge/bg] Relayed to ST tab:', bridgeTabs.st);
-            }).catch((err) => {
-                console.warn('[Bridge/bg] Relay to ST failed:', err.message);
-            });
-        } else {
-            console.warn('[Bridge/bg] No ST tab registered — cannot relay.');
-        }
-
-        sendResponse({ ok: true });
-        return true;
+    // ── Auto-register from any message ─────────────────
+    if (tabId) {
+        if (urlMatchesClaude(tabUrl)) registerTab('claude', tabId, tabUrl);
+        if (urlMatchesST(tabUrl))     registerTab('st', tabId, tabUrl);
     }
 
-    // User send from ST — relay to claude.ai tab
-    if (msg?.type === 'user-send') {
-        console.log('[Bridge/bg] User send captured:');
-        console.log('  source:', msg.source);
-        console.log('  length:', msg.text?.length, 'chars');
-        console.log('  preview:', (msg.text || '').slice(0, 200));
+    // ── User send: ST → Claude ─────────────────────────
+    if (msg?.type === 'user-send' && msg.text) {
+        const now = Date.now();
+        if (msg.text === lastUserSend && now - lastUserSendTime < 3000) {
+            console.log('[Bridge/bg] Duplicate user-send ignored');
+            if (sendResponse) sendResponse({ ok: true });
+            return true;
+        }
+        lastUserSend = msg.text;
+        lastUserSendTime = now;
+
+        broadcastState('sending', '#4af');
 
         if (bridgeTabs.claude) {
-            chrome.tabs.sendMessage(bridgeTabs.claude, {
+            console.log('[Bridge/bg] → Claude:', msg.text.length, 'chars');
+            browserAPI.tabs.sendMessage(bridgeTabs.claude, {
                 type: 'user-send',
                 text: msg.text,
-            }).then(() => {
-                console.log('[Bridge/bg] Relayed user message to claude.ai tab:', bridgeTabs.claude);
-            }).catch((err) => {
-                console.warn('[Bridge/bg] Relay to claude.ai failed:', err.message);
+            }).catch(err => {
+                console.warn('[Bridge/bg] Failed to reach Claude:', err);
             });
         } else {
-            console.warn('[Bridge/bg] No claude.ai tab registered — cannot relay user message.');
+            console.warn('[Bridge/bg] No Claude tab — message dropped');
         }
 
-        sendResponse({ ok: true });
+        broadcastState('waiting', '#a4f');
+        if (sendResponse) sendResponse({ ok: true });
+        return true;
+    }
+
+    // ── Claude response: Claude → ST ───────────────────
+    if (msg?.type === 'claude-response' && msg.text) {
+        const now = Date.now();
+        if (msg.text === lastClaudeResponse && now - lastClaudeResponseTime < 3000) {
+            console.log('[Bridge/bg] Duplicate response ignored');
+            if (sendResponse) sendResponse({ ok: true });
+            return true;
+        }
+        lastClaudeResponse = msg.text;
+        lastClaudeResponseTime = now;
+
+        broadcastState('received', '#4f4');
+
+        if (bridgeTabs.st) {
+            console.log('[Bridge/bg] → ST:', msg.text.length, 'chars');
+            browserAPI.tabs.sendMessage(bridgeTabs.st, {
+                type: 'claude-response',
+                text: msg.text,
+            }).catch(err => {
+                console.warn('[Bridge/bg] Failed to reach ST:', err);
+            });
+        } else {
+            console.warn('[Bridge/bg] No ST tab — response dropped');
+        }
+
+        broadcastState('idle', '#aaa');
+        if (sendResponse) sendResponse({ ok: true });
         return true;
     }
 });
 
-// ── Clean up when tabs close ──────────────────────────────
-chrome.tabs.onRemoved.addListener((tabId) => {
-    for (const side of ['claude', 'st']) {
-        if (bridgeTabs[side] === tabId) {
-            console.log(`[Bridge/bg] ${side} tab closed, deregistered.`);
-            bridgeTabs[side] = null;
-
-            // Notify the other side about disconnection
-            const otherSide = side === 'claude' ? 'st' : 'claude';
-            if (bridgeTabs[otherSide]) {
-                chrome.tabs.sendMessage(bridgeTabs[otherSide], {
-                    type: 'bridge-status',
-                    connected: false,
-                }).catch(() => {});
-            }
-        }
-    }
-});
-
-// ── Log storage changes ──────────────────────────────────
-chrome.storage.onChanged.addListener((changes, area) => {
-    console.log('[Bridge/bg] Storage changed in', area, changes);
-});
+// ── Init ───────────────────────────────────────────────────
+loadConfig();

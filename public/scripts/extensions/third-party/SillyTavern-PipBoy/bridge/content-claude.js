@@ -1,65 +1,114 @@
 // ============================================================
-// Claude ↔ SillyTavern Bridge — claude.ai Content Script
+// Claude ↔ SillyTavern Bridge — Claude Content Script (MV3, universal)
 // ============================================================
 //
-// Watches for new assistant messages on a claude.ai chat page.
-// When one appears (or is updated via streaming), extracts the
-// text and sends it to the background script for relay to ST.
+// Two jobs:
+//   1. Receive user messages from background → type into composer → click send
+//   2. Watch for assistant responses → extract text → send to background
 //
+// Tab-throttling mitigation:
+//   Response detection uses a MutationObserver watching the data-is-streaming
+//   attribute directly. The observer callback fires immediately even in
+//   background tabs — no setTimeout chain that browsers can throttle.
 // ============================================================
 
-console.log('[Bridge/claude] Content script loaded on', location.href);
+console.log('[Bridge/claude] Loaded on', location.href);
 
+// Only activate on actual chat pages, not the homepage or project list
 const looksLikeChat = /\/chat\/[0-9a-f-]{36}/i.test(location.pathname);
 
 if (looksLikeChat) {
-    console.log('[Bridge/claude] Detected a chat URL. Registering with background...');
+    console.log('[Bridge/claude] Chat URL detected, registering...');
 
-    chrome.runtime.sendMessage({ type: 'register', side: 'claude' }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.warn('[Bridge/claude] Registration failed:', chrome.runtime.lastError.message);
+    browserAPI.runtime.sendMessage({ type: 'register', side: 'claude' }, (response) => {
+        const err = typeof browser !== 'undefined' ? null : (typeof chrome !== 'undefined' ? chrome.runtime?.lastError : null);
+        if (err) {
+            console.warn('[Bridge/claude] Registration failed:', err.message);
             return;
         }
         if (response?.ok) {
-            console.log('[Bridge/claude] Registered. Tab ID:', response.tabId);
+            console.log('[Bridge/claude] Registered, tab', response.tabId);
             watchForResponses();
         } else {
-            console.warn('[Bridge/claude] Registration rejected:', response?.reason);
+            console.warn('[Bridge/claude] Rejected:', response?.reason);
         }
     });
 } else {
-    console.log('[Bridge/claude] Not a chat URL — bridge will stay idle here.');
+    console.log('[Bridge/claude] Not a chat URL — idle.');
 }
 
-// ── User message injection ───────────────────────────
-//
-// Receives user messages relayed from the ST tab via background.
-// Types the text into claude.ai's composer and clicks Send.
-//
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+// ── Context extraction ─────────────────────────────────────
+
+function extractClaudeContext() {
+    try {
+        const projectLink = document.querySelector('header a.truncate')
+            || document.querySelector('a[href^="/project/"]');
+        const chatTitle = document.querySelector('header div.truncate.font-base-bold');
+
+        return {
+            chat: chatTitle?.innerText?.trim() || 'Unknown Chat',
+            project: projectLink?.innerText?.trim() || 'Unknown Project',
+        };
+    } catch {
+        return { chat: 'Unknown Chat', project: 'Unknown Project' };
+    }
+}
+
+function sendContextToUI() {
+    const ctx = extractClaudeContext();
+    window.postMessage({
+        type: 'BRIDGE_CONTEXT',
+        side: 'claude',
+        chat: ctx.chat,
+        project: ctx.project,
+    }, '*');
+}
+
+setTimeout(sendContextToUI, 1500);
+setInterval(sendContextToUI, 5000);
+
+// Inject bridge UI overlay
+try {
+    const script = document.createElement('script');
+    script.src = browserAPI.runtime.getURL('bridge-ui.js');
+    document.documentElement.appendChild(script);
+} catch (err) {
+    console.warn('[Bridge/claude] UI injection failed:', err);
+}
+
+// ── User message injection ─────────────────────────────────
+
+browserAPI.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg?.type === 'user-send' && msg.text) {
-        console.log('[Bridge/claude] Received user message to inject:', msg.text.length, 'chars');
+        console.log('[Bridge/claude] Injecting user message:', msg.text.length, 'chars');
         injectUserMessage(msg.text);
-        sendResponse({ ok: true });
+        if (sendResponse) sendResponse({ ok: true });
+    }
+
+    // Forward bridge-status and BRIDGE_STATE to UI overlay
+    if (msg?.type === 'bridge-status' || msg?.type === 'BRIDGE_STATE') {
+        window.postMessage(msg, '*');
+    }
+
+    // Convert bridge-status to BRIDGE_CONNECTION for the UI overlay
+    if (msg?.type === 'bridge-status') {
+        window.postMessage({
+            type: 'BRIDGE_CONNECTION',
+            claude: msg.claude,
+            st: msg.st,
+        }, '*');
     }
 });
 
 function injectUserMessage(text) {
-    // Claude.ai uses a ProseMirror contenteditable as its composer.
-    // Direct innerHTML writes don't update ProseMirror's internal state,
-    // so the send button stays disabled. Instead we:
-    //   1. Focus the composer
-    //   2. Select all existing content
-    //   3. Use execCommand('insertText') to paste — this goes through
-    //      ProseMirror's input handling and updates React state properly
-    //   4. Find and click the send button
     const composer =
+        document.querySelector('fieldset [contenteditable="true"]') ||
         document.querySelector('.ProseMirror[contenteditable="true"]') ||
         document.querySelector('[contenteditable="true"]') ||
         document.querySelector('div[data-placeholder]');
 
     if (!composer) {
-        console.warn('[Bridge/claude] No composer element found — cannot inject message');
+        console.warn('[Bridge/claude] No composer found');
         return;
     }
 
@@ -71,33 +120,25 @@ function injectUserMessage(text) {
     selection.removeAllRanges();
     selection.addRange(range);
 
-    // Insert text via execCommand — ProseMirror handles this as real user input
+    // Insert via execCommand — ProseMirror handles this as real user input
     document.execCommand('insertText', false, text);
+    console.log('[Bridge/claude] Text inserted');
 
-    console.log('[Bridge/claude] Text inserted into composer via execCommand');
-
-    // Wait for ProseMirror/React to process the input and enable the send button
+    // Click send after ProseMirror processes the input
     setTimeout(() => findAndClickSend(composer, 0), 300);
 }
 
 function findAndClickSend(composer, attempt) {
-    // Strategy 1: Find send button by aria-label
+    // Strategy 1: aria-label
     let sendBtn = document.querySelector('button[aria-label="Send Message"]')
-        || document.querySelector('button[aria-label="Send message"]');
+        || document.querySelector('button[aria-label="Send message"]')
+        || document.querySelector('button[data-testid="send-button"]');
 
-    // Strategy 2: data-testid
+    // Strategy 2: fieldset scan — last enabled icon-only button
     if (!sendBtn) {
-        sendBtn = document.querySelector('button[data-testid="send-button"]');
-    }
-
-    // Strategy 3: Find the button near the composer that contains an SVG
-    // (the send arrow icon). Look within the composer's parent fieldset/form.
-    if (!sendBtn) {
-        const composerContainer = composer.closest('fieldset, form, [class*="composer"], [class*="input"]');
-        if (composerContainer) {
-            const buttons = composerContainer.querySelectorAll('button');
-            // The send button is typically the last enabled button with an SVG
-            for (const btn of buttons) {
+        const container = composer.closest('fieldset, form');
+        if (container) {
+            for (const btn of container.querySelectorAll('button')) {
                 if (btn.querySelector('svg') && !btn.disabled) {
                     sendBtn = btn;
                 }
@@ -105,176 +146,187 @@ function findAndClickSend(composer, attempt) {
         }
     }
 
-    // Strategy 4: Broader search — any button with an SVG arrow-like icon
-    // near the bottom of the page (composer area)
+    // Strategy 3: proximity — button with SVG near the composer
     if (!sendBtn) {
-        const allButtons = [...document.querySelectorAll('button')];
-        sendBtn = allButtons.find(btn => {
-            if (btn.disabled) return false;
-            const svg = btn.querySelector('svg');
-            if (!svg) return false;
-            // Check if it's near the composer vertically
-            const btnRect = btn.getBoundingClientRect();
-            const composerRect = composer.getBoundingClientRect();
-            return Math.abs(btnRect.bottom - composerRect.bottom) < 100;
+        const composerRect = composer.getBoundingClientRect();
+        sendBtn = [...document.querySelectorAll('button')].find(btn => {
+            if (btn.disabled || !btn.querySelector('svg')) return false;
+            const r = btn.getBoundingClientRect();
+            return Math.abs(r.bottom - composerRect.bottom) < 100;
         });
     }
 
     if (sendBtn && !sendBtn.disabled) {
-        sendBtn.click();
-        console.log('[Bridge/claude] Send button clicked:', sendBtn.getAttribute('aria-label') || sendBtn.className);
+        // Full pointer event sequence for React compatibility
+        const rect = sendBtn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const props = { bubbles: true, cancelable: true, view: window, clientX: x, clientY: y };
+
+        sendBtn.dispatchEvent(new PointerEvent('pointerdown', { ...props, pointerId: 1 }));
+        sendBtn.dispatchEvent(new MouseEvent('mousedown', props));
+        sendBtn.dispatchEvent(new PointerEvent('pointerup', { ...props, pointerId: 1 }));
+        sendBtn.dispatchEvent(new MouseEvent('mouseup', props));
+        sendBtn.dispatchEvent(new MouseEvent('click', props));
+
+        console.log('[Bridge/claude] Send button clicked');
         return;
     }
 
-    // Retry a few times — React may need a moment to enable the button
+    // Retry — React may need time to enable the button
     if (attempt < 5) {
-        console.log(`[Bridge/claude] Send button not ready, retry ${attempt + 1}/5...`);
+        console.log(`[Bridge/claude] Send not ready, retry ${attempt + 1}/5`);
         setTimeout(() => findAndClickSend(composer, attempt + 1), 300);
         return;
     }
 
-    // Final fallback: simulate Enter key via keyboard events with full properties
-    // React checks keyCode/which for compatibility
-    console.warn('[Bridge/claude] Send button not found after retries, trying Enter key');
-    const enterEvent = new KeyboardEvent('keydown', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true,
-    });
-    composer.dispatchEvent(enterEvent);
+    // Final fallback: Enter key
+    console.warn('[Bridge/claude] No send button, trying Enter');
+    composer.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+        bubbles: true, cancelable: true,
+    }));
 }
 
-// ── Response watcher ──────────────────────────────────────
+// ── Response watcher ───────────────────────────────────────
 //
-// Claude's chat DOM renders assistant messages inside elements
-// with [data-is-streaming] attributes during generation, then
-// finalizes them. We use a MutationObserver on the chat
-// container to detect when streaming ends (the attribute is
-// removed or set to "false") and then extract the full text.
+// PRIMARY: watch for data-is-streaming attribute changes.
+//   When it transitions to "false", streaming is done and text
+//   is final. The MutationObserver callback fires IMMEDIATELY
+//   even in background tabs — no setTimeout throttling.
+//
+// FALLBACK: general subtree observer for DOM structures that
+//   don't use data-is-streaming.
 
 let lastSentText = '';
-let debounceTimer = null;
-let initialSnapshotTaken = false;   // true once we've captured the page's existing messages
-let lastMessageCount = 0;           // track assistant message count to detect new messages
-let pendingText = '';               // track text growth to detect active streaming
+let initialSnapshotTaken = false;
+let lastMessageCount = 0;
 
 function watchForResponses() {
-    // Claude.ai renders the conversation in a scrollable container.
-    // The actual selector may change across deploys, so we look for
-    // common structural markers.
-    const findChatContainer = () => {
-        // Primary: the main conversation thread
-        return document.querySelector('[class*="conversation-turn"]')?.closest('[class*="thread"]')
-            || document.querySelector('main')
-            || document.body;
-    };
+    const container = document.querySelector('main') || document.body;
 
-    const observer = new MutationObserver(() => {
-        // Debounce: wait for streaming to settle before extracting.
-        // During streaming, mutations fire rapidly. We wait 500ms of
-        // quiet, then extractLatestResponse requires one more stable
-        // cycle before actually sending — so effective wait is ~1s.
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => extractLatestResponse(), 500);
+    // ── Primary: attribute watcher (not throttled) ─────
+    const attrObserver = new MutationObserver((mutations) => {
+        if (!initialSnapshotTaken) return;
+
+        for (const m of mutations) {
+            if (m.type !== 'attributes' || m.attributeName !== 'data-is-streaming') continue;
+
+            const el = m.target;
+            if (el.getAttribute('data-is-streaming') !== 'false') continue;
+
+            // Streaming just ended — extract immediately via microtask
+            // Microtasks are NOT subject to background-tab throttling
+            Promise.resolve().then(() => {
+                // Double-check stop button isn't visible
+                const stopBtn = document.querySelector('button[aria-label*="Stop"]')
+                    || document.querySelector('button[data-testid="stop-button"]');
+                if (stopBtn && stopBtn.offsetParent !== null) return;
+
+                const text = extractTextFromElement(el);
+                if (text && text !== lastSentText) {
+                    lastSentText = text;
+                    lastMessageCount = document.querySelectorAll('[data-is-streaming]').length;
+
+                    console.log('[Bridge/claude] Response captured:', text.length, 'chars');
+
+                    browserAPI.runtime.sendMessage({
+                        type: 'claude-response',
+                        text: text,
+                    });
+                }
+            });
+        }
     });
 
-    // Observe the whole main area for subtree changes (new messages,
-    // streaming text appends, attribute changes on streaming markers).
-    const container = findChatContainer();
-    observer.observe(container, {
+    attrObserver.observe(container, {
+        attributes: true,
+        attributeFilter: ['data-is-streaming'],
+        subtree: true,
+    });
+
+    // ── Fallback: general observer (for non-streaming content) ──
+    let fallbackTimer = null;
+    const fallbackObserver = new MutationObserver(() => {
+        if (!initialSnapshotTaken) return;
+        clearTimeout(fallbackTimer);
+        fallbackTimer = setTimeout(() => extractLatestResponse(), 800);
+    });
+
+    fallbackObserver.observe(container, {
         childList: true,
         subtree: true,
         characterData: true,
     });
 
-    // Take an initial snapshot of existing messages so we don't relay
-    // the pre-existing last response when the page loads.
+    // ── Initial snapshot ───────────────────────────────
+    // Capture existing messages so we don't re-send the last response on page load
     setTimeout(() => {
         const existing = findAssistantMessages();
         lastMessageCount = existing.length;
         if (existing.length > 0) {
-            lastSentText = (existing[existing.length - 1].innerText || '').trim();
+            lastSentText = extractTextFromElement(existing[existing.length - 1]);
         }
         initialSnapshotTaken = true;
-        console.log('[Bridge/claude] Initial snapshot:', lastMessageCount, 'assistant messages,', lastSentText.length, 'chars in last');
-    }, 1500);  // Wait for page to settle
+        console.log('[Bridge/claude] Snapshot:', lastMessageCount, 'messages,',
+            lastSentText.length, 'chars in last');
+    }, 2000);
 
-    console.log('[Bridge/claude] Response watcher active on', container.tagName);
+    console.log('[Bridge/claude] Watcher active on', container.tagName);
 }
 
-/**
- * Find all assistant message elements on the page.
- * Shared between snapshot and extraction so selectors stay in sync.
- */
+// ── Message finding & text extraction ──────────────────────
+
 function findAssistantMessages() {
-    let divs = document.querySelectorAll(
-        '[data-testid*="assistant"], ' +
-        '.font-claude-message, ' +
-        '[class*="claude-message"]',
-    );
+    let divs = document.querySelectorAll('[data-is-streaming]');
+    if (divs.length > 0) return divs;
 
-    // Fallback: message-like blocks
-    if (divs.length === 0) {
-        divs = document.querySelectorAll('[class*="message"], [class*="response"]');
-    }
+    divs = document.querySelectorAll('.font-claude-response');
+    if (divs.length > 0) return divs;
 
+    divs = document.querySelectorAll('[data-testid*="assistant"]');
+    if (divs.length > 0) return divs;
+
+    divs = document.querySelectorAll('.font-claude-message');
     return divs;
 }
 
+function extractTextFromElement(el) {
+    const inner = el.querySelector('.font-claude-response');
+    const source = inner || el;
+    let text = (source.innerText || source.textContent || '').trim();
+    // Strip accessibility prefix
+    text = text.replace(/^Claude responded:\s*/i, '');
+    return text;
+}
+
 function extractLatestResponse() {
-    // Don't relay anything until we've snapshotted the existing messages
     if (!initialSnapshotTaken) return;
 
-    const messageDivs = findAssistantMessages();
-    if (messageDivs.length === 0) return;
+    const msgs = findAssistantMessages();
+    if (msgs.length === 0) return;
 
-    const lastAssistantEl = messageDivs[messageDivs.length - 1];
+    const last = msgs[msgs.length - 1];
 
-    // Don't grab text while still streaming — check multiple indicators
-    const isStreaming = lastAssistantEl.closest('[data-is-streaming="true"]')
-        || lastAssistantEl.getAttribute('data-is-streaming') === 'true';
+    // Don't extract while streaming
+    if (last.getAttribute?.('data-is-streaming') === 'true') return;
+    const isStreaming = last.closest?.('[data-is-streaming="true"]');
     if (isStreaming) return;
 
-    // Also check for a stop/cancel button being visible — indicates active generation
-    const stopBtn = document.querySelector('button[aria-label="Stop Response"]')
-        || document.querySelector('button[aria-label="Stop response"]')
+    const stopBtn = document.querySelector('button[aria-label*="Stop"]')
         || document.querySelector('button[data-testid="stop-button"]');
-    if (stopBtn && stopBtn.offsetParent !== null) return;  // visible stop button = still streaming
+    if (stopBtn && stopBtn.offsetParent !== null) return;
 
-    const text = (lastAssistantEl.innerText || lastAssistantEl.textContent || '').trim();
-    if (!text) return;
+    const text = extractTextFromElement(last);
+    if (!text || text === lastSentText) return;
 
-    // Only send if the text changed since last time
-    if (text === lastSentText) return;
-
-    // Check if text is still growing — wait for it to stabilize.
-    // If the text changed from our last peek, record it and schedule
-    // a re-check. If it matches on the re-check, it's done streaming.
-    if (text !== pendingText) {
-        pendingText = text;
-        // Schedule a stabilization re-check since the MutationObserver
-        // won't fire again if streaming just finished (no more mutations)
-        setTimeout(() => extractLatestResponse(), 600);
-        return;
-    }
-
-    // Text matches pendingText — it stabilized. Send it.
     lastSentText = text;
-    pendingText = '';
-    lastMessageCount = messageDivs.length;
+    lastMessageCount = msgs.length;
 
-    console.log('[Bridge/claude] New response detected:', text.length, 'chars');
-    console.log('[Bridge/claude] Preview:', text.slice(0, 150));
+    console.log('[Bridge/claude] Response (fallback):', text.length, 'chars');
 
-    chrome.runtime.sendMessage({
+    browserAPI.runtime.sendMessage({
         type: 'claude-response',
         text: text,
-    }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.warn('[Bridge/claude] Forward failed:', chrome.runtime.lastError.message);
-        }
     });
 }

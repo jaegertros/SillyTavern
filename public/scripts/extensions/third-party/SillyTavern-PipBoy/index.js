@@ -15,6 +15,7 @@ import { getContext } from '../../../../scripts/extensions.js';
 import { eventSource, event_types } from '../../../../scripts/events.js';
 import { setOnlineStatus } from '../../../../scripts/core/settings-manager.js';
 import { main_api } from '../../../../scripts/core/state.js';
+import { getThumbnailUrl } from '../../../../scripts/thumbnail-url.js';
 import { SlashCommand } from '../../../../scripts/slash-commands/SlashCommand.js';
 import { SlashCommandParser } from '../../../../scripts/slash-commands/SlashCommandParser.js';
 import { ARGUMENT_TYPE, SlashCommandArgument } from '../../../../scripts/slash-commands/SlashCommandArgument.js';
@@ -90,6 +91,9 @@ let knownCharacterCards = new Map();
 // The response comes back via PIPBOY_RAW_MESSAGE and gets injected into
 // ST's chat by injectBridgeResponse().
 //
+// Track the character ST-Director selected so we can attribute the bridge response
+let pendingCharacter = null;  // { name, avatar }
+
 globalThis.pipboyBridgeInterceptor = async function (chat, contextSize, abort, type) {
     // Intercept when either: (a) Pip-Boy is the selected API, or (b) bridge mode
     // is manually enabled in extension settings. Must also be connected.
@@ -100,6 +104,21 @@ globalThis.pipboyBridgeInterceptor = async function (chat, contextSize, abort, t
     if (type !== 'normal' && type !== 'group') return;
 
     console.log('[Pip-Boy 3000] Bridge interceptor: aborting API call, routing through bridge');
+
+    // Capture the character ST-Director selected BEFORE we abort.
+    // During group chat generation, context.characterId points to the
+    // active character. This is the character whose turn it is.
+    const context = getContext();
+    if (context.groupId && context.characterId != null) {
+        const char = context.characters?.[context.characterId];
+        if (char?.name) {
+            pendingCharacter = { name: char.name, avatar: char.avatar };
+            console.log('[Pip-Boy 3000] Captured selected character:', pendingCharacter.name);
+        }
+    } else if (context.characters?.[context.characterId]) {
+        const char = context.characters[context.characterId];
+        pendingCharacter = { name: char.name, avatar: char.avatar };
+    }
 
     // Grab the last user message from the chat array (coreChat uses ChatMessage shape)
     const lastUserMsg = [...chat].reverse().find(m => m.is_user);
@@ -208,47 +227,62 @@ function parseStateBlock(messageText) {
     const match = messageText.match(/<!--\s*STATE\s*([\s\S]*?)-->/);
     if (!match) return null;
 
-    const body = match[1];
+    const body = match[1].trim();
     const result = {};
 
-    for (const line of body.split('\n')) {
-        const colonIdx = line.indexOf(':');
-        if (colonIdx === -1) continue;
-        const key = line.slice(0, colonIdx).trim().toLowerCase();
-        const rawVal = line.slice(colonIdx + 1).trim();
-        if (!rawVal) continue;
+    // Detect format: multi-line (key: value\n) or single-line (key: val key2: val2)
+    const isMultiLine = body.includes('\n');
+    const lines = isMultiLine ? body.split('\n') : [body];
 
-        if (key === 'day') {
-            const n = parseInt(rawVal, 10);
-            if (!isNaN(n) && n >= 1 && n <= 7) result.day = n;
-        } else if (key === 'time') {
-            if (/^\d{1,2}:\d{2}$/.test(rawVal)) result.time = rawVal;
-        } else if (key === 'location') {
-            result.location = rawVal;
-        } else if (key === 'scrip') {
-            const n = parseInt(rawVal, 10);
-            if (!isNaN(n)) result.scrip = n;
-        } else if (key === 'inventory') {
-            const listMatch = rawVal.match(/\[(.*)\]/);
-            if (listMatch) {
-                result.inventory = listMatch[1]
-                    .split(',').map(s => s.trim()).filter(Boolean);
+    for (const rawLine of lines) {
+        // For single-line format, split into tokens by matching known keys.
+        // Keys are word characters; values run until the next known key or EOL.
+        // This handles "day: 3 time: 06:47 location: foo primary_speaker: beatrix"
+        const tokens = isMultiLine
+            ? [rawLine]
+            : rawLine.split(/(?<=\s)(?=(?:day|time|location|scrip|inventory|quest|depth|speakers|primary_speaker|scene)\s*:)/i);
+
+        for (const token of tokens) {
+            const colonIdx = token.indexOf(':');
+            if (colonIdx === -1) continue;
+            const key = token.slice(0, colonIdx).trim().toLowerCase();
+            let rawVal = token.slice(colonIdx + 1).trim();
+            if (!rawVal) continue;
+
+            if (key === 'day') {
+                const n = parseInt(rawVal, 10);
+                if (!isNaN(n) && n >= 1 && n <= 7) result.day = n;
+            } else if (key === 'time') {
+                const timeMatch = rawVal.match(/^(\d{1,2}:\d{2})/);
+                if (timeMatch) result.time = timeMatch[1];
+            } else if (key === 'location') {
+                // In single-line format, value runs to end of token (already split)
+                result.location = rawVal.replace(/\s+$/, '');
+            } else if (key === 'scrip') {
+                const n = parseInt(rawVal, 10);
+                if (!isNaN(n)) result.scrip = n;
+            } else if (key === 'inventory') {
+                const listMatch = rawVal.match(/\[(.*?)\]/);
+                if (listMatch) {
+                    result.inventory = listMatch[1]
+                        .split(',').map(s => s.trim()).filter(Boolean);
+                }
+            } else if (key === 'quest') {
+                if (rawVal && rawVal !== 'null') result.quest = rawVal.replace(/\s+$/, '');
+            } else if (key === 'depth') {
+                const n = parseInt(rawVal, 10);
+                if (!isNaN(n)) result.depth = n;
+            } else if (key === 'speakers') {
+                const listMatch = rawVal.match(/\[(.*?)\]/);
+                if (listMatch) {
+                    result.speakers = listMatch[1]
+                        .split(',').map(s => s.trim()).filter(Boolean);
+                }
+            } else if (key === 'primary_speaker') {
+                result.primary_speaker = rawVal.replace(/\s+$/, '');
+            } else if (key === 'scene') {
+                result.scene = rawVal.replace(/\s+$/, '');
             }
-        } else if (key === 'quest') {
-            if (rawVal && rawVal !== 'null') result.quest = rawVal;
-        } else if (key === 'depth') {
-            const n = parseInt(rawVal, 10);
-            if (!isNaN(n)) result.depth = n;
-        } else if (key === 'speakers') {
-            const listMatch = rawVal.match(/\[(.*)\]/);
-            if (listMatch) {
-                result.speakers = listMatch[1]
-                    .split(',').map(s => s.trim()).filter(Boolean);
-            }
-        } else if (key === 'primary_speaker') {
-            result.primary_speaker = rawVal;
-        } else if (key === 'scene') {
-            result.scene = rawVal;
         }
     }
 
@@ -327,7 +361,11 @@ function parseSpeakerSegments(text) {
     if (!cleanText) return [];
 
     const segments = [];
-    const speakerPattern = /\*\*([A-Z][^*:]*?)(?:\*\*\s*\*+\([^)]*\)\*+)?:\*\*\s*/g;
+    // Match speaker tags in two formats:
+    //   1. Bold markdown: **Name:** or **Name** *(tone)*:**
+    //   2. Plain text: Name: (at start of line, capitalized name, followed by quote or space)
+    // The alternation handles both claude.ai (plain) and ST-native (bold) responses.
+    const speakerPattern = /(?:\*\*([A-Z][^*:]*?)(?:\*\*\s*\*+\([^)]*\)\*+)?:\*\*|^([A-Z][A-Za-z .'-]+?):(?=\s*[""\u201C]))\s*/gm;
 
     let lastIndex = 0;
     let match;
@@ -339,15 +377,25 @@ function parseSpeakerSegments(text) {
             segments.push({ type: 'narrator', text: beforeText });
         }
 
-        const speakerName = match[1].trim();
+        // Group 1 = bold format, Group 2 = plain format
+        const speakerName = (match[1] || match[2]).trim();
         const speakerLower = speakerName.toLowerCase();
-        const cardInfo = knownCharacterCards.get(speakerLower) || null;
+        // Exact match first, then first-name / partial match
+        let cardInfo = knownCharacterCards.get(speakerLower) || null;
+        if (!cardInfo) {
+            for (const [key, val] of knownCharacterCards) {
+                if (key.startsWith(speakerLower + ' ') || key.startsWith(speakerLower)) {
+                    cardInfo = val;
+                    break;
+                }
+            }
+        }
         const hasCard = cardInfo !== null;
 
         // Find the end of this speaker's content:
-        // runs until the next **Name:** or end of text
+        // runs until the next speaker tag or end of text
         const contentStart = match.index + match[0].length;
-        const peekPattern = /\*\*([A-Z][^*:]*?)(?:\*\*\s*\*+\([^)]*\)\*+)?:\*\*\s*/g;
+        const peekPattern = /(?:\*\*([A-Z][^*:]*?)(?:\*\*\s*\*+\([^)]*\)\*+)?:\*\*|^([A-Z][A-Za-z .'-]+?):(?=\s*[""\u201C]))\s*/gm;
         peekPattern.lastIndex = contentStart;
         const nextMatch = peekPattern.exec(cleanText);
 
@@ -824,6 +872,29 @@ function initTabs() {
 // like any other API connection — the response appears in the chat log,
 // gets saved, and triggers CHARACTER_MESSAGE_RENDERED for formatting.
 //
+/**
+ * Match a short name (e.g. "beatrix") to a group member's full name
+ * (e.g. "Beatrix Novak") by checking if any member's name starts with
+ * or contains the candidate as a word boundary.
+ */
+function matchGroupMember(candidate, context) {
+    if (!candidate || !context.groups) return null;
+    const group = context.groups.find(g => g.id === context.groupId);
+    if (!group?.members) return null;
+
+    const lower = candidate.toLowerCase().replace(/_/g, ' ');
+    for (const memberId of group.members) {
+        const char = context.characters?.[memberId];
+        if (!char?.name) continue;
+        const memberLower = char.name.toLowerCase();
+        // Exact match
+        if (memberLower === lower) return char.name;
+        // First name match (member starts with candidate)
+        if (memberLower.startsWith(lower + ' ') || memberLower.startsWith(lower)) return char.name;
+    }
+    return null;
+}
+
 async function injectBridgeResponse(text) {
     const context = getContext();
     if (!context.chat) {
@@ -831,34 +902,68 @@ async function injectBridgeResponse(text) {
         return;
     }
 
-    // Determine the character name for the message.
-    // In group chats, use the primary speaker from STATE data if available.
-    // In solo chats, use the character's name.
+    // Determine the character for the message. Priority order:
+    //   1. Character captured from ST-Director's selection at intercept time
+    //   2. primary_speaker from the STATE block in the response
+    //   3. Fallback to 'Narrator'
     let charName = 'Narrator';
+    let charAvatar = null;
     if (context.groupId) {
-        // Group chat — use primary_speaker from the latest STATE, or 'Narrator'
-        const parsed = parseStateFromMessage(text);
-        if (parsed?.primary_speaker) {
-            const speakerName = parsed.primary_speaker
-                .replace(/_/g, ' ')
-                .replace(/\b\w/g, c => c.toUpperCase());
-            charName = speakerName;
+        // Priority 1: Use the character ST-Director selected (captured in interceptor)
+        if (pendingCharacter?.name) {
+            charName = pendingCharacter.name;
+            charAvatar = pendingCharacter.avatar;
+            console.log('[Pip-Boy 3000] Using ST-Director selected character:', charName);
+        } else {
+            // Priority 2: Parse primary_speaker from STATE block
+            const parsed = parseStateFromMessage(text);
+            if (parsed?.primary_speaker) {
+                const matched = matchGroupMember(parsed.primary_speaker, context);
+                if (matched) {
+                    charName = matched;
+                    // Find avatar for the matched character
+                    const group = context.groups?.find(g => g.id === context.groupId);
+                    if (group) {
+                        for (const memberId of group.members) {
+                            const c = context.characters?.find(ch => ch.avatar === memberId);
+                            if (c?.name === charName) { charAvatar = c.avatar; break; }
+                        }
+                    }
+                } else {
+                    charName = parsed.primary_speaker
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, c => c.toUpperCase());
+                }
+                console.log('[Pip-Boy 3000] Using STATE primary_speaker:', charName);
+            }
         }
     } else if (context.characters?.[context.characterId]) {
-        charName = context.characters[context.characterId].name;
+        const char = context.characters[context.characterId];
+        charName = char.name;
+        charAvatar = char.avatar;
     }
 
     /** @type {import('../../../../script.js').ChatMessage} */
     const message = {
         name: charName,
         is_user: false,
+        is_name: true,
         send_date: getMessageTimeStamp(),
         mes: text,
         extra: {
             api: 'pipboy-bridge',
             model: 'claude.ai (bridge)',
+            gen_id: Date.now() * Math.random() * 1000000,
         },
     };
+
+    // For group chats, set avatar fields so ST renders the correct character card
+    if (charAvatar) {
+        message.original_avatar = charAvatar;
+        message.force_avatar = charAvatar !== 'none'
+            ? getThumbnailUrl('avatar', charAvatar)
+            : undefined;
+    }
 
     context.chat.push(message);
     const messageId = context.chat.length - 1;
@@ -868,7 +973,8 @@ async function injectBridgeResponse(text) {
     await context.saveChat();
 
     pendingUserMessage = null;
-    console.log('[Pip-Boy 3000] Bridge response injected as message #' + messageId);
+    pendingCharacter = null;
+    console.log('[Pip-Boy 3000] Bridge response injected as', charName, '(avatar:', charAvatar, ') — message #' + messageId);
 }
 
 // ── Bridge communication ───────────────────────────────
@@ -1098,10 +1204,6 @@ function createConnectorHTML() {
                     </button>
                 </div>
             </div>
-            <label class="checkbox_label" for="pipboy-api-auto-connect" style="margin-top: 4px; font-size: 0.9em;">
-                <input type="checkbox" id="pipboy-api-auto-connect" />
-                <span data-i18n="Auto-connect to Last Server">Auto-connect to Last Server</span>
-            </label>
         </div>
     </div>`;
 }
@@ -1266,14 +1368,6 @@ function escapeHtml(str) {
     $apiAutoparse.on('change', function () {
         settings.autoParseMessages = this.checked;
         $autoparse.prop('checked', this.checked);
-        saveSettingsDebounced();
-    });
-
-    // Auto-connect checkbox
-    const $autoConnect = $('#pipboy-api-auto-connect');
-    $autoConnect.prop('checked', settings.autoConnect);
-    $autoConnect.on('change', function () {
-        settings.autoConnect = this.checked;
         saveSettingsDebounced();
     });
 

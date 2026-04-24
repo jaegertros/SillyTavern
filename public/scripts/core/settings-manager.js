@@ -309,6 +309,15 @@ export function changeMainAPI(api = null) { stTrack('changeMainAPI'); // @st-tra
             maxContextElem: $('#max_context_block'),
             amountGenElem: $('#amount_gen_block'),
         },
+        'pipboy': {
+            apiStreaming: $('#NULL_SELECTOR'),
+            apiSettings: $('#NULL_SELECTOR'),
+            apiConnector: $('#pipboy_api'),
+            apiPresets: $('#NULL_SELECTOR'),
+            apiRanges: $('#NULL_SELECTOR'),
+            maxContextElem: $('#NULL_SELECTOR'),
+            amountGenElem: $('#NULL_SELECTOR'),
+        },
     };
     //console.log('--- apiElements--- ');
     //console.log(apiElements);
@@ -371,6 +380,11 @@ export function changeMainAPI(api = null) { stTrack('changeMainAPI'); // @st-tra
     if (main_api == 'koboldhorde') {
         getStatusHorde();
         getHordeModels(true);
+    }
+    if (main_api == 'pipboy') {
+        // Pip-Boy Bridge handles its own status via the extension;
+        // set a sensible default here so the UI doesn't stay on "no_connection".
+        setOnlineStatus(window.PipBoy?.isBridgeConnected?.() ? 'Pip-Boy Bridge' : 'no_connection');
     }
     validateDisabledSamplers();
     setupChatCompletionPromptManager(oai_settings);
